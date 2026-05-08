@@ -678,6 +678,11 @@
     #mobDocPills.active .doc-fab-pill:nth-child(1) { transition-delay: .00s; }
     #mobDocPills.active .doc-fab-pill:nth-child(2) { transition-delay: .06s; }
     #mobDocPills.active .doc-fab-pill:nth-child(3) { transition-delay: .12s; }
+    /* إخفاء desktop FAB على الجوال */
+    @media (max-width: 767px) {
+      #docDesktopSpeedDial { display: none !important; }
+      #docDesktopPills     { display: none !important; }
+    }
   </style>
 
   <!-- ═══════════════ PWA — DocBook ═══════════════ -->
@@ -2723,6 +2728,7 @@
           var dx = e.clientX - startX;
           var dy = e.clientY - startY;
           if (!dragging && Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+          if (!dragging) { closeDocFabDial(); } // أغلق pills عند بدء السحب
           dragging = true;
           _docWasDragged = true;
           fabEl.classList.add('dragging');
@@ -2762,21 +2768,31 @@
 
     function toggleDocFabDial() {
       var trigger  = document.getElementById('docDesktopFabMain');
-      var pills    = document.getElementById('docDesktopPills');
       if (!trigger || (window._docWasDragged && window._docWasDragged())) { if(window._docResetDragged) window._docResetDragged(); return; }
       var isOpen   = trigger.classList.contains('open');
       if (isOpen) { closeDocFabDial(); return; }
       if (window._docPositionPills) window._docPositionPills();
       trigger.classList.add('open');
       document.querySelectorAll('#docDesktopPills .doc-fab-pill').forEach(function(p){ p.classList.add('visible'); });
+      // إغلاق عند الضغط خارج الـ FAB
+      setTimeout(function() {
+        document.addEventListener('click', _docOutsideHandler);
+      }, 0);
+    }
+    function _docOutsideHandler(e) {
+      var fab   = document.getElementById('docDesktopSpeedDial');
+      var pills = document.getElementById('docDesktopPills');
+      if ((fab && fab.contains(e.target)) || (pills && pills.contains(e.target))) return;
+      closeDocFabDial();
+      document.removeEventListener('click', _docOutsideHandler);
     }
     function closeDocFabDial() {
       var trigger  = document.getElementById('docDesktopFabMain');
       var pills    = document.getElementById('docDesktopPills');
       if (trigger)  trigger.classList.remove('open');
       if (pills)    document.querySelectorAll('#docDesktopPills .doc-fab-pill').forEach(function(p){ p.classList.remove('visible'); });
+      document.removeEventListener('click', _docOutsideHandler);
     }
-    // (wasDragged managed by IIFE above)
 
     // ── إرسال التنبيه (من ملف الدكتور) ──
     window.sendNurseAlert = function(type) {
