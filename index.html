@@ -642,11 +642,18 @@
 
     /* ── Desktop Speed Dial ── */
     #docDesktopSpeedDial {
-      position: fixed; bottom: 36px; left: 36px; z-index: 310; display: none;
+      position: fixed; z-index: 310; display: none;
+      touch-action: none; cursor: grab;
+      opacity: 0; transition: opacity 0.15s;
     }
+    @media (min-width: 768px) {
+      #docDesktopSpeedDial { display: block; }
+    }
+    #docDesktopSpeedDial.dragging { cursor: grabbing; }
+    #docDesktopSpeedDial .doc-fab-trigger { cursor: inherit; }
     #docDesktopPills {
-      position: fixed; bottom: 108px; left: 36px; z-index: 320;
-      display: flex; flex-direction: column-reverse; gap: 10px;
+      position: fixed; z-index: 320;
+      display: flex; gap: 10px;
       pointer-events: none; align-items: flex-start;
     }
     #docDesktopPills .doc-fab-pill:nth-child(1) { transition-delay: .00s; }
@@ -1163,16 +1170,10 @@
   <div id="appointmentDetailsModal" class="hidden fixed inset-0 z-[200] flex items-center justify-center p-4 modal-overlay">
     <div class="modal-content max-w-sm w-full">
 
-      <!-- Header -->
-      <div style="padding:20px 20px 16px; border-bottom:1.5px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
-        <div>
-          <h3 style="font-weight:800; font-size:1.05rem; color:var(--text-primary);">تفاصيل الموعد</h3>
-          <p id="modalAgendaTitle" style="font-size:.78rem; color:var(--text-muted); margin-top:2px;">-</p>
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-          <span id="dayStatusBadge" class="day-status-badge open" style="font-size:.72rem;"></span>
-          <button onclick="closeAppointmentDetailsModal()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.2rem;padding:4px;"><i class="fas fa-times"></i></button>
-        </div>
+      <!-- Header: تفاصيل الموعد + التاريخ -->
+      <div style="padding:20px 20px 16px; border-bottom:1.5px solid var(--border); text-align:right;">
+        <h3 style="font-weight:800; font-size:1.05rem; color:var(--text-primary); margin-bottom:4px;">تفاصيل الموعد</h3>
+        <p id="modalAgendaTitle" style="font-size:.78rem; color:var(--text-muted);">-</p>
       </div>
 
       <!-- Body -->
@@ -1181,22 +1182,7 @@
         <!-- نوع الزيارة + الفترة -->
         <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:18px;">
           <span id="visitTypeBadge" style="background:var(--primary-light); color:var(--primary); padding:5px 16px; border-radius:20px; font-size:.82rem; font-weight:700;">مراجعة</span>
-          <div style="display:flex; align-items:center; gap:8px;">
-            <i id="slotIcon" class="fas fa-sun" style="color:var(--amber); font-size:1.1rem;"></i>
-            <span id="slotBadge" style="background:var(--primary-light); color:var(--primary); padding:5px 16px; border-radius:20px; font-size:.82rem; font-weight:700;">الصباح</span>
-          </div>
-        </div>
-
-        <!-- بطاقة الاتصال -->
-        <div style="background:var(--primary-light); border:1.5px solid var(--border-strong); border-radius:var(--radius); padding:14px 16px; margin-bottom:18px;">
-          <p id="appDetailsNameHeader" style="font-weight:800; font-size:1rem; color:var(--text-primary); margin-bottom:10px; padding-bottom:8px; border-bottom:1px solid var(--border-strong);"></p>
-          <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
-            <p id="appDetailsPhone" class="ltr" dir="ltr" style="color:var(--text-primary); font-size:.92rem; font-weight:700; flex:1;"></p>
-            <div style="display:flex; gap:8px;">
-              <a id="appDetailsCallBtn" href="#" style="width:42px;height:42px;border-radius:12px;background:#2563eb;color:white;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;text-decoration:none;"><i class="fas fa-phone"></i></a>
-              <a id="appDetailsWhatsappBtn" href="#" target="_blank" style="width:42px;height:42px;border-radius:12px;background:#25D366;color:white;display:inline-flex;align-items:center;justify-content:center;font-size:1rem;text-decoration:none;"><i class="fab fa-whatsapp"></i></a>
-            </div>
-          </div>
+          <span id="slotBadge" style="background:var(--primary-light); color:var(--primary); padding:5px 16px; border-radius:20px; font-size:.82rem; font-weight:700;">الصباح</span>
         </div>
 
         <!-- معلومات المريض -->
@@ -1206,20 +1192,20 @@
             <p id="appDetailsName" style="font-weight:700; color:var(--text-primary); margin-top:2px;"></p>
           </div>
           <div style="text-align:right;">
-            <span style="color:var(--text-muted); font-size:.75rem;">رقم الهاتف</span>
-            <p id="appDetailsPhoneInfo" class="ltr" dir="ltr" style="font-weight:700; color:var(--text-primary); margin-top:2px;"></p>
-          </div>
-          <div style="text-align:right;">
             <span style="color:var(--text-muted); font-size:.75rem;">تاريخ الميلاد</span>
             <p id="appDetailsBirthDate" style="font-weight:700; color:var(--text-primary); margin-top:2px;"></p>
           </div>
           <div style="text-align:right;">
-            <span style="color:var(--text-muted); font-size:.75rem;">العمر</span>
-            <p id="appDetailsAge" style="font-weight:700; color:var(--text-primary); margin-top:2px;"></p>
-          </div>
-          <div style="text-align:right; grid-column:span 2;">
             <span style="color:var(--text-muted); font-size:.75rem;">العنوان</span>
             <p id="appDetailsAddress" style="font-weight:700; color:var(--text-primary); margin-top:2px;"></p>
+          </div>
+          <div style="text-align:right;">
+            <span style="color:var(--text-muted); font-size:.75rem;">رقم الهاتف</span>
+            <p id="appDetailsPhone" class="ltr" dir="ltr" style="font-weight:700; color:var(--text-primary); margin-top:2px;"></p>
+          </div>
+          <div style="text-align:right;">
+            <span style="color:var(--text-muted); font-size:.75rem;">العمر</span>
+            <p id="appDetailsAge" style="font-weight:700; color:var(--text-primary); margin-top:2px;"></p>
           </div>
         </div>
 
@@ -1228,12 +1214,15 @@
           <span id="appDetailsVisitType"></span>
           <span id="appDetailsSlot"></span>
           <span id="appDetailsDate"></span>
+          <span id="appDetailsPhoneInfo"></span>
           <span id="modalAgendaCount"></span>
+          <span id="dayStatusBadge"></span>
         </div>
       </div>
 
       <!-- Footer -->
       <div style="padding:16px 20px; border-top:1.5px solid var(--border); display:flex; gap:10px;">
+        <a id="appDetailsWhatsappBtn" href="#" target="_blank" style="flex:1; padding:12px; font-size:.9rem; background:#25D366; color:white; border:none; border-radius:var(--radius-sm); font-weight:700; font-family:inherit; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:7px; text-decoration:none;"><i class="fab fa-whatsapp" style="font-size:1.1rem;"></i> واتساب</a>
         <button onclick="closeAppointmentDetailsModal()" class="btn-primary" style="flex:1; padding:12px; font-size:.9rem;">حسناً</button>
       </div>
     </div>
@@ -2002,53 +1991,35 @@
     window.openAppointmentDetailsModal = function(id) {
       const record = allRecords.find(r => r.id === id);
       if (!record) return;
-      
+
       const phone = record.Phone || record.phone || '-';
-      const slotAr = record.Slot === 'Morning' ? 'صباحاً' : 'مساءً';
+      const slotAr = record.Slot === 'Morning' ? 'صباحاً' : (record.Slot === 'Evening' ? 'مساءً' : 'غير معلوم');
       const dateStr = record.Date ? formatDateAr(record.Date) : '-';
 
-      // Header - اسم اليوم والتاريخ
+      // Header
       document.getElementById('modalAgendaTitle').textContent = dateStr;
-      document.getElementById('modalAgendaCount').textContent = '';
 
-      // Slot badge + icon
-      const slotBadge = document.getElementById('slotBadge');
-      if (slotBadge) slotBadge.textContent = record.Slot === 'Morning' ? 'الصباح' : 'المساء';
-      const slotIcon = document.getElementById('slotIcon');
-      if (slotIcon) {
-        slotIcon.className = record.Slot === 'Morning'
-          ? 'fas fa-sun'
-          : 'fas fa-moon';
-        slotIcon.style.color = record.Slot === 'Morning'
-          ? 'var(--amber)'
-          : '#818cf8';
-      }
-      // Visit type badge
-      const visitTypeBadge = document.getElementById('visitTypeBadge');
-      if (visitTypeBadge) {
-        visitTypeBadge.textContent = record.VisitType || '-';
-      }
-
-      // Contact card
-      const nameHeader = document.getElementById('appDetailsNameHeader');
-      if (nameHeader) nameHeader.textContent = record.PatientName || '-';
-      document.getElementById('appDetailsPhone').textContent = phone;
-      document.getElementById('appDetailsWhatsappBtn').href = `https://wa.me/${normalizePhone(phone)}`;
-      document.getElementById('appDetailsCallBtn').href = `tel:${normalizePhone(phone)}`;
+      // Badges
+      document.getElementById('slotBadge').textContent = slotAr;
+      document.getElementById('visitTypeBadge').textContent = record.VisitType || '-';
 
       // Info grid
       document.getElementById('appDetailsName').textContent = record.PatientName || '-';
-      document.getElementById('appDetailsPhoneInfo').textContent = phone;
       document.getElementById('appDetailsBirthDate').textContent = record.BirthDate ? formatDateAr(record.BirthDate) : '-';
+      document.getElementById('appDetailsAddress').textContent = record.Address || '-';
+      document.getElementById('appDetailsPhone').textContent = phone;
       const age = record.BirthDate ? calculateAge(record.BirthDate) : '-';
       document.getElementById('appDetailsAge').textContent = age !== '-' ? age + ' سنة' : '-';
-      document.getElementById('appDetailsAddress').textContent = record.Address || '-';
-      
+
+      // WhatsApp button
+      document.getElementById('appDetailsWhatsappBtn').href = phone !== '-' ? `https://wa.me/${normalizePhone(phone)}` : '#';
+
       // Hidden fields
       document.getElementById('appDetailsVisitType').textContent = record.VisitType || '-';
       document.getElementById('appDetailsSlot').textContent = slotAr;
       document.getElementById('appDetailsDate').textContent = dateStr;
-      
+      document.getElementById('appDetailsPhoneInfo').textContent = phone;
+
       document.getElementById('appointmentDetailsModal').classList.remove('hidden');
     };
 
@@ -2640,13 +2611,165 @@
       if (trigger)  trigger.classList.remove('open');
       if (pills)    pills.classList.remove('active');
     }
+    // ── Draggable Desktop FAB (Doctor) ──
+    (function() {
+      var FAB_KEY = 'docFabPos';
+      var fabEl, pillsEl, _docWasDragged = false;
+      window._docWasDragged = function() { return _docWasDragged; };
+      window._docResetDragged = function() { _docWasDragged = false; };
+
+      function getFabPos() {
+        try { var s = localStorage.getItem(FAB_KEY); if (s) return JSON.parse(s); } catch(e) {}
+        return { right: 36, bottom: 36 };
+      }
+      function saveFabPos(pos) {
+        try { localStorage.setItem(FAB_KEY, JSON.stringify(pos)); } catch(e) {}
+      }
+
+      function clampPos(pos) {
+        var vw = window.innerWidth;
+        var vh = window.innerHeight;
+        var size = 56;
+        var margin = 8;
+        return {
+          right:  Math.max(margin, Math.min(vw  - size - margin, pos.right)),
+          bottom: Math.max(margin, Math.min(vh  - size - margin, pos.bottom))
+        };
+      }
+
+      function applyFabPos(pos) {
+        var clamped = clampPos(pos);
+        fabEl.style.left   = '';
+        fabEl.style.top    = '';
+        fabEl.style.right  = clamped.right  + 'px';
+        fabEl.style.bottom = clamped.bottom + 'px';
+      }
+
+      function positionPills() {
+        if (!pillsEl || !fabEl) return;
+        var vw = window.innerWidth;
+        var vh = window.innerHeight;
+        var fr = parseFloat(fabEl.style.right)  || 36;
+        var fb = parseFloat(fabEl.style.bottom) || 36;
+        var fabSize = 56;
+        // fab center in viewport coords
+        var cx = vw - fr - fabSize / 2;
+        var cy = vh - fb - fabSize / 2;
+
+        var isRight  = cx > vw / 2;   // FAB on right half → pills go left
+        var isBottom = cy > vh / 2;   // FAB on bottom half → pills go up
+
+        var pillW = 200;
+        var pillH = 52;
+        var gap   = 10;
+        var pills = pillsEl.querySelectorAll('.doc-fab-pill');
+        var count = pills.length;
+        var total = count * pillH + (count - 1) * gap;
+
+        // Vertical: pills open away from the nearest edge
+        pillsEl.style.flexDirection = isBottom ? 'column-reverse' : 'column';
+
+        if (isBottom) {
+          // FAB near bottom → pills go upward
+          pillsEl.style.bottom = (fb + fabSize + 8) + 'px';
+          pillsEl.style.top    = '';
+        } else {
+          // FAB near top → pills go downward
+          pillsEl.style.top    = (vh - fb - fabSize) + 'px';
+          pillsEl.style.bottom = '';
+        }
+
+        // Horizontal: pills align to the FAB's edge, opening toward center
+        if (isRight) {
+          // FAB on right → pills align to right edge of FAB
+          pillsEl.style.right = fr + 'px';
+          pillsEl.style.left  = '';
+          pillsEl.style.alignItems = 'flex-end';
+        } else {
+          // FAB on left → pills align to left edge of FAB
+          pillsEl.style.left  = (vw - fr - fabSize) + 'px';
+          pillsEl.style.right = '';
+          pillsEl.style.alignItems = 'flex-start';
+        }
+      }
+
+      function initDraggableFab() {
+        fabEl   = document.getElementById('docDesktopSpeedDial');
+        pillsEl = document.getElementById('docDesktopPills');
+        if (!fabEl) return;
+
+        // Apply saved position THEN show — prevents flash at default CSS position
+        var pos = getFabPos();
+        applyFabPos(pos);
+        requestAnimationFrame(function() {
+          fabEl.style.opacity = '1';
+        });
+
+        var startX, startY, startRight, startBottom, dragging = false;
+
+        function onPointerDown(e) {
+          if (e.target.closest('button.doc-fab-trigger') === null) return;
+          dragging       = false;
+          _docWasDragged = false;
+          startX         = e.clientX;
+          startY         = e.clientY;
+          startRight     = parseFloat(fabEl.style.right)  || 36;
+          startBottom    = parseFloat(fabEl.style.bottom) || 36;
+          window.addEventListener('pointermove', onPointerMove);
+          window.addEventListener('pointerup',   onPointerUp);
+          e.preventDefault();
+        }
+
+        function onPointerMove(e) {
+          var dx = e.clientX - startX;
+          var dy = e.clientY - startY;
+          if (!dragging && Math.abs(dx) < 5 && Math.abs(dy) < 5) return;
+          dragging = true;
+          _docWasDragged = true;
+          fabEl.classList.add('dragging');
+
+          // right decreases when moving right (dx positive), increases when moving left
+          // bottom increases when moving up (dy negative), decreases when moving down
+          var newRight  = startRight  - dx;
+          var newBottom = startBottom - dy;
+
+          applyFabPos({ right: newRight, bottom: newBottom });
+          if (pillsEl) positionPills();
+        }
+
+        function onPointerUp(e) {
+          window.removeEventListener('pointermove', onPointerMove);
+          window.removeEventListener('pointerup',   onPointerUp);
+          fabEl.classList.remove('dragging');
+          if (dragging) {
+            saveFabPos({ right: parseFloat(fabEl.style.right)||36, bottom: parseFloat(fabEl.style.bottom)||36 });
+          }
+          dragging = false;
+        }
+
+        fabEl.addEventListener('pointerdown', onPointerDown);
+        window.addEventListener('resize', function() {
+          // Re-clamp on resize in case window shrunk
+          var cur = { right: parseFloat(fabEl.style.right)||36, bottom: parseFloat(fabEl.style.bottom)||36 };
+          applyFabPos(cur);
+          positionPills();
+        });
+      }
+
+      window._docPositionPills = positionPills;
+
+      document.addEventListener('DOMContentLoaded', initDraggableFab);
+    })();
+
     function toggleDocFabDial() {
       var trigger  = document.getElementById('docDesktopFabMain');
       var pills    = document.getElementById('docDesktopPills');
-      var isOpen   = trigger && trigger.classList.contains('open');
+      if (!trigger || (window._docWasDragged && window._docWasDragged())) { if(window._docResetDragged) window._docResetDragged(); return; }
+      var isOpen   = trigger.classList.contains('open');
       if (isOpen) { closeDocFabDial(); return; }
-      if (trigger)  trigger.classList.add('open');
-      if (pills)    document.querySelectorAll('#docDesktopPills .doc-fab-pill').forEach(function(p){ p.classList.add('visible'); });
+      if (window._docPositionPills) window._docPositionPills();
+      trigger.classList.add('open');
+      document.querySelectorAll('#docDesktopPills .doc-fab-pill').forEach(function(p){ p.classList.add('visible'); });
     }
     function closeDocFabDial() {
       var trigger  = document.getElementById('docDesktopFabMain');
@@ -2654,6 +2777,7 @@
       if (trigger)  trigger.classList.remove('open');
       if (pills)    document.querySelectorAll('#docDesktopPills .doc-fab-pill').forEach(function(p){ p.classList.remove('visible'); });
     }
+    // (wasDragged managed by IIFE above)
 
     // ── إرسال التنبيه (من ملف الدكتور) ──
     window.sendNurseAlert = function(type) {
