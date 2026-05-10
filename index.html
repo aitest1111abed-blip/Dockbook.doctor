@@ -1821,7 +1821,7 @@
       document.getElementById('currentMonth').textContent = `${monthsAr[month]} ${year}`;
       const firstDay = new Date(year, month, 1).getDay();
       const daysInMonth = new Date(year, month + 1, 0).getDate();
-      let startOffset = (firstDay + 2) % 7;
+      let startOffset = (firstDay + 3) % 7;
       for (let i = startOffset - 1; i >= 0; i--) { 
         const d = document.createElement('div'); 
         d.className = 'compact-calendar-day other-month'; 
@@ -2630,7 +2630,7 @@
       window._docResetDragged = function() { _docWasDragged = false; };
 
       function getFabPos() {
-        try { var s = localStorage.getItem(FAB_KEY); if (s) return JSON.parse(s); } catch(e) {}
+        try { var s = localStorage.getItem(FAB_KEY); if (s) { var p = JSON.parse(s); return clampPos(p); } } catch(e) {}
         return { right: 36, bottom: 36 };
       }
       function saveFabPos(pos) {
