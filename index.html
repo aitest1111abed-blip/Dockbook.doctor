@@ -468,7 +468,7 @@
       white-space: nowrap;
     }
     .appt-card-btn:active { transform: scale(.97); }
-    .appt-card-btn--details { background: #64748b; color: white; }
+    .appt-card-btn--details { background: #64748b; color: white; width:36px; height:36px; padding:0; justify-content:center; }
     .appt-card-btn--details:hover { background: #475569; }
 
     /* زر عرض تفاصيل اليوم - نفس تصميم الممرضة */
@@ -2042,7 +2042,7 @@
           <div class="flex gap-1">
             <a href="tel:${normalizePhone(record.Phone)}" style="width:28px;height:28px;border-radius:8px;background:#2563eb;color:white;display:flex;align-items:center;justify-content:center;font-size:.8rem;"><i class="fas fa-phone"></i></a>
             <a href="https://wa.me/${normalizePhone(record.Phone)}" target="_blank" style="width:28px;height:28px;border-radius:8px;color:white;display:flex;align-items:center;justify-content:center;font-size:.8rem;background:#25D366;"><i class="fab fa-whatsapp"></i></a>
-            <button class="appt-card-btn appt-card-btn--details" onclick="openAppointmentDetailsModal('${record.id}')"><i class="fas fa-eye"></i> تفاصيل</button>
+            <button class="appt-card-btn appt-card-btn--details" onclick="openAppointmentDetailsModal('${record.id}')"><i class="fas fa-eye"></i></button>
           </div>
         </div>
         <div class="mt-2 text-xs" style="color:var(--text-muted)">${record.VisitType} · ${record.Slot==='Morning'?'صباحاً':'مساءً'}</div>
