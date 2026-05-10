@@ -236,7 +236,25 @@
     .btn-secondary:hover { background: #cbd5e1 !important; }
 
     .modal-overlay { background: rgba(13, 148, 136, 0.15); backdrop-filter: blur(4px); }
-    .modal-content { background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px; max-width: 90%; margin: 0 auto; box-shadow: var(--shadow-lg); }
+    /* ── Confirm Bottom-Sheet ── */
+    #confirmSheet {
+      position: fixed; inset: 0; z-index: 9999;
+      display: flex; align-items: flex-end; justify-content: center;
+      background: rgba(19,78,74,0.35);
+      opacity: 0; pointer-events: none;
+      transition: opacity .2s;
+    }
+    #confirmSheet.show { opacity: 1; pointer-events: all; }
+    #confirmSheet .sheet-box {
+      background: var(--surface); border-radius: 20px 20px 0 0;
+      border: 1.5px solid var(--border); border-bottom: none;
+      box-shadow: var(--shadow-lg);
+      width: 100%; max-width: 480px;
+      padding: 20px;
+      transform: translateY(20px);
+      transition: transform .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    #confirmSheet.show .sheet-box { transform: translateY(0); }
     @media (max-width: 640px) {
       .modal-content { max-width: 95%; padding: 16px; }
     }
@@ -458,6 +476,14 @@
         height: 96dvh !important;
         max-height: 96dvh !important;
         border-radius: 20px 20px 0 0 !important;
+      }
+      #addNoteModal .modal-content > div[style*="grid-template-columns:1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+        overflow-y: auto;
+      }
+      #addNoteModal .modal-content > div[style*="grid-template-columns:1fr 1fr"] > div {
+        border-left: none !important;
+        border-bottom: 1.5px solid var(--border);
       }
     }
     .appt-card-btn {
@@ -930,7 +956,7 @@
             </div>
           </div>
           <div id="dayAgenda" class="glass-card" style="flex:1; min-width:280px; align-self:start;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
               <div>
                 <h3 id="agendaTitle" style="font-weight:700; font-size:.9rem; color:var(--text-primary);">-</h3>
                 <p id="agendaCount" style="font-size:.72rem; color:var(--text-muted); margin-top:2px;">عدد المواعيد المؤكدة: 0</p>
@@ -938,6 +964,13 @@
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <button id="showDayDetailsBtn" type="button" class="btn-show-details" title="عرض تفاصيل اليوم"><i class="fas fa-eye"></i></button>
               </div>
+            </div>
+            <!-- بحث في مواعيد اليوم -->
+            <div style="position:relative; margin-bottom:14px;">
+              <i class="fas fa-search" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.8rem;pointer-events:none;"></i>
+              <input type="text" id="agendaSearch" placeholder="ابحث باسم المريض أو رقم الهاتف..." oninput="filterAgenda(this.value)"
+                style="width:100%;padding:8px 32px 8px 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;font-size:.82rem;box-sizing:border-box;transition:border-color .15s;"
+                onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
             </div>
             <div style="display:grid; grid-template-columns:1fr; gap:16px;">
               <div>
@@ -1148,40 +1181,61 @@
 
   <!-- مودال الإعدادات -->
   <div id="settingsModal" class="hidden fixed inset-0 z-[270] flex items-center justify-center p-4 modal-overlay">
-    <div class="modal-content max-w-md w-full">
-      <div style="padding:16px; border-bottom:1.5px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
-        <h3 style="font-weight:700; font-size:1.05rem; color:var(--text-primary);">الإعدادات</h3>
-        <button onclick="closeSettingsModal()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.2rem;"><i class="fas fa-times"></i></button>
+    <div class="modal-content w-full" style="max-width:480px; border-radius:20px; overflow:hidden; display:flex; flex-direction:column;">
+
+      <!-- Header -->
+      <div style="padding:18px 20px; border-bottom:1.5px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface);">
+        <h3 style="font-weight:800; font-size:.95rem; color:var(--text);">الإعدادات</h3>
+        <button onclick="closeSettingsModal()" style="width:32px;height:32px;border-radius:8px;border:none;background:var(--bg);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;"><i class="fas fa-times"></i></button>
       </div>
-      <div style="padding:16px; display:flex; flex-direction:column; gap:16px; max-height:65vh; overflow-y:auto;">
-        <div>
-          <label class="form-label">اسم اللوحة</label>
-          <input type="text" id="settingsTitleInput" class="form-input" placeholder="أدخل الاسم الجديد" value="لوحة الطبيب">
-        </div>
-        <div>
-          <label class="form-label">الشعار</label>
-          <div style="display:flex; align-items:center; gap:12px;">
-            <div id="logoPreviewContainer" style="width:52px; height:52px; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, var(--primary), #2dd4bf); flex-shrink:0; border:2px solid var(--border-strong);">
-              <span id="logoPreviewIcon" style="color:white; font-size:1.2rem;"><i class="fas fa-user-md"></i></span>
-              <img id="logoPreviewImg" class="hidden" style="width:100%;height:100%;object-fit:cover;" src="" alt="شعار">
+
+      <!-- Profile Section -->
+      <div style="padding:24px 20px; background:var(--bg); border-bottom:1.5px solid var(--border);">
+        <div style="display:flex; align-items:center; gap:16px;">
+          <!-- Avatar -->
+          <div style="position:relative; flex-shrink:0;">
+            <div id="logoPreviewContainer" style="width:72px; height:72px; border-radius:50%; overflow:hidden; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg, var(--primary), #2dd4bf); border:3px solid var(--surface); box-shadow:0 0 0 2px var(--primary);">
+              <span id="logoPreviewIcon" style="color:white; font-size:1.6rem;"><i class="fas fa-user-md"></i></span>
+              <img id="logoPreviewImg" class="hidden" style="width:100%;height:100%;object-fit:cover;" src="" alt="الصورة الشخصية">
             </div>
-            <div>
-              <label for="logoFileInput" class="btn-secondary" style="cursor:pointer; display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:8px; font-size:.82rem; font-weight:700;">
-                <i class="fas fa-upload"></i> رفع صورة
-              </label>
-              <input type="file" id="logoFileInput" accept="image/*" class="hidden">
-              <button id="removeLogoBtn" class="hidden" onclick="removeLogo()" style="background:none;border:none;cursor:pointer;color:var(--red);font-size:.82rem;margin-right:8px;"><i class="fas fa-trash"></i> حذف</button>
-            </div>
+            <label for="logoFileInput" style="position:absolute; bottom:0; left:0; width:24px; height:24px; border-radius:50%; background:var(--primary); color:white; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:.65rem; border:2px solid var(--surface); box-shadow:var(--shadow-sm);" title="تغيير الصورة">
+              <i class="fas fa-camera"></i>
+            </label>
+            <input type="file" id="logoFileInput" accept="image/*" class="hidden">
+          </div>
+          <!-- Name & Role -->
+          <div style="flex:1; min-width:0;">
+            <p style="font-weight:800; font-size:1.05rem; color:var(--text); margin-bottom:3px;" id="profileDisplayName">لوحة الطبيب</p>
+            <p style="font-size:.78rem; color:var(--text-muted); margin-bottom:10px;">لوحة الطبيب</p>
+            <button id="removeLogoBtn" class="hidden" onclick="removeLogo()" style="display:inline-flex;align-items:center;gap:5px;font-size:.75rem;color:var(--red);background:none;border:none;cursor:pointer;padding:0;font-family:inherit;font-weight:600;">
+              <i class="fas fa-trash" style="font-size:.68rem;"></i> حذف الصورة
+            </button>
           </div>
         </div>
       </div>
-      <div style="padding:16px; border-top:1.5px solid var(--border); display:flex; justify-content:space-between; align-items:center; gap:10px;">
-        <button onclick="docbookSignOut()" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;border-radius:10px;border:1.5px solid #fca5a5;background:#fff5f5;color:#dc2626;cursor:pointer;font-family:inherit;font-size:.85rem;font-weight:700;transition:all .18s;" onmouseover="this.style.background='#fee2e2'" onmouseout="this.style.background='#fff5f5'"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
-        <div style="display:flex;gap:10px;">
-          <button onclick="closeSettingsModal()" class="btn-secondary" style="padding:9px 18px;">إلغاء</button>
-          <button onclick="saveSettings()" class="btn-primary" style="padding:9px 18px;">حفظ</button>
+
+      <!-- Fields -->
+      <div style="padding:20px; display:flex; flex-direction:column; gap:16px; background:var(--surface); flex:1; overflow-y:auto;">
+        <div>
+          <label class="form-label" style="margin-bottom:6px;">اسم اللوحة</label>
+          <input type="text" id="settingsTitleInput" class="form-input" placeholder="أدخل الاسم" value="لوحة الطبيب" oninput="document.getElementById('profileDisplayName').textContent=this.value||'لوحة الطبيب'">
         </div>
       </div>
+
+      <!-- Footer -->
+      <div style="padding:16px 20px; border-top:1.5px solid var(--border); background:var(--surface); display:flex; flex-direction:column; gap:10px;">
+        <!-- Save / Cancel -->
+        <div style="display:flex; gap:10px;">
+          <button onclick="closeSettingsModal()" class="btn-secondary" style="flex:1; justify-content:center;">إلغاء</button>
+          <button onclick="saveSettings()" class="btn-primary" style="flex:1; justify-content:center;">حفظ التغييرات</button>
+        </div>
+        <!-- Logout -->
+        <button onclick="docbookSignOut()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:800;transition:all .18s;box-shadow:0 2px 8px rgba(220,38,38,.12);" onmouseover="this.style.background='linear-gradient(135deg,#fecaca,#fca5a5)'" onmouseout="this.style.background='linear-gradient(135deg,#fee2e2,#fecaca)'">
+          <i class="fas fa-sign-out-alt"></i>
+          تسجيل الخروج
+        </button>
+      </div>
+
     </div>
   </div>
 
@@ -1404,58 +1458,92 @@
   <div id="newPatientModal" class="hidden fixed inset-0 z-90 flex items-center justify-center p-4 modal-overlay" style="display: none;"></div>
 
   <!-- مودال إضافة ملاحظة -->
+  <!-- مودال إضافة ملاحظة -->
   <div id="addNoteModal" class="modal-hidden fixed inset-0 z-[170] flex items-center justify-center p-5 modal-overlay">
-    <div class="modal-content w-full" style="max-width:860px; height:92vh; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; border-radius:20px;">
-      <div class="p-4 border-b" style="border-color:var(--border);background:var(--surface); display:flex; align-items:center; gap:12px; flex-shrink:0;">
-        <button onclick="closeAddNoteModal()" style="width:34px;height:34px;border-radius:9px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0;transition:all .15s;" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'"><i class="fas fa-arrow-right"></i></button>
-        <h3 class="font-bold" style="color:var(--text-primary)">إضافة ملاحظة وصور</h3>
+    <div class="modal-content w-full" style="max-width:1000px; height:92vh; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; border-radius:20px;">
+
+      <!-- Header -->
+      <div style="display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:1.5px solid var(--border);background:var(--surface);flex-shrink:0;">
+        <button onclick="closeAddNoteModal()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;transition:all .15s;" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
+          <i class="fas fa-arrow-right"></i>
+        </button>
+        <div>
+          <h3 style="font-weight:800;font-size:1rem;color:var(--text-primary);">إضافة ملاحظة وصور</h3>
+          <p style="font-size:.74rem;color:var(--text-muted);margin-top:2px;">سيتم حفظ البيانات وإرسالها للمريض عبر واتساب</p>
+        </div>
       </div>
-      <div style="flex:1; overflow-y:auto; padding:16px; background:var(--surface); display:flex; flex-direction:column; gap:14px;">
-        <!-- نص الملاحظة -->
-        <div>
-          <label style="display:block;font-weight:700;font-size:.82rem;color:var(--text-muted);margin-bottom:6px;"><i class="fas fa-pen ml-1"></i>الملاحظة العامة</label>
-          <textarea id="noteText" class="w-full p-3 rounded-lg" style="border:1.5px solid var(--border);background:var(--primary-faint);color:var(--text-primary);font-family:inherit;font-size:0.95rem;resize:vertical" rows="3" placeholder="اكتب الملاحظة العامة..."></textarea>
-        </div>
 
-        <!-- الوصفة الطبية (الروشيتا) -->
-        <div>
-          <label style="display:block;font-weight:700;font-size:.82rem;color:var(--text-muted);margin-bottom:6px;"><i class="fas fa-prescription ml-1"></i>الوصفة الطبية (الروشيتا)</label>
-          <textarea id="prescriptionText" class="w-full p-3 rounded-lg" style="border:1.5px solid var(--border);background:var(--amber-light);color:var(--text-primary);font-family:inherit;font-size:0.95rem;resize:vertical" rows="4" placeholder="اكتب الأدوية والتعليمات الطبية..."></textarea>
-        </div>
+      <!-- Body — 2 columns on desktop -->
+      <div style="flex:1;overflow:hidden;background:var(--bg);display:grid;grid-template-columns:1fr 1fr;">
 
-        <!-- قسم رفع الصور -->
-        <div>
-          <label style="display:block;font-weight:700;font-size:.82rem;color:var(--text-muted);margin-bottom:8px;"><i class="fas fa-image ml-1"></i>الصور (تحاليل / أشعة)</label>
-          
-          <!-- منطقة رفع الصور -->
-          <div id="imageUploadZone" onclick="document.getElementById('noteImageInput').click()" style="border:2px dashed var(--border-strong);border-radius:14px;padding:20px;text-align:center;cursor:pointer;background:var(--primary-faint);transition:all .2s;">
-            <i class="fas fa-cloud-upload-alt" style="font-size:2rem;color:var(--primary);margin-bottom:8px;display:block;"></i>
-            <p style="font-weight:700;color:var(--primary);font-size:.88rem;">اضغط لرفع صورة</p>
-            <p style="color:var(--text-muted);font-size:.75rem;margin-top:4px;">تحليل، أشعة، أو أي صورة طبية</p>
-            <p style="color:var(--text-muted);font-size:.72rem;margin-top:2px;">JPG, PNG, WEBP — حتى 5MB للصورة</p>
+        <!-- COL LEFT: النصوص -->
+        <div style="padding:24px;display:flex;flex-direction:column;gap:20px;border-left:1.5px solid var(--border);overflow-y:auto;">
+
+          <!-- الملاحظة العامة -->
+          <div>
+            <label style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:.86rem;color:var(--text);margin-bottom:10px;">
+              <span style="width:30px;height:30px;border-radius:8px;background:var(--primary-light);border:1.5px solid var(--border-strong);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fas fa-pen" style="font-size:.72rem;color:var(--primary);"></i>
+              </span>
+              الملاحظة العامة
+            </label>
+            <textarea id="noteText" style="width:100%;padding:14px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:inherit;font-size:.92rem;resize:vertical;line-height:1.75;min-height:130px;transition:border-color .15s;box-sizing:border-box;" placeholder="اكتب ملاحظاتك العامة هنا..." onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
           </div>
-          <input type="file" id="noteImageInput" accept="image/*" multiple class="hidden">
 
-          <!-- معرض الصور المرفوعة -->
-          <div id="noteImagesPreview" style="display:none;margin-top:12px;">
-            <div style="font-size:.78rem;font-weight:700;color:var(--text-muted);margin-bottom:8px;">الصور المرفوعة:</div>
-            <div id="noteImagesGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
+          <!-- الوصفة الطبية -->
+          <div>
+            <label style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:.86rem;color:var(--text);margin-bottom:10px;">
+              <span style="width:30px;height:30px;border-radius:8px;background:#fffbeb;border:1.5px solid #fde68a;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fas fa-prescription" style="font-size:.72rem;color:#d97706;"></i>
+              </span>
+              الوصفة الطبية (الروشيتا)
+            </label>
+            <textarea id="prescriptionText" style="width:100%;padding:14px;background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;color:var(--text);font-family:inherit;font-size:.92rem;resize:vertical;line-height:1.75;min-height:160px;transition:border-color .15s;box-sizing:border-box;" placeholder="اكتب الأدوية والجرعات والتعليمات الطبية..." onfocus="this.style.borderColor='#d97706'" onblur="this.style.borderColor='#fde68a'"></textarea>
           </div>
+
         </div>
 
-        <input type="hidden" id="notePatientId">
-        <input type="hidden" id="noteVisitIndex">
-      </div>
-      <div class="p-4 border-t flex flex-col gap-3" style="border-color:var(--border);background:var(--surface); flex-shrink:0;">
-        <div class="flex gap-3">
-          <button id="saveAndWhatsappBtn" class="btn-primary flex-1" style="background:#25d366; border-color:#128c7e; justify-content:center;">
-            <i class="fab fa-whatsapp ml-1"></i> حفظ وإرسال للمريض
-          </button>
+        <!-- COL RIGHT: الصور -->
+        <div style="padding:24px;display:flex;flex-direction:column;gap:20px;overflow-y:auto;">
+
+          <div>
+            <label style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:.86rem;color:var(--text);margin-bottom:10px;">
+              <span style="width:30px;height:30px;border-radius:8px;background:var(--primary-light);border:1.5px solid var(--border-strong);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="fas fa-image" style="font-size:.72rem;color:var(--primary);"></i>
+              </span>
+              الصور (تحاليل / أشعة)
+            </label>
+
+            <div id="imageUploadZone" onclick="document.getElementById('noteImageInput').click()" style="border:2px dashed var(--border-strong);border-radius:14px;padding:36px 20px;text-align:center;cursor:pointer;background:var(--surface);transition:all .2s;" onmouseover="this.style.borderColor='var(--primary)';this.style.background='var(--primary-light)'" onmouseout="this.style.borderColor='var(--border-strong)';this.style.background='var(--surface)'">
+              <i class="fas fa-cloud-upload-alt" style="font-size:2.6rem;color:var(--primary);margin-bottom:12px;display:block;"></i>
+              <p style="font-weight:700;color:var(--primary);font-size:.92rem;">اضغط لرفع صورة</p>
+              <p style="color:var(--text-muted);font-size:.78rem;margin-top:6px;">تحليل، أشعة، أو أي صورة طبية</p>
+              <p style="color:var(--text-muted);font-size:.72rem;margin-top:4px;opacity:.7;">JPG, PNG, WEBP — حتى 5MB للصورة</p>
+            </div>
+            <input type="file" id="noteImageInput" accept="image/*" multiple class="hidden">
+
+            <div id="noteImagesPreview" style="display:none;margin-top:16px;">
+              <div style="font-size:.8rem;font-weight:700;color:var(--text-muted);margin-bottom:10px;">الصور المرفوعة:</div>
+              <div id="noteImagesGrid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;"></div>
+            </div>
+          </div>
+
+          <input type="hidden" id="notePatientId">
+          <input type="hidden" id="noteVisitIndex">
         </div>
-        <p style="font-size:.65rem; color:var(--text-muted); text-align:center; margin-top:-4px;">
-          * سيتم حفظ البيانات وفتح واتساب. الصور يجب إرفاقها يدوياً من الاستوديو.
-        </p>
       </div>
+
+      <!-- Footer -->
+      <div style="padding:14px 24px;border-top:1.5px solid var(--border);background:var(--surface);flex-shrink:0;display:flex;gap:12px;align-items:center;">
+        <button onclick="closeAddNoteModal()" class="btn-secondary" style="display:flex;align-items:center;gap:6px;white-space:nowrap;">
+          <i class="fas fa-arrow-right"></i> عودة
+        </button>
+        <button id="saveAndWhatsappBtn" class="btn-primary" style="flex:1;background:#25d366;border-color:#128c7e;justify-content:center;max-width:320px;margin:0 auto;">
+          <i class="fab fa-whatsapp" style="margin-left:6px;"></i> حفظ وإرسال للمريض
+        </button>
+        <p style="font-size:.68rem;color:var(--text-muted);text-align:left;flex:1;opacity:.8;">* الصور يجب إرفاقها يدوياً من الاستوديو بعد فتح واتساب.</p>
+      </div>
+
     </div>
   </div>
 
@@ -1476,8 +1564,8 @@
     const CLOSED_DAYS_KEY      = 'closedDays';
     const NOTES_KEY            = 'sharedNotes';
 
-    // الصور تُخزن كـ base64 محلياً فقط
-    const CLOUDINARY_ENABLED = false;
+    // الصور تُرفع لـ Cloudinary ويُحفظ الـ URL فقط (لا base64)
+    const CLOUDINARY_ENABLED = true;
 
     function lsGet(key, fallback) {
       try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch(e) { return fallback; }
@@ -1522,6 +1610,7 @@
       try {
         allRecords  = lsGet(STORAGE_KEY, []);
         allPatients = lsGet(PATIENTS_STORAGE_KEY, {});
+        purgeExpiredImages(); // حذف الصور المنتهية الصلاحية (أكثر من 24 ساعة)
         renderCalendar();
         if (selectedDayStr) renderAgendaForDay(selectedDayStr);
         renderPatientBook();
@@ -1963,7 +2052,41 @@
       }
     }
 
-    function selectDay(dateStr) { selectedDayStr = dateStr; renderCalendar(); renderAgendaForDay(dateStr); }
+    function selectDay(dateStr) { selectedDayStr = dateStr; renderCalendar(); renderAgendaForDay(dateStr); const s = document.getElementById('agendaSearch'); if(s) s.value=''; }
+
+    // ── بحث في مواعيد اليوم ──
+    window.filterAgenda = function(q) {
+      const term = q.trim().toLowerCase();
+      ['agendaMorning','agendaEvening'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.querySelectorAll('[data-patient-name],[data-patient-phone]').forEach(card => {
+          const name  = (card.dataset.patientName  || '').toLowerCase();
+          const phone = (card.dataset.patientPhone || '').toLowerCase();
+          card.style.display = (!term || name.includes(term) || phone.includes(term)) ? '' : 'none';
+        });
+      });
+    };
+
+    // ── تأكيد موحد (Bottom-sheet) بديل confirm() ──
+    let _confirmResolve = null;
+    function docConfirm(msg, dangerLabel='تأكيد', cancelLabel='إلغاء') {
+      return new Promise(resolve => {
+        _confirmResolve = resolve;
+        const sheet = document.getElementById('confirmSheet');
+        document.getElementById('confirmSheetMsg').textContent = msg;
+        document.getElementById('confirmSheetOk').textContent  = dangerLabel;
+        sheet.classList.add('show');
+      });
+    }
+    window._confirmSheetOk = function() {
+      document.getElementById('confirmSheet').classList.remove('show');
+      if (_confirmResolve) { _confirmResolve(true); _confirmResolve = null; }
+    };
+    window._confirmSheetCancel = function() {
+      document.getElementById('confirmSheet').classList.remove('show');
+      if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
+    };
     
     window.goToToday = function() {
       currentDate = new Date(today);
@@ -2091,7 +2214,7 @@
     }
 
     function agendaCardHTML(record) {
-      return `<div style="background:var(--primary-faint);border:1.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;">
+      return `<div style="background:var(--primary-faint);border:1.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;" data-patient-name="${escapeHtml(record.PatientName||'')}" data-patient-phone="${escapeHtml(record.Phone||'')}">
         <div class="flex justify-between items-start">
           <div><p class="font-bold" style="color:var(--text-primary)">${record.PatientName}</p><p class="text-xs mt-1" style="color:var(--primary)">${record.Phone}</p></div>
           <div class="flex gap-1">
@@ -2261,21 +2384,21 @@
       const whatsappImagesSelect = document.getElementById('whatsappImagesSelect');
       const whatsappImagesThumbnails = document.getElementById('whatsappImagesThumbnails');
       
-      const images = visitData.images || [];
+      const images = (visitData.images || []).filter(img => img.url && !isImageExpired(img));
       if (images.length) {
         imagesSection.style.display = 'block';
         imagesView.innerHTML = images.map((img, idx) => `
           <div style="border-radius:10px;overflow:hidden;border:1.5px solid var(--border);aspect-ratio:1;cursor:pointer;" onclick="viewImageFromNote(${idx}, ${JSON.stringify(images).replace(/"/g,'&quot;')})">
-            <img src="${img.dataUrl}" style="width:100%;height:100%;object-fit:cover;" title="${escapeHtml(img.name||'صورة')}">
+            <img src="${img.url}" style="width:100%;height:100%;object-fit:cover;" loading="lazy" title="${escapeHtml(img.name||'صورة')}">
           </div>
         `).join('');
 
         // تحديث خيارات واتساب
         whatsappImagesSelect.style.display = 'block';
         whatsappImagesThumbnails.innerHTML = images.map((img, idx) => `
-          <div style="width:50px; height:50px; border-radius:6px; overflow:hidden; border:2px solid transparent; cursor:pointer; flex-shrink:0;" 
+          <div style="width:50px; height:50px; border-radius:6px; overflow:hidden; border:2px solid transparent; cursor:pointer; flex-shrink:0;"
             onclick="this.parentElement.querySelectorAll('div').forEach(d=>d.style.borderColor='transparent'); this.style.borderColor='var(--primary)'; this.dataset.selected='true';">
-            <img src="${img.dataUrl}" style="width:100%; height:100%; object-fit:cover;">
+            <img src="${img.url}" style="width:100%; height:100%; object-fit:cover;" loading="lazy">
           </div>
         `).join('');
       } else {
@@ -2300,8 +2423,8 @@
     // عارض الصور المكبّرة
     window.viewImage = function(idx, source) {
       const img = pendingImages[idx];
-      if (!img) return;
-      document.getElementById('imageViewerImg').src = img.dataUrl;
+      if (!img || img.uploading) return;
+      document.getElementById('imageViewerImg').src = img.url || img.dataUrl || '';
       document.getElementById('imageViewerCaption').textContent = img.name || 'صورة';
       const modal = document.getElementById('imageViewerModal');
       modal.classList.remove('modal-hidden');
@@ -2311,7 +2434,7 @@
     window.viewImageFromNote = function(idx, images) {
       const img = images[idx];
       if (!img) return;
-      document.getElementById('imageViewerImg').src = img.dataUrl;
+      document.getElementById('imageViewerImg').src = img.url || img.dataUrl || '';
       document.getElementById('imageViewerCaption').textContent = img.name || 'صورة';
       const modal = document.getElementById('imageViewerModal');
       modal.classList.remove('modal-hidden');
@@ -2387,16 +2510,90 @@
       });
     });
 
-    // معالجة ملف صورة — base64 فقط
-    function processImageFile(file) {
+    // ══════════════════════════════════════════════════════════
+    //  إعدادات Cloudinary — عدّل هذه القيم فقط
+    // ══════════════════════════════════════════════════════════
+    const CLOUDINARY_CLOUD_NAME  = 'YOUR_CLOUD_NAME';   // ← ضع اسم الـ cloud هنا
+    const CLOUDINARY_UPLOAD_PRESET = 'YOUR_UPLOAD_PRESET'; // ← ضع upload preset هنا (unsigned)
+    const IMAGE_EXPIRY_HOURS = 24; // ساعات انتهاء صلاحية الصور
+
+    // رفع صورة إلى Cloudinary وإرجاع { url, publicId } أو null عند الفشل
+    async function uploadToCloudinary(file) {
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('upload_preset', CLOUDINARY_UPLOAD_PRESET);
+        // إضافة tag للحذف التلقائي لاحقاً
+        formData.append('tags', 'docbook_temp');
+
+        const res = await fetch(
+          `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+          { method: 'POST', body: formData }
+        );
+        if (!res.ok) throw new Error('Upload failed');
+        const data = await res.json();
+        return { url: data.secure_url, publicId: data.public_id };
+      } catch(e) {
+        console.error('Cloudinary upload error:', e);
+        return null;
+      }
+    }
+
+    // معالجة ملف صورة — رفع لـ Cloudinary وحفظ URL فقط
+    async function processImageFile(file) {
       if (file.size > 5 * 1024 * 1024) { showToast('حجم الصورة يجب أن يكون أقل من 5MB', 'error'); return; }
-      const reader = new FileReader();
-      reader.onload = function(ev) {
-        const entry = { dataUrl: ev.target.result, name: file.name, type: file.type, url: null, publicId: null };
-        pendingImages.push(entry);
+
+      // معاينة محلية مؤقتة أثناء الرفع
+      const tempUrl = URL.createObjectURL(file);
+      const tempEntry = { dataUrl: tempUrl, name: file.name, type: file.type, url: null, publicId: null, uploading: true };
+      pendingImages.push(tempEntry);
+      renderNoteImagesPreview();
+
+      // رفع للسحابة
+      const result = await uploadToCloudinary(file);
+      const idx = pendingImages.indexOf(tempEntry);
+      if (idx !== -1) {
+        if (result) {
+          pendingImages[idx] = {
+            name: file.name,
+            type: file.type,
+            url: result.url,
+            publicId: result.publicId,
+            uploadedAt: Date.now(), // توقيت الرفع للحساب انتهاء الصلاحية
+            dataUrl: null,          // لا نحفظ base64
+            uploading: false
+          };
+          showToast('تم رفع الصورة بنجاح', 'success');
+        } else {
+          pendingImages.splice(idx, 1);
+          showToast('فشل رفع الصورة، حاول مجدداً', 'error');
+        }
+        URL.revokeObjectURL(tempUrl);
         renderNoteImagesPreview();
-      };
-      reader.readAsDataURL(file);
+      }
+    }
+
+    // حساب ما إذا كانت الصورة منتهية الصلاحية (أكثر من 24 ساعة)
+    function isImageExpired(img) {
+      if (!img || !img.uploadedAt) return false;
+      return (Date.now() - img.uploadedAt) > IMAGE_EXPIRY_HOURS * 60 * 60 * 1000;
+    }
+
+    // تنظيف الصور المنتهية من بيانات المريض عند فتح التطبيق
+    function purgeExpiredImages() {
+      let changed = false;
+      Object.values(allPatients || {}).forEach(p => {
+        (p.appointments || []).forEach(visit => {
+          if (!visit.images || !visit.images.length) return;
+          const before = visit.images.length;
+          visit.images = visit.images.filter(img => !isImageExpired(img));
+          if (visit.images.length !== before) changed = true;
+        });
+      });
+      if (changed) {
+        lsSet(PATIENTS_STORAGE_KEY, allPatients);
+        console.log('[DocBook] تم حذف الصور المنتهية الصلاحية');
+      }
     }
 
     function renderNoteImagesPreview() {
@@ -2404,13 +2601,26 @@
       const grid = document.getElementById('noteImagesGrid');
       if (!pendingImages.length) { preview.style.display = 'none'; return; }
       preview.style.display = 'block';
-      grid.innerHTML = pendingImages.map((img, idx) => `
-        <div style="position:relative;border-radius:10px;overflow:hidden;border:1.5px solid var(--border);aspect-ratio:1;cursor:pointer;" onclick="viewImage('${idx}','pending')">
-          <img src="${img.dataUrl}" style="width:100%;height:100%;object-fit:cover;">
+      grid.innerHTML = pendingImages.map((img, idx) => {
+        const src = img.url || img.dataUrl || '';
+        const expired = isImageExpired(img);
+        if (img.uploading) {
+          return `<div style="position:relative;border-radius:10px;overflow:hidden;border:1.5px dashed var(--border);aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:var(--primary-light);">
+            <i class="fas fa-spinner fa-spin" style="color:var(--primary);font-size:1.2rem;"></i>
+          </div>`;
+        }
+        if (expired) {
+          return `<div style="position:relative;border-radius:10px;overflow:hidden;border:1.5px dashed #fca5a5;aspect-ratio:1;display:flex;align-items:center;justify-content:center;background:#fee2e2;flex-direction:column;gap:4px;">
+            <i class="fas fa-clock" style="color:#dc2626;font-size:1rem;"></i>
+            <span style="font-size:.6rem;color:#dc2626;font-weight:700;">منتهية</span>
+          </div>`;
+        }
+        return `<div style="position:relative;border-radius:10px;overflow:hidden;border:1.5px solid var(--border);aspect-ratio:1;cursor:pointer;" onclick="viewImage('${idx}','pending')">
+          <img src="${src}" style="width:100%;height:100%;object-fit:cover;" loading="lazy">
           <button onclick="event.stopPropagation();removePendingImage(${idx})" style="position:absolute;top:4px;left:4px;width:22px;height:22px;border-radius:50%;background:var(--red);color:white;border:none;cursor:pointer;font-size:.65rem;display:flex;align-items:center;justify-content:center;"><i class="fas fa-times"></i></button>
           <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,0.5);padding:3px 5px;font-size:.6rem;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${escapeHtml(img.name||'صورة')}</div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     }
 
     window.removePendingImage = function(idx) {
@@ -2426,9 +2636,14 @@
       
       if (patientId && allPatients[patientId] && allPatients[patientId].appointments && allPatients[patientId].appointments[visitIndex]) {
         const p = allPatients[patientId];
+        // حفظ URL السحابي فقط — بدون base64
+        const imagesToSave = pendingImages
+          .filter(img => img.url && !img.uploading)
+          .map(img => ({ name: img.name, type: img.type, url: img.url, publicId: img.publicId, uploadedAt: img.uploadedAt }));
+
         p.appointments[visitIndex].note = note;
         p.appointments[visitIndex].prescription = prescription;
-        p.appointments[visitIndex].images = [...pendingImages];
+        p.appointments[visitIndex].images = imagesToSave;
         
         lsSet(PATIENTS_STORAGE_KEY, allPatients);
         notifyOtherTab(PATIENTS_STORAGE_KEY);
@@ -2540,6 +2755,7 @@
 
     window.openSettingsModal = function() {
       document.getElementById('settingsTitleInput').value = settings.title || 'لوحة الطبيب';
+      document.getElementById('profileDisplayName').textContent = settings.title || 'لوحة الطبيب';
       const previewImg  = document.getElementById('logoPreviewImg');
       const previewIcon = document.getElementById('logoPreviewIcon');
       const removeBtn   = document.getElementById('removeLogoBtn');
@@ -3007,14 +3223,26 @@
     })();
 
   window.docbookSignOut = function() {
-    if (!confirm('تأكيد تسجيل الخروج؟')) return;
+    docConfirm('هل تريد تسجيل الخروج؟', 'تسجيل الخروج').then(ok => { if (!ok) return;
     localStorage.removeItem('docbookSession');
     var ov = document.getElementById('loginOverlay');
     ov.style.display = 'flex'; ov.style.opacity = '0';
     setTimeout(function(){ ov.style.opacity = '1'; ov.style.transition = 'opacity .3s'; }, 50);
     var lu = document.getElementById('loginUser'); if(lu) lu.value = '';
     var lp = document.getElementById('loginPassword'); if(lp) lp.value = '';
-  };
+    });
   </script>
+
+  <!-- Confirm Bottom-Sheet -->
+  <div id="confirmSheet">
+    <div class="sheet-box">
+      <p id="confirmSheetMsg" style="font-weight:700;font-size:.95rem;color:var(--text);margin-bottom:16px;text-align:center;"></p>
+      <div style="display:flex;gap:10px;">
+        <button onclick="_confirmSheetCancel()" class="btn-secondary" style="flex:1;justify-content:center;">إلغاء</button>
+        <button id="confirmSheetOk" onclick="_confirmSheetOk()" style="flex:1;padding:10px;border:none;border-radius:var(--radius-sm);background:var(--red);color:white;font-weight:800;font-size:.88rem;font-family:inherit;cursor:pointer;">تأكيد</button>
+      </div>
+    </div>
+  </div>
+
 </body>
 </html>
