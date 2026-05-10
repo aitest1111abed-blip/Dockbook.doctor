@@ -420,6 +420,16 @@
     }
     .btn-icon-only:hover { transform: scale(1.08); box-shadow: var(--shadow-md); background: var(--primary-hover); }
 
+    @media (max-width: 767px) {
+      #patientDetailsModal { align-items: flex-end; padding: 0; }
+      #patientDetailsModal .modal-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        height: 96dvh !important;
+        max-height: 96dvh !important;
+        border-radius: 20px 20px 0 0 !important;
+      }
+    }
     /* زر عرض تفاصيل اليوم - نفس تصميم الممرضة */
     .btn-show-details {
       background: transparent !important;
@@ -1139,8 +1149,8 @@
   </div>
 
   <!-- مودال تفاصيل المريض -->
-  <div id="patientDetailsModal" class="hidden fixed inset-0 z-[150] flex items-center justify-center p-4 modal-overlay">
-    <div class="modal-content max-w-2xl w-full">
+  <div id="patientDetailsModal" class="hidden fixed inset-0 z-[150] flex items-center justify-center p-5 modal-overlay">
+    <div class="modal-content w-full" style="max-width:860px; height:92vh; max-height:92vh; display:flex; flex-direction:column; overflow:hidden; border-radius:20px;">
       <div style="padding:16px;border-bottom:1.5px solid var(--border)">
         <div class="flex justify-between items-center">
           <h3 id="modalPatientName" class="font-bold text-lg" style="color:var(--text-primary)">-</h3>
@@ -1152,7 +1162,7 @@
           <a id="modalCallBtn" href="#" class="action-btn-large call-btn"><i class="fas fa-phone"></i></a>
         </div>
       </div>
-      <div class="p-4 max-h-[70vh] overflow-y-auto">
+      <div style="flex:1; overflow-y:auto; padding:16px;">
         <div class="bg-primary-5/10 rounded-xl p-4 mb-4">
           <h4 style="font-weight:700;font-size:.875rem;color:var(--primary);margin-bottom:12px">معلومات المريض</h4>
           <div class="grid grid-cols-2 gap-3 text-sm">
@@ -1991,7 +2001,7 @@
           <div class="flex gap-1">
             <a href="tel:${normalizePhone(record.Phone)}" style="width:28px;height:28px;border-radius:8px;background:#2563eb;color:white;display:flex;align-items:center;justify-content:center;font-size:.8rem;"><i class="fas fa-phone"></i></a>
             <a href="https://wa.me/${normalizePhone(record.Phone)}" target="_blank" style="width:28px;height:28px;border-radius:8px;color:white;display:flex;align-items:center;justify-content:center;font-size:.8rem;background:#25D366;"><i class="fab fa-whatsapp"></i></a>
-            <button style="width:28px;height:28px;border-radius:8px;background:var(--primary);color:white;display:flex;align-items:center;justify-content:center;font-size:.8rem;border:none;cursor:pointer;" onclick="openAppointmentDetailsModal('${record.id}')"><i class="fas fa-eye"></i></button>
+            <button style="width:28px;height:28px;border-radius:8px;background:#e2e8f0;color:#475569;display:flex;align-items:center;justify-content:center;font-size:.8rem;border:none;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='#cbd5e1'" onmouseout="this.style.background='#e2e8f0'" onclick="openAppointmentDetailsModal('${record.id}')"><i class="fas fa-eye"></i></button>
           </div>
         </div>
         <div class="mt-2 text-xs" style="color:var(--text-muted)">${record.VisitType} · ${record.Slot==='Morning'?'صباحاً':'مساءً'}</div>
