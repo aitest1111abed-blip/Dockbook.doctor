@@ -236,25 +236,7 @@
     .btn-secondary:hover { background: #cbd5e1 !important; }
 
     .modal-overlay { background: rgba(13, 148, 136, 0.15); backdrop-filter: blur(4px); }
-    /* ── Confirm Bottom-Sheet ── */
-    #confirmSheet {
-      position: fixed; inset: 0; z-index: 9999;
-      display: flex; align-items: flex-end; justify-content: center;
-      background: rgba(19,78,74,0.35);
-      opacity: 0; pointer-events: none;
-      transition: opacity .2s;
-    }
-    #confirmSheet.show { opacity: 1; pointer-events: all; }
-    #confirmSheet .sheet-box {
-      background: var(--surface); border-radius: 20px 20px 0 0;
-      border: 1.5px solid var(--border); border-bottom: none;
-      box-shadow: var(--shadow-lg);
-      width: 100%; max-width: 480px;
-      padding: 20px;
-      transform: translateY(20px);
-      transition: transform .25s cubic-bezier(.34,1.56,.64,1);
-    }
-    #confirmSheet.show .sheet-box { transform: translateY(0); }
+    .modal-content { background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px; max-width: 90%; margin: 0 auto; box-shadow: var(--shadow-lg); }
     @media (max-width: 640px) {
       .modal-content { max-width: 95%; padding: 16px; }
     }
@@ -956,7 +938,7 @@
             </div>
           </div>
           <div id="dayAgenda" class="glass-card" style="flex:1; min-width:280px; align-self:start;">
-            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px;">
+            <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
               <div>
                 <h3 id="agendaTitle" style="font-weight:700; font-size:.9rem; color:var(--text-primary);">-</h3>
                 <p id="agendaCount" style="font-size:.72rem; color:var(--text-muted); margin-top:2px;">عدد المواعيد المؤكدة: 0</p>
@@ -964,13 +946,6 @@
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <button id="showDayDetailsBtn" type="button" class="btn-show-details" title="عرض تفاصيل اليوم"><i class="fas fa-eye"></i></button>
               </div>
-            </div>
-            <!-- بحث في مواعيد اليوم -->
-            <div style="position:relative; margin-bottom:14px;">
-              <i class="fas fa-search" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);color:var(--text-muted);font-size:.8rem;pointer-events:none;"></i>
-              <input type="text" id="agendaSearch" placeholder="ابحث باسم المريض أو رقم الهاتف..." oninput="filterAgenda(this.value)"
-                style="width:100%;padding:8px 32px 8px 10px;border:1.5px solid var(--border);border-radius:10px;background:var(--bg);color:var(--text);font-family:inherit;font-size:.82rem;box-sizing:border-box;transition:border-color .15s;"
-                onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'">
             </div>
             <div style="display:grid; grid-template-columns:1fr; gap:16px;">
               <div>
@@ -2052,41 +2027,7 @@
       }
     }
 
-    function selectDay(dateStr) { selectedDayStr = dateStr; renderCalendar(); renderAgendaForDay(dateStr); const s = document.getElementById('agendaSearch'); if(s) s.value=''; }
-
-    // ── بحث في مواعيد اليوم ──
-    window.filterAgenda = function(q) {
-      const term = q.trim().toLowerCase();
-      ['agendaMorning','agendaEvening'].forEach(id => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        el.querySelectorAll('[data-patient-name],[data-patient-phone]').forEach(card => {
-          const name  = (card.dataset.patientName  || '').toLowerCase();
-          const phone = (card.dataset.patientPhone || '').toLowerCase();
-          card.style.display = (!term || name.includes(term) || phone.includes(term)) ? '' : 'none';
-        });
-      });
-    };
-
-    // ── تأكيد موحد (Bottom-sheet) بديل confirm() ──
-    let _confirmResolve = null;
-    function docConfirm(msg, dangerLabel='تأكيد', cancelLabel='إلغاء') {
-      return new Promise(resolve => {
-        _confirmResolve = resolve;
-        const sheet = document.getElementById('confirmSheet');
-        document.getElementById('confirmSheetMsg').textContent = msg;
-        document.getElementById('confirmSheetOk').textContent  = dangerLabel;
-        sheet.classList.add('show');
-      });
-    }
-    window._confirmSheetOk = function() {
-      document.getElementById('confirmSheet').classList.remove('show');
-      if (_confirmResolve) { _confirmResolve(true); _confirmResolve = null; }
-    };
-    window._confirmSheetCancel = function() {
-      document.getElementById('confirmSheet').classList.remove('show');
-      if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
-    };
+    function selectDay(dateStr) { selectedDayStr = dateStr; renderCalendar(); renderAgendaForDay(dateStr); }
     
     window.goToToday = function() {
       currentDate = new Date(today);
@@ -2214,7 +2155,7 @@
     }
 
     function agendaCardHTML(record) {
-      return `<div style="background:var(--primary-faint);border:1.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;" data-patient-name="${escapeHtml(record.PatientName||'')}" data-patient-phone="${escapeHtml(record.Phone||'')}">
+      return `<div style="background:var(--primary-faint);border:1.5px solid var(--border);border-radius:12px;padding:12px;margin-bottom:8px;">
         <div class="flex justify-between items-start">
           <div><p class="font-bold" style="color:var(--text-primary)">${record.PatientName}</p><p class="text-xs mt-1" style="color:var(--primary)">${record.Phone}</p></div>
           <div class="flex gap-1">
@@ -3223,26 +3164,14 @@
     })();
 
   window.docbookSignOut = function() {
-    docConfirm('هل تريد تسجيل الخروج؟', 'تسجيل الخروج').then(ok => { if (!ok) return;
+    if (!confirm('تأكيد تسجيل الخروج؟')) return;
     localStorage.removeItem('docbookSession');
     var ov = document.getElementById('loginOverlay');
     ov.style.display = 'flex'; ov.style.opacity = '0';
     setTimeout(function(){ ov.style.opacity = '1'; ov.style.transition = 'opacity .3s'; }, 50);
     var lu = document.getElementById('loginUser'); if(lu) lu.value = '';
     var lp = document.getElementById('loginPassword'); if(lp) lp.value = '';
-    });
+  };
   </script>
-
-  <!-- Confirm Bottom-Sheet -->
-  <div id="confirmSheet">
-    <div class="sheet-box">
-      <p id="confirmSheetMsg" style="font-weight:700;font-size:.95rem;color:var(--text);margin-bottom:16px;text-align:center;"></p>
-      <div style="display:flex;gap:10px;">
-        <button onclick="_confirmSheetCancel()" class="btn-secondary" style="flex:1;justify-content:center;">إلغاء</button>
-        <button id="confirmSheetOk" onclick="_confirmSheetOk()" style="flex:1;padding:10px;border:none;border-radius:var(--radius-sm);background:var(--red);color:white;font-weight:800;font-size:.88rem;font-family:inherit;cursor:pointer;">تأكيد</button>
-      </div>
-    </div>
-  </div>
-
 </body>
 </html>
