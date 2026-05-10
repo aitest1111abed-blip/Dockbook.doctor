@@ -499,60 +499,103 @@
       background: var(--surface);
       border: 1.5px solid var(--border);
       border-radius: 20px;
-      padding: 18px;
+      padding: 20px;
       cursor: pointer;
-      transition: box-shadow .2s, border-color .2s;
+      transition: box-shadow .2s, border-color .2s, transform .15s;
+      position: relative;
+      overflow: hidden;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
-    .stat-card:hover { border-color: var(--primary); box-shadow: var(--shadow); }
+    .stat-card:hover { border-color: var(--primary); box-shadow: var(--shadow); transform: translateY(-2px); }
+
+    /* أيقونة الكرت */
+    .stat-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--primary-light);
+      border: 1.5px solid var(--border);
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(13,148,136,.15);
+    }
+    .stat-icon i { font-size: 1.5rem; color: var(--primary); }
+
+    /* القيمة الرئيسية */
+    .stat-value {
+      font-family: 'DM Mono', monospace;
+      font-size: 2.2rem; font-weight: 800;
+      color: var(--text-primary); line-height: 1;
+    }
+    .stat-value-small {
+      font-family: 'DM Mono', monospace;
+      font-size: 1.8rem; font-weight: 800;
+      color: var(--text-primary); line-height: 1;
+    }
+    .stat-day-value {
+      font-family: 'Tajawal', sans-serif;
+      font-size: 1.6rem; font-weight: 800;
+      color: var(--primary); line-height: 1;
+    }
+    /* نسبة التغيير */
+    .stat-change {
+      font-size: .72rem; font-weight: 700;
+      display: inline-flex; align-items: center; gap: 3px;
+      color: #16a34a;
+    }
+    .stat-change.down { color: #dc2626; }
+
+    @media (max-width: 640px) {
+      .stat-value { font-size: 1.7rem; }
+      .stat-value-small { font-size: 1.4rem; }
+    }
 
     .stat-card.cancelled-shadow {
-      background: #fee2e2 !important;
+      background: linear-gradient(135deg, #fff5f5 0%, #fee2e2 100%) !important;
       border-color: #fca5a5 !important;
     }
     .stat-card.cancelled-shadow .stat-icon {
-      background: rgba(220,38,38,.1) !important;
+      background: rgba(220,38,38,.12) !important;
       border-color: #fca5a5 !important;
+      box-shadow: 0 4px 12px rgba(220,38,38,.15) !important;
     }
     .stat-card.cancelled-shadow .stat-icon i { color: #dc2626 !important; }
+    .stat-card.cancelled-shadow .stat-value { color: #dc2626 !important; }
 
     .stat-card.repeat-shadow {
-      background: #dcfce7 !important;
+      background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%) !important;
       border-color: #86efac !important;
     }
     .stat-card.repeat-shadow .stat-icon {
-      background: rgba(22,163,74,.1) !important;
+      background: rgba(22,163,74,.12) !important;
       border-color: #86efac !important;
+      box-shadow: 0 4px 12px rgba(22,163,74,.15) !important;
     }
     .stat-card.repeat-shadow .stat-icon i { color: #16a34a !important; }
 
     .stat-card.noshow-shadow {
-      background: #fff7ed !important;
+      background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%) !important;
       border-color: #fdba74 !important;
     }
     .stat-card.noshow-shadow .stat-icon {
-      background: rgba(234,88,12,.08) !important;
+      background: rgba(234,88,12,.10) !important;
       border-color: #fdba74 !important;
+      box-shadow: 0 4px 12px rgba(234,88,12,.15) !important;
     }
     .stat-card.noshow-shadow .stat-icon i { color: #ea580c !important; }
 
     .stat-card.month-shadow {
-      background: #eff6ff !important;
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%) !important;
       border-color: #93c5fd !important;
     }
     .stat-card.month-shadow .stat-icon {
-      background: rgba(59,130,246,.08) !important;
+      background: rgba(59,130,246,.10) !important;
       border-color: #93c5fd !important;
+      box-shadow: 0 4px 12px rgba(59,130,246,.15) !important;
     }
     .stat-card.month-shadow .stat-icon i { color: #2563eb !important; }
-
-    .stat-day-value {
-      font-family: 'Tajawal', sans-serif;
-      font-size: 1.15rem;
-      font-weight: 800;
-      color: var(--text-primary);
-      line-height: 1.2;
-      margin-top: 8px;
-    }
 
     /* Fix remaining Tailwind classes */
     .text-primary-3 { color: var(--primary) !important; }
@@ -940,81 +983,93 @@
       <section id="statsSection" class="hidden">
         <div class="space-y-6">
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <!-- المرضى النشطين -->
             <div class="stat-card fade-in" onclick="showStatInfo('active')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
-                <div>
-                  <h3 style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">المرضى النشطين</h3>
-                  <div class="stat-value" id="statActiveUsers">0</div>
-                </div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">المرضى النشطين</h3>
                 <div class="stat-icon"><i class="fas fa-heart-circle-plus"></i></div>
               </div>
+              <div class="stat-value" id="statActiveUsers">0</div>
+              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
             </div>
+
+            <!-- إجمالي الزيارات -->
             <div class="stat-card fade-in" onclick="showStatInfo('total')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
-                <div>
-                  <h3 style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">إجمالي الزيارات</h3>
-                  <div class="stat-value" id="statTotalVisits">0</div>
-                </div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">إجمالي الزيارات</h3>
                 <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
               </div>
+              <div class="stat-value" id="statTotalVisits">0</div>
+              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> إجمالي كل الزيارات</span></div>
             </div>
+
+            <!-- المواعيد الملغاة -->
             <div class="stat-card cancelled-shadow fade-in" onclick="showStatInfo('cancelled')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
-                <div>
-                  <h3 style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">المواعيد الملغاة</h3>
-                  <div class="stat-value" id="statCancelled">0</div>
-                </div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:#dc2626;font-weight:700;">المواعيد الملغاة</h3>
                 <div class="stat-icon"><i class="fas fa-ban"></i></div>
               </div>
+              <div class="stat-value" id="statCancelled">0</div>
+              <div style="margin-top:8px;"><span class="stat-change down"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
             </div>
+
+            <!-- نسبة التكرار -->
             <div class="stat-card repeat-shadow fade-in" onclick="showStatInfo('repeat')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
-                <div>
-                  <h3 style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">نسبة التكرار</h3>
-                  <div class="stat-value-small" id="statConversion">0%</div>
-                </div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:#16a34a;font-weight:700;">نسبة التكرار</h3>
                 <div class="stat-icon"><i class="fas fa-arrow-trend-up"></i></div>
               </div>
+              <div class="stat-value-small" id="statConversion">0%</div>
+              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> نسبة المرضى المتكررين</span></div>
             </div>
+
           </div>
 
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+
+            <!-- متوسط الزيارات اليومي -->
             <div class="stat-card fade-in" onclick="showStatInfo('avgDaily')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
-                <div>
-                  <h3 style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">متوسط الزيارات اليومي</h3>
-                  <div class="stat-value-small" id="statAvgDaily">0</div>
-                </div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">متوسط الزيارات اليومي</h3>
                 <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
               </div>
+              <div class="stat-value-small" id="statAvgDaily">0</div>
+              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> يومياً</span></div>
             </div>
+
+            <!-- أكثر يوم ازدحاماً -->
             <div class="stat-card fade-in" onclick="showStatInfo('busyday')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
-                <div>
-                  <h3 style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">أكثر يوم ازدحاماً</h3>
-                  <div class="stat-day-value" id="statBusyDay">—</div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">أكثر يوم ازدحاماً</h3>
+                <div class="stat-icon" style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fdba74;box-shadow:0 4px 12px rgba(234,88,12,.15);">
+                  <i class="fas fa-fire" style="color:#ea580c;"></i>
                 </div>
-                <div class="stat-icon"><i class="fas fa-fire"></i></div>
               </div>
+              <div class="stat-day-value" id="statBusyDay">—</div>
+              <div style="margin-top:8px;" id="statBusyDayCount"><span class="stat-change" style="color:var(--text-muted);"></span></div>
             </div>
+
+            <!-- لم يحضر -->
             <div class="stat-card noshow-shadow fade-in" onclick="showStatInfo('noshow')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
-                <div>
-                  <h3 style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">لم يحضر</h3>
-                  <div class="stat-value" id="statNoShow">0</div>
-                </div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:#ea580c;font-weight:700;">لم يحضر</h3>
                 <div class="stat-icon"><i class="fas fa-user-slash"></i></div>
               </div>
+              <div class="stat-value" id="statNoShow">0</div>
+              <div style="margin-top:8px;"><span class="stat-change down"><i class="fas fa-arrow-down" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
             </div>
+
+            <!-- زيارات هذا الشهر -->
             <div class="stat-card month-shadow fade-in" onclick="showStatInfo('thismonth')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
-                <div>
-                  <h3 style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">زيارات هذا الشهر</h3>
-                  <div class="stat-value" id="statThisMonth">0</div>
-                </div>
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:#2563eb;font-weight:700;">زيارات هذا الشهر</h3>
                 <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
               </div>
+              <div class="stat-value" id="statThisMonth">0</div>
+              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> هذا الشهر</span></div>
             </div>
+
           </div>
 
           <div class="glass-card">
