@@ -99,7 +99,7 @@
       align-items: center;
       gap: 12px;
       padding: 12px 14px;
-      border-radius: 14px;
+      border-radius: var(--radius);
       background: transparent;
       border: 1.5px solid transparent;
       cursor: pointer;
@@ -162,8 +162,13 @@
       .glass-card { padding: 16px; }
     }
 
+    .content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
     .compact-calendar-container { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--border-radius); padding: 18px; box-shadow: var(--shadow-sm); }
+    .compact-calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
+    .compact-nav-btn { width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; font-size: 0.85rem; }
+    .compact-nav-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
     .compact-calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+    .compact-calendar-day-name { font-size: 0.68rem; font-weight: 700; color: var(--text-muted); padding: 4px 0; }
     .compact-calendar-day { 
       padding: 8px 2px; 
       border-radius: 9px; 
@@ -794,7 +799,7 @@
       </div>
     </aside>
 
-    <div class="flex-1 space-y-4">
+    <div class="content-area">
       <div id="toast" class="toast hidden fixed top-20 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md">
         <div id="toastContent" style="padding:12px 16px;border-radius:16px;box-shadow:var(--shadow-lg);font-weight:700;font-size:.875rem;display:flex;align-items:center;gap:12px;background:var(--primary);color:white"></div>
       </div>
@@ -811,21 +816,21 @@
         <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-5">
           <div>
             <div class="compact-calendar-container">
-              <div class="compact-calendar-header flex justify-between items-center mb-4">
-                <button id="prevMonthBtn" style="width:34px;height:34px;border-radius:9px;background:var(--surface);border:1.5px solid var(--border);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;transition:all .15s;" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)';this.style.background='var(--primary-light)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)';this.style.background='var(--surface)'"><i class="fas fa-chevron-right"></i></button>
+              <div class="compact-calendar-header">
+                <button id="prevMonthBtn" class="compact-nav-btn"><i class="fas fa-chevron-right"></i></button>
                 <div class="text-center">
                   <h3 id="currentMonth" class="text-base font-bold mb-1" style="color:var(--text-primary)">-</h3>
-                  <div class="density-legend flex items-center justify-center gap-2 text-xs">
+                  <div class="density-legend">
                     <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-low"></div><span>خفيف</span></div>
                     <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-medium"></div><span>متوسط</span></div>
                     <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-high"></div><span>مزدحم</span></div>
                   </div>
                 </div>
-                <button id="nextMonthBtn" style="width:34px;height:34px;border-radius:9px;background:var(--surface);border:1.5px solid var(--border);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:0.85rem;transition:all .15s;" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)';this.style.background='var(--primary-light)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)';this.style.background='var(--surface)'"><i class="fas fa-chevron-left"></i></button>
+                <button id="nextMonthBtn" class="compact-nav-btn"><i class="fas fa-chevron-left"></i></button>
               </div>
               <div class="compact-calendar-grid mb-2">
-                <div class="compact-calendar-day-name text-xs" style="color:var(--text-muted);font-weight:600">الجمعة</div><div class="compact-calendar-day-name text-xs" style="color:var(--text-muted);font-weight:600">السبت</div><div class="compact-calendar-day-name text-xs" style="color:var(--text-muted);font-weight:600">الأحد</div>
-                <div class="compact-calendar-day-name text-xs" style="color:var(--text-muted);font-weight:600">الإثنين</div><div class="compact-calendar-day-name text-xs" style="color:var(--text-muted);font-weight:600">الثلاثاء</div><div class="compact-calendar-day-name text-xs" style="color:var(--text-muted);font-weight:600">الأربعاء</div><div class="compact-calendar-day-name text-xs" style="color:var(--text-muted);font-weight:600">الخميس</div>
+                <div class="compact-calendar-day-name">الجمعة</div><div class="compact-calendar-day-name">السبت</div><div class="compact-calendar-day-name">الأحد</div>
+                <div class="compact-calendar-day-name">الإثنين</div><div class="compact-calendar-day-name">الثلاثاء</div><div class="compact-calendar-day-name">الأربعاء</div><div class="compact-calendar-day-name">الخميس</div>
               </div>
               <div id="calendarGrid" class="compact-calendar-grid"></div>
             </div>
