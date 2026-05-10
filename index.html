@@ -1564,6 +1564,31 @@
     // الصور تُرفع لـ Cloudinary ويُحفظ الـ URL فقط (لا base64)
     const CLOUDINARY_ENABLED = true;
 
+    // ── Confirm Bottom-Sheet (global) ──
+    var _confirmResolve = null;
+    window.appConfirm = function(msg, dangerLabel) {
+      return new Promise(function(resolve) {
+        _confirmResolve = resolve;
+        var sheet = document.getElementById('confirmSheet');
+        var msgEl = document.getElementById('confirmSheetMsg');
+        var okEl  = document.getElementById('confirmSheetOk');
+        if (!sheet || !msgEl || !okEl) { resolve(window.confirm(msg)); return; }
+        msgEl.textContent = msg;
+        okEl.textContent  = dangerLabel || 'تأكيد';
+        sheet.classList.add('show');
+      });
+    };
+    window._confirmSheetOk = function() {
+      var sheet = document.getElementById('confirmSheet');
+      if (sheet) sheet.classList.remove('show');
+      if (_confirmResolve) { _confirmResolve(true);  _confirmResolve = null; }
+    };
+    window._confirmSheetCancel = function() {
+      var sheet = document.getElementById('confirmSheet');
+      if (sheet) sheet.classList.remove('show');
+      if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
+    };
+
     function lsGet(key, fallback) {
       try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch(e) { return fallback; }
     }
@@ -3186,33 +3211,17 @@
     })();
 
   window.docbookSignOut = function() {
-    appConfirm('هل تريد تسجيل الخروج؟', 'تسجيل الخروج').then(ok => { if (!ok) return;
-    localStorage.removeItem('docbookSession');
-    var ov = document.getElementById('loginOverlay');
-    ov.style.display = 'flex'; ov.style.opacity = '0';
-    setTimeout(function(){ ov.style.opacity = '1'; ov.style.transition = 'opacity .3s'; }, 50);
-    var lu = document.getElementById('loginUser'); if(lu) lu.value = '';
-    var lp = document.getElementById('loginPassword'); if(lp) lp.value = '';
+    appConfirm('هل تريد تسجيل الخروج؟', 'تسجيل الخروج').then(ok => {
+      if (!ok) return;
+      localStorage.removeItem('docbookSession');
+      var ov = document.getElementById('loginOverlay');
+      ov.style.display = 'flex'; ov.style.opacity = '0';
+      setTimeout(function(){ ov.style.opacity = '1'; ov.style.transition = 'opacity .3s'; }, 50);
+      var lu = document.getElementById('loginUser'); if(lu) lu.value = '';
+      var lp = document.getElementById('loginPassword'); if(lp) lp.value = '';
+    });
   };
 
-    // ── Confirm Bottom-Sheet ──
-    let _confirmResolve = null;
-    function appConfirm(msg, dangerLabel) {
-      return new Promise(resolve => {
-        _confirmResolve = resolve;
-        document.getElementById('confirmSheetMsg').textContent = msg;
-        document.getElementById('confirmSheetOk').textContent  = dangerLabel || 'تأكيد';
-        document.getElementById('confirmSheet').classList.add('show');
-      });
-    }
-    window._confirmSheetOk = function() {
-      document.getElementById('confirmSheet').classList.remove('show');
-      if (_confirmResolve) { _confirmResolve(true);  _confirmResolve = null; }
-    };
-    window._confirmSheetCancel = function() {
-      document.getElementById('confirmSheet').classList.remove('show');
-      if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
-    };
   </script>
 
   <!-- Confirm Bottom-Sheet -->
