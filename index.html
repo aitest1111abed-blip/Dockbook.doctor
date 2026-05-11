@@ -258,6 +258,19 @@
       transition: transform .25s cubic-bezier(.34,1.56,.64,1);
     }
     #confirmSheet.show .sheet-box { transform: translateY(0); }
+    /* إشعار قبول الموعد — أسفل يمين */
+    #docNotifToast {
+      position: fixed; bottom: 24px; right: 24px; z-index: 9998;
+      background: var(--primary); color: white;
+      font-weight: 800; font-size: .92rem;
+      padding: 13px 22px; border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(13,148,136,.35);
+      opacity: 0; transform: translateY(10px); pointer-events: none;
+      transition: opacity .25s ease, transform .25s ease;
+      white-space: nowrap;
+    }
+    #docNotifToast.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+
     .modal-content { background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px; max-width: 90%; margin: 0 auto; box-shadow: var(--shadow-lg); }
     @media (max-width: 640px) {
       .modal-content { max-width: 95%; padding: 16px; }
@@ -1653,6 +1666,51 @@
     }
     function calculateAge(b) { if(!b) return null; const birth=new Date(b); let age=today.getFullYear()-birth.getFullYear(); const m=today.getMonth()-birth.getMonth(); if(m<0 || (m===0 && today.getDate()<birth.getDate())) age--; return age; }
     function showToast(msg, type='info') { const toast=document.getElementById('toast'); const content=document.getElementById('toastContent'); content.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'info-circle'}"></i> ${msg}`; toast.classList.remove('hidden'); setTimeout(()=>toast.classList.add('hidden'),3000); }
+
+    // صوت تنبيه للطبيب
+    var _docAudioCtx = null;
+    function getDocAudioCtx() {
+      if (!_docAudioCtx || _docAudioCtx.state === 'closed') {
+        try { _docAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
+      }
+      return _docAudioCtx;
+    }
+    function primeDocAudio() {
+      var ctx = getDocAudioCtx();
+      if (ctx && ctx.state === 'suspended') ctx.resume();
+      document.removeEventListener('click', primeDocAudio);
+      document.removeEventListener('keydown', primeDocAudio);
+    }
+    document.addEventListener('click', primeDocAudio);
+    document.addEventListener('keydown', primeDocAudio);
+
+    function playDocNotifSound() {
+      var ctx = getDocAudioCtx(); if (!ctx) return;
+      function doPlay() {
+        try {
+          [0, 0.2, 0.4].forEach(function(t) {
+            var o = ctx.createOscillator(), g = ctx.createGain();
+            o.connect(g); g.connect(ctx.destination);
+            o.type = 'sine'; o.frequency.value = 880;
+            g.gain.setValueAtTime(0.35, ctx.currentTime + t);
+            g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.22);
+            o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.22);
+          });
+        } catch(e) {}
+      }
+      if (ctx.state === 'suspended') ctx.resume().then(doPlay); else doPlay();
+    }
+
+    // إشعار أسفل يمين بدون أيقونة — يبقى 8 ثوانٍ
+    function showDocNotifToast(msg) {
+      var el = document.getElementById('docNotifToast');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      playDocNotifSound();
+      clearTimeout(el._timer);
+      el._timer = setTimeout(function() { el.classList.remove('show'); }, 8000);
+    }
     function normalizePhone(p) { return (p||'').replace(/[^\d+]/g,''); }
     function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
@@ -3240,6 +3298,33 @@
         if (e.data && e.data.key) handleChange(e.data.key);
       };
 
+      // ─── استقبال إشعار قبول الموعد من الممرضة ───
+      var _bcAccepted, _lastAcceptedTs = 0;
+      try { _bcAccepted = new BroadcastChannel('nurseAccepted'); } catch(e) {}
+      if (_bcAccepted) _bcAccepted.onmessage = function(e) {
+        if (e.data && e.data.type === 'accepted' && e.data.ts !== _lastAcceptedTs) {
+          _lastAcceptedTs = e.data.ts;
+          showDocNotifToast('تم قبول موعد');
+        }
+      };
+
+      // polling لـ nurseAcceptedNotif كـ fallback
+      var _lastAcceptedStorageTs = 0;
+      setInterval(function() {
+        try {
+          var raw = localStorage.getItem('nurseAcceptedNotif');
+          if (!raw) return;
+          var payload = JSON.parse(raw);
+          if (payload && payload.ts && payload.ts !== _lastAcceptedStorageTs && payload.ts !== _lastAcceptedTs) {
+            if (Date.now() - payload.ts < 10000) { // فقط إذا جديد (أقل من 10 ثوانٍ)
+              _lastAcceptedStorageTs = payload.ts;
+              _lastAcceptedTs = payload.ts;
+              showDocNotifToast('تم قبول موعد');
+            }
+          }
+        } catch(e) {}
+      }, 2000);
+
       // polling خفيف كل 4 ثوان fallback
       var _snapshots = {};
       setInterval(function() {
@@ -3277,6 +3362,8 @@
       </div>
     </div>
   </div>
+  <!-- إشعار قبول موعد -->
+  <div id="docNotifToast"></div>
 
 </body>
 </html>
