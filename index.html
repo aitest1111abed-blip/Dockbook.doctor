@@ -924,12 +924,14 @@
             return window._fb.getDoc('users', cred.user.uid).then(function(snap) {
               var role = snap.exists() ? snap.data().role : null;
               if (role !== 'doctor') {
+                _authResolved = false;
                 return window._fb.signOut().then(function() {
                   btn.disabled = false; btn.textContent = 'تسجيل الدخول';
                   err.style.display = 'block';
                   err.textContent = 'هذا الحساب غير مصرح له بالدخول هنا';
                 });
               }
+              _authResolved = true;
               btn.disabled = false; btn.textContent = 'تسجيل الدخول';
             });
           })
@@ -948,23 +950,36 @@
     document.getElementById('loginUser').addEventListener('keydown', function(e){ if(e.key==='Enter') doLocalLogin(); });
 
     // مراقبة حالة تسجيل الدخول
+    var _authResolved = false;  // منع إعادة الخروج أثناء التحقق من الدور
+    var _checkingRole  = false;
+
     function initAuthWatch() {
       window._fb.onAuth(function(user) {
         var ov = document.getElementById('loginOverlay');
         if (user) {
-          // تحقق من الدور قبل فتح اللوحة
+          _checkingRole = true;
           window._fb.getDoc('users', user.uid).then(function(snap) {
+            _checkingRole = false;
             var role = snap.exists() ? snap.data().role : null;
             if (role !== 'doctor') {
+              _authResolved = false;
               window._fb.signOut();
               ov.style.display = 'flex'; ov.style.opacity = '1';
+              var errEl = document.getElementById('loginError');
+              if (errEl) { errEl.style.display='block'; errEl.textContent='هذا الحساب غير مصرح له بالدخول هنا'; }
               return;
             }
+            _authResolved = true;
             ov.style.transition = 'opacity .3s'; ov.style.opacity = '0';
             setTimeout(function(){ ov.style.display = 'none'; }, 300);
             if (typeof loadData === 'function') loadData();
+          }).catch(function(e) {
+            _checkingRole = false;
+            console.error('[Auth role check]', e);
           });
         } else {
+          // تجاهل null أثناء التحقق من الدور أو بعد الفتح
+          if (_checkingRole || _authResolved) return;
           ov.style.display = 'flex'; ov.style.opacity = '1';
         }
       });
@@ -1703,6 +1718,7 @@
 
     let allRecords = [];
     let allPatients = {};
+    let closedDays  = [];
     let currentDate = new Date();
     let selectedDayStr = todayStr;
     let currentSection = 'calendar';
@@ -1853,9 +1869,7 @@
       if (_unsubClosed) _unsubClosed();
       _unsubClosed = window._fb.onSnapshot(window._fb.docRef('config', 'closedDays'),
         function(snap) {
-          if (typeof closedDays !== 'undefined') {
-            closedDays = snap.exists() ? (snap.data().list || []) : [];
-          }
+          closedDays = snap.exists() ? (snap.data().list || []) : [];
           renderCalendar();
           if (selectedDayStr) renderAgendaForDay(selectedDayStr);
         }
@@ -1864,7 +1878,7 @@
       // تنبيهات الممرضة (قبول الموعد)
       if (_unsubAlerts) _unsubAlerts();
       _unsubAlerts = window._fb.onSnapshot(
-        window._fb.query(window._fb.col('alerts'), window._fb.orderBy('createdAt', 'desc')),
+        window._fb.col('alerts'),
         function(snap) {
           snap.docChanges().forEach(function(change) {
             if (change.type !== 'added') return;
@@ -1878,7 +1892,8 @@
             if (typeof showDocNotifToast === 'function') showDocNotifToast(d.message || 'تم قبول موعد');
             window._fb.updateDoc(change.doc.ref, { read: true });
           });
-        }
+        },
+        function(e) { console.error('[alerts]', e); }
       );
 
       // الإعدادات
@@ -2732,8 +2747,8 @@
     // ══════════════════════════════════════════════════════════
     //  إعدادات Cloudinary — عدّل هذه القيم فقط
     // ══════════════════════════════════════════════════════════
-    const CLOUDINARY_CLOUD_NAME  = 'YOUR_CLOUD_NAME';   // ← ضع اسم الـ cloud هنا
-    const CLOUDINARY_UPLOAD_PRESET = 'YOUR_UPLOAD_PRESET'; // ← ضع upload preset هنا (unsigned)
+    const CLOUDINARY_CLOUD_NAME    = 'dbckv4vqo';
+    const CLOUDINARY_UPLOAD_PRESET = 'docbook';
     const IMAGE_EXPIRY_HOURS = 24; // ساعات انتهاء صلاحية الصور
 
     // رفع صورة إلى Cloudinary وإرجاع { url, publicId } أو null عند الفشل
@@ -2916,10 +2931,10 @@
 
     // ==================== تحديث تلقائي كل 5 ثوان ====================
     function autoRefresh() {
-      loadData();
+      // onSnapshot يُحدّث البيانات تلقائياً — نكتفي برسم الواجهة فقط
       if (currentSection === 'stats') updateStats(false);
       if (currentSection === 'patients') renderPatientBook();
-      if (currentSection === 'calendar' && selectedDayStr) renderAgendaForDay(selectedDayStr);
+      if (currentSection === 'calendar') { renderCalendar(); if (selectedDayStr) renderAgendaForDay(selectedDayStr); }
     }
 
     // ربط الأحداث
