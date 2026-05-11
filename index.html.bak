@@ -844,6 +844,46 @@
   <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.jpg"/>
   <link rel="manifest" href="./manifest.json"/>
   <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(function(){});</script>
+  <!-- ═══════ Firebase SDK ═══════ -->
+  <script type="module">
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js';
+    import { getFirestore, doc, collection, getDoc, setDoc, updateDoc, deleteDoc,
+             onSnapshot, addDoc, query, orderBy, serverTimestamp, writeBatch }
+      from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js';
+
+    const firebaseConfig = {
+      apiKey:            "AIzaSyDvAWhgChLeBIAr4FfQ-_FA_TSfLKK218E",
+      authDomain:        "docbook-194c2.firebaseapp.com",
+      projectId:         "docbook-194c2",
+      storageBucket:     "docbook-194c2.firebasestorage.app",
+      messagingSenderId: "764242732211",
+      appId:             "1:764242732211:web:a560190b7e81dacea77cc6"
+    };
+
+    const _app  = initializeApp(firebaseConfig);
+    const _auth = getAuth(_app);
+    const _db   = getFirestore(_app);
+
+    window._fb = {
+      auth: _auth, db: _db,
+      signIn:  (email, pass) => signInWithEmailAndPassword(_auth, email, pass),
+      signOut: ()            => signOut(_auth),
+      onAuth:  (cb)          => onAuthStateChanged(_auth, cb),
+      col:        (...p)     => collection(_db, ...p),
+      docRef:     (...p)     => doc(_db, ...p),
+      getDoc:     (...p)     => getDoc(doc(_db, ...p)),
+      setDoc:     (ref, d, opts) => opts ? setDoc(ref, d, opts) : setDoc(ref, d),
+      updateDoc:  (ref, d)   => updateDoc(ref, d),
+      deleteDoc:  (ref)      => deleteDoc(ref),
+      addDoc:     (ref, d)   => addDoc(ref, d),
+      onSnapshot, query, orderBy, serverTimestamp,
+      batch: () => writeBatch(_db),
+    };
+    window._fbReady = true;
+    window.dispatchEvent(new Event('fbReady'));
+  </script>
 </head>
 <body>
   <div id="loginOverlay" style="position:fixed;inset:0;z-index:9999;background:linear-gradient(145deg,#f0fdfa,#ccfbf1);display:flex;align-items:center;justify-content:center;padding:20px;font-family:'Tajawal',sans-serif;">
@@ -854,7 +894,7 @@
         <div style="font-size:.85rem;font-weight:600;color:#5f9ea0;margin-top:4px;">لوحة الطبيب</div>
       </div>
       <div id="loginForm">
-        <div style="margin-bottom:16px;"><label style="display:block;font-size:.82rem;font-weight:700;color:#134e4a;margin-bottom:7px;">اسم المستخدم</label><input id="loginUser" type="text" placeholder="doctor" dir="ltr" style="width:100%;padding:13px 16px;border:2px solid #b2f5ea;border-radius:14px;font-size:.9rem;outline:none;box-sizing:border-box;font-family:inherit;background:#f0fdfa;" onfocus="this.style.borderColor='#0d9488'" onblur="this.style.borderColor='#b2f5ea'"/></div>
+        <div style="margin-bottom:16px;"><label style="display:block;font-size:.82rem;font-weight:700;color:#134e4a;margin-bottom:7px;">البريد الإلكتروني</label><input id="loginUser" type="email" placeholder="example@gmail.com" dir="ltr" style="width:100%;padding:13px 16px;border:2px solid #b2f5ea;border-radius:14px;font-size:.9rem;outline:none;box-sizing:border-box;font-family:inherit;background:#f0fdfa;" onfocus="this.style.borderColor='#0d9488'" onblur="this.style.borderColor='#b2f5ea'"/></div>
         <div style="margin-bottom:10px;"><label style="display:block;font-size:.82rem;font-weight:700;color:#134e4a;margin-bottom:7px;">كلمة المرور</label><div style="display:flex;align-items:center;gap:8px;"><input id="loginPassword" type="password" placeholder="••••••••" dir="ltr" style="flex:1;padding:13px 16px;border:2px solid #b2f5ea;border-radius:14px;font-size:.9rem;outline:none;box-sizing:border-box;font-family:inherit;background:#f0fdfa;" onfocus="this.style.borderColor='#0d9488'" onblur="this.style.borderColor='#b2f5ea'"/><button type="button" onclick="var i=document.getElementById('loginPassword');i.type=i.type==='password'?'text':'password';this.querySelector('svg').style.opacity=i.type==='text'?'1':'0.45';" style="flex-shrink:0;width:40px;height:40px;border-radius:12px;border:2px solid #b2f5ea;background:#f0fdfa;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:border-color .15s;" onmouseover="this.style.borderColor='#0d9488'" onmouseout="this.style.borderColor='#b2f5ea'"><svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="opacity:.45;transition:opacity .15s;"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div></div>
         <div id="loginError" style="display:none;background:#fee2e2;border-radius:10px;padding:10px;font-size:.8rem;color:#dc2626;margin-bottom:12px;text-align:center;"></div>
         <button onclick="doLocalLogin()" id="loginBtn" style="width:100%;padding:14px;background:linear-gradient(135deg,#0d9488,#14b8a6);color:white;border:none;border-radius:14px;font-family:inherit;font-size:.95rem;font-weight:800;cursor:pointer;">تسجيل الدخول</button>
@@ -863,41 +903,74 @@
   </div>
   <style>@keyframes loginCardIn{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}</style>
   <script>
-    // ── تسجيل الدخول عبر localStorage ──
-    var DOCTOR_USERS_KEY = 'doctorUsers';
-    function getUsers() {
-      try { var v = localStorage.getItem(DOCTOR_USERS_KEY); return v ? JSON.parse(v) : []; } catch(e) { return []; }
-    }
-    function initDefaultUsers() {
-      if (!getUsers().length) {
-        localStorage.setItem(DOCTOR_USERS_KEY, JSON.stringify([
-          { username: 'doctor', password: '1234', role: 'doctor' }
-        ]));
-      }
-    }
-    initDefaultUsers();
+    // ── تسجيل الدخول عبر Firebase Auth + التحقق من الدور ──
     function doLocalLogin() {
-      var user = document.getElementById('loginUser').value.trim() || 'doctor';
-      var err  = document.getElementById('loginError');
+      var email = document.getElementById('loginUser').value.trim();
+      var pass  = document.getElementById('loginPassword').value;
+      var err   = document.getElementById('loginError');
+      var btn   = document.getElementById('loginBtn');
+
+      if (!email || !pass) {
+        err.style.display = 'block';
+        err.textContent = 'الرجاء إدخال البريد الإلكتروني وكلمة المرور';
+        return;
+      }
       err.style.display = 'none';
-      localStorage.setItem('docbookSession', JSON.stringify({ username: user, role: 'doctor', ts: Date.now() }));
-      var ov = document.getElementById('loginOverlay');
-      ov.style.transition = 'opacity .3s'; ov.style.opacity = '0';
-      setTimeout(function(){ ov.style.display = 'none'; }, 300);
+      btn.disabled = true; btn.textContent = 'جارٍ التحقق...';
+
+      function tryLogin() {
+        window._fb.signIn(email, pass)
+          .then(function(cred) {
+            return window._fb.getDoc('users', cred.user.uid).then(function(snap) {
+              var role = snap.exists() ? snap.data().role : null;
+              if (role !== 'doctor') {
+                return window._fb.signOut().then(function() {
+                  btn.disabled = false; btn.textContent = 'تسجيل الدخول';
+                  err.style.display = 'block';
+                  err.textContent = 'هذا الحساب غير مصرح له بالدخول هنا';
+                });
+              }
+              btn.disabled = false; btn.textContent = 'تسجيل الدخول';
+            });
+          })
+          .catch(function(e) {
+            btn.disabled = false; btn.textContent = 'تسجيل الدخول';
+            err.style.display = 'block';
+            err.textContent = 'بيانات الدخول غير صحيحة';
+            console.error('[Login]', e.code, e.message);
+          });
+      }
+      if (window._fbReady) tryLogin();
+      else window.addEventListener('fbReady', tryLogin, { once: true });
     }
+
     document.getElementById('loginPassword').addEventListener('keydown', function(e){ if(e.key==='Enter') doLocalLogin(); });
     document.getElementById('loginUser').addEventListener('keydown', function(e){ if(e.key==='Enter') doLocalLogin(); });
-    // تحقق من الجلسة عند التحميل
-    (function(){
-      var sess = null;
-      try { sess = JSON.parse(localStorage.getItem('docbookSession')||'null'); } catch(e){}
-      var ov = document.getElementById('loginOverlay');
-      if (sess && sess.role === 'doctor') {
-        ov.style.display = 'none';
-      } else {
-        ov.style.display = 'flex';
-      }
-    })();
+
+    // مراقبة حالة تسجيل الدخول
+    function initAuthWatch() {
+      window._fb.onAuth(function(user) {
+        var ov = document.getElementById('loginOverlay');
+        if (user) {
+          // تحقق من الدور قبل فتح اللوحة
+          window._fb.getDoc('users', user.uid).then(function(snap) {
+            var role = snap.exists() ? snap.data().role : null;
+            if (role !== 'doctor') {
+              window._fb.signOut();
+              ov.style.display = 'flex'; ov.style.opacity = '1';
+              return;
+            }
+            ov.style.transition = 'opacity .3s'; ov.style.opacity = '0';
+            setTimeout(function(){ ov.style.display = 'none'; }, 300);
+            if (typeof loadData === 'function') loadData();
+          });
+        } else {
+          ov.style.display = 'flex'; ov.style.opacity = '1';
+        }
+      });
+    }
+    if (window._fbReady) initAuthWatch();
+    else window.addEventListener('fbReady', initAuthWatch, { once: true });
   </script>
   <div class="orb orb-1"></div>
   <div class="orb orb-2"></div>
@@ -1608,16 +1681,15 @@
       if (_confirmResolve) { _confirmResolve(false); _confirmResolve = null; }
     };
 
+    // ── lsGet/lsSet للقيم المحلية UI فقط (FAB position) ──
     function lsGet(key, fallback) {
       try { const v = localStorage.getItem(key); return v ? JSON.parse(v) : fallback; } catch(e) { return fallback; }
     }
     function lsSet(key, val) {
-      try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) { showToast('خطأ في الحفظ المحلي','error'); }
+      try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) {}
     }
     function notifyOtherTab(key) {
-      const dummy = '__notify_'+key+'_'+Date.now();
-      localStorage.setItem(dummy, '1');
-      localStorage.removeItem(dummy);
+      // لم تعد ضرورية — onSnapshot يُزامن تلقائياً
     }
 
     const daysAr = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
@@ -1730,53 +1802,98 @@
     function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
     // ==================== تحميل البيانات ====================
-    function loadData() {
+    // ── ترحيل localStorage القديم إلى Firestore ──
+    function migrateLocalStorageToFirestore() {
+      // مسح البيانات القديمة من localStorage — Firestore هو المصدر الوحيد
       try {
-        allRecords  = lsGet(STORAGE_KEY, []);
-        allPatients = lsGet(PATIENTS_STORAGE_KEY, {});
-        purgeExpiredImages(); // حذف الصور المنتهية الصلاحية (أكثر من 24 ساعة)
-        renderCalendar();
-        if (selectedDayStr) renderAgendaForDay(selectedDayStr);
-        renderPatientBook();
-        document.getElementById('totalPatientsCount').textContent = Object.keys(allPatients).length;
-      } catch(e) { console.error(e); }
+        localStorage.removeItem('doctorAppointments');
+        localStorage.removeItem('doctorPatients');
+        localStorage.removeItem('closedDays');
+        localStorage.removeItem('doctorSettings');
+        localStorage.removeItem('nurseSettings');
+        localStorage.removeItem('sharedNotes');
+      } catch(e) {}
     }
 
-    // الاستماع لتغييرات من التاب الآخر (ملف الممرضة)
-    window.addEventListener('storage', function(e) {
-      if (e.key === STORAGE_KEY) {
-        allRecords = lsGet(STORAGE_KEY, []);
-        renderCalendar();
-        if (selectedDayStr) renderAgendaForDay(selectedDayStr);
-        if (currentSection === 'stats') calculateStatsFromPatients();
-      }
-      if (e.key === PATIENTS_STORAGE_KEY) {
-        allPatients = lsGet(PATIENTS_STORAGE_KEY, {});
-        document.getElementById('totalPatientsCount').textContent = Object.keys(allPatients).length;
-        if (currentSection === 'patients') renderPatientBook();
-      }
-      if (e.key === CLOSED_DAYS_KEY) {
-        renderCalendar();
-        if (selectedDayStr) renderAgendaForDay(selectedDayStr);
-      }
-      // مزامنة الملاحظات المشتركة
-      if (e.key === NOTES_KEY) {
-        const notesPanel = document.getElementById('notesPanel');
-        if (notesPanel && notesPanel.style.display !== 'none') window.renderNotes && window.renderNotes();
-      }
-    });
+    // ── مستمعو Firestore ──
+    var _unsubAppt = null, _unsubPat = null, _unsubClosed = null, _unsubAlerts = null;
+    var _alertSeenAt = 0;
+    var _lastAcceptedAlertId = null;
 
-    // ─── BroadcastChannel: استقبال إشعارات فورية من صفحة المريض ───
-    try {
-      const _clinicBC = new BroadcastChannel('clinicSync');
-      _clinicBC.onmessage = function(ev) {
-        if (ev.data?.key === STORAGE_KEY) {
-          allRecords = lsGet(STORAGE_KEY, []);
+    function loadData() {
+      migrateLocalStorageToFirestore();
+      _alertSeenAt = Date.now();
+
+      // المواعيد
+      if (_unsubAppt) _unsubAppt();
+      _unsubAppt = window._fb.onSnapshot(window._fb.col('appointments'),
+        function(snap) {
+          allRecords = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
+          purgeExpiredImages();
+          renderCalendar();
+          if (selectedDayStr) renderAgendaForDay(selectedDayStr);
+          if (currentSection === 'stats') calculateStatsFromPatients();
+        },
+        function(e) { console.error('[appointments]', e); }
+      );
+
+      // المرضى
+      if (_unsubPat) _unsubPat();
+      _unsubPat = window._fb.onSnapshot(window._fb.col('patients'),
+        function(snap) {
+          allPatients = {};
+          snap.docs.forEach(function(d) { allPatients[d.id] = Object.assign({ id: d.id }, d.data()); });
+          document.getElementById('totalPatientsCount').textContent = Object.keys(allPatients).length;
+          if (currentSection === 'patients') renderPatientBook();
+        },
+        function(e) { console.error('[patients]', e); }
+      );
+
+      // الأيام المغلقة
+      if (_unsubClosed) _unsubClosed();
+      _unsubClosed = window._fb.onSnapshot(window._fb.docRef('config', 'closedDays'),
+        function(snap) {
+          if (typeof closedDays !== 'undefined') {
+            closedDays = snap.exists() ? (snap.data().list || []) : [];
+          }
           renderCalendar();
           if (selectedDayStr) renderAgendaForDay(selectedDayStr);
         }
-      };
-    } catch(e) {}
+      );
+
+      // تنبيهات الممرضة (قبول الموعد)
+      if (_unsubAlerts) _unsubAlerts();
+      _unsubAlerts = window._fb.onSnapshot(
+        window._fb.query(window._fb.col('alerts'), window._fb.orderBy('createdAt', 'desc')),
+        function(snap) {
+          snap.docChanges().forEach(function(change) {
+            if (change.type !== 'added') return;
+            var d = change.doc.data();
+            if (d.direction !== 'nurseToDoctor') return;
+            if (d.read) return;
+            var ts = d.createdAt ? d.createdAt.toMillis() : 0;
+            if (ts <= _alertSeenAt) return;
+            if (change.doc.id === _lastAcceptedAlertId) return;
+            _lastAcceptedAlertId = change.doc.id;
+            if (typeof showDocNotifToast === 'function') showDocNotifToast(d.message || 'تم قبول موعد');
+            window._fb.updateDoc(change.doc.ref, { read: true });
+          });
+        }
+      );
+
+      // الإعدادات
+      window._fb.getDoc('settings', 'doctor').then(function(snap) {
+        if (snap.exists()) { settings = snap.data(); applySettings(); }
+      }).catch(function(){});
+
+      // التنبيه المخصص
+      window._fb.getDoc('config', 'customAlert').then(function(snap) {
+        if (snap.exists()) {
+          customAlertData = snap.data();
+          if (typeof updateCustomLabels === 'function') updateCustomLabels(customAlertData.label);
+        }
+      }).catch(function(){});
+    }
 
     // ==================== دوال الإحصائيات ====================
     function calculateStatsFromPatients() {
@@ -2693,7 +2810,10 @@
         });
       });
       if (changed) {
-        lsSet(PATIENTS_STORAGE_KEY, allPatients);
+        // تحديث في Firestore
+        Object.values(allPatients).forEach(function(p) {
+          if (p.id) window._fb.setDoc(window._fb.docRef('patients', p.id), p, { merge: true }).catch(function(){});
+        });
         console.log('[DocBook] تم حذف الصور المنتهية الصلاحية');
       }
     }
@@ -2748,9 +2868,10 @@
         p.appointments[visitIndex].images = imagesToSave;
         p.appointments[visitIndex].noteUpdatedAt = Date.now();
         
-        lsSet(PATIENTS_STORAGE_KEY, allPatients);
-        notifyOtherTab(PATIENTS_STORAGE_KEY);
-        showToast('تم حفظ البيانات بنجاح', 'success');
+        // حفظ في Firestore
+        window._fb.setDoc(window._fb.docRef('patients', patientId), p, { merge: true })
+          .then(function() { showToast('تم حفظ البيانات بنجاح', 'success'); })
+          .catch(function(e) { showToast('فشل الحفظ', 'error'); console.error(e); });
         
         if (sendToWhatsapp) {
           const phone = normalizePhone(p.phone);
@@ -2828,16 +2949,13 @@
 
     // تهيئة
     document.addEventListener('DOMContentLoaded', () => {
-      if (!localStorage.getItem(STORAGE_KEY)) lsSet(STORAGE_KEY, []);
-      if (!localStorage.getItem(PATIENTS_STORAGE_KEY)) lsSet(PATIENTS_STORAGE_KEY, {});
-      if (!localStorage.getItem(CLOSED_DAYS_KEY)) lsSet(CLOSED_DAYS_KEY, []);
-      loadData();
+      // loadData() تُستدعى من onAuth بعد التحقق من تسجيل الدخول
       setActiveSection('calendar');
       document.getElementById('doctorHeaderDate').textContent = today.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
     });
     // ================== الإعدادات ==================
     const SETTINGS_KEY = 'doctorSettings';
-    let settings = JSON.parse(localStorage.getItem(SETTINGS_KEY) || '{}');
+    let settings = {};
 
     function applySettings() {
       const title = settings.title || 'لوحة الطبيب';
@@ -2854,7 +2972,8 @@
     }
 
     function saveSettingsToLocal(s) {
-      localStorage.setItem(SETTINGS_KEY, JSON.stringify(s));
+      window._fb.setDoc(window._fb.docRef('settings', 'doctor'), s)
+        .catch(function(e) { console.error('settings save error', e); });
     }
 
     window.openSettingsModal = function() {
@@ -2973,8 +3092,7 @@
     const NURSE_ALERT_KEY    = 'nurseAlert';
     const CUSTOM_ALERT_KEY   = 'nurseCustomAlert';
 
-    // ── تهيئة الزر المخصص من localStorage ──
-    let customAlertData = JSON.parse(localStorage.getItem(CUSTOM_ALERT_KEY) || 'null') || { label: 'تنبيه مخصص', desc: 'تنبيه من الدكتور' };
+    let customAlertData = { label: 'تنبيه مخصص', desc: 'تنبيه من الدكتور' };
     function updateCustomLabels(label) {
       document.querySelectorAll('#customAlertLabel, #customAlertLabelDesk').forEach(el => el.textContent = label);
     }
@@ -3227,10 +3345,16 @@
 
     // ── إرسال التنبيه (من ملف الدكتور) ──
     window.sendNurseAlert = function(type) {
-      const payload = { type, ts: Date.now() };
-      localStorage.setItem(NURSE_ALERT_KEY, JSON.stringify(payload));
-      // BroadcastChannel لنفس المتصفح
-      try { new BroadcastChannel('nurseAlerts').postMessage(payload); } catch(e) {}
+      var label = type === 'next'  ? 'أدخل المريض التالي' :
+                  type === 'enter' ? 'استدعاء الممرضة' :
+                  (customAlertData.label || 'تنبيه مخصص');
+      window._fb.addDoc(window._fb.col('alerts'), {
+        type:      type,
+        direction: 'doctorToNurse',
+        message:   label,
+        read:      false,
+        createdAt: window._fb.serverTimestamp()
+      }).catch(function(e) { console.error('alert send', e); });
     };
 
     // ── تخصيص الزر الثالث ──
@@ -3246,7 +3370,8 @@
       const label = document.getElementById('customAlertTextInput').value.trim() || 'تنبيه مخصص';
       const desc  = document.getElementById('customAlertDescInput').value.trim() || 'تنبيه من الدكتور';
       customAlertData = { label, desc };
-      localStorage.setItem(CUSTOM_ALERT_KEY, JSON.stringify(customAlertData));
+      window._fb.setDoc(window._fb.docRef('config', 'customAlert'), customAlertData)
+        .catch(function(e) { console.error(e); });
       updateCustomLabels(label);
       closeCustomAlertEdit();
     };
@@ -3266,105 +3391,23 @@
 
 
   <script>
-  // تسجيل الخروج المحلي
-    // ═══════════════════════════════════════════════════════
-    //   تحديث تلقائي — BroadcastChannel + storage event
-    // ═══════════════════════════════════════════════════════
-    (function() {
-      var SYNC_KEYS = ['doctorAppointments', 'closedDays', 'nurseAlert'];
-      var bc;
-      try { bc = new BroadcastChannel('docbook_sync'); } catch(e) {}
-
-      function handleChange(key) {
-        if (!key) return;
-        if (key === 'doctorAppointments') {
-          try {
-            var raw = localStorage.getItem('doctorAppointments');
-            if (!raw) return;
-            var recs = JSON.parse(raw);
-            if (!Array.isArray(recs)) return;
-            allRecords = recs;
-            if (typeof updateCounts === 'function')             updateCounts();
-            if (typeof calculateDensity === 'function')         calculateDensity();
-            if (typeof renderCalendar === 'function')           renderCalendar();
-            if (typeof renderDoctorCalendar === 'function')     renderDoctorCalendar();
-            if (typeof renderBothAppointmentColumns === 'function') renderBothAppointmentColumns();
-            if (typeof selectedDayStr !== 'undefined' && selectedDayStr && typeof renderAgendaForDay === 'function')
-              renderAgendaForDay(selectedDayStr);
-          } catch(e) {}
-        }
-        if (key === 'closedDays') {
-          try {
-            var cd = JSON.parse(localStorage.getItem('closedDays') || '[]');
-            if (typeof closedDays !== 'undefined') closedDays = cd;
-            if (typeof renderCalendar === 'function')       renderCalendar();
-            if (typeof renderDoctorCalendar === 'function') renderDoctorCalendar();
-          } catch(e) {}
-        }
-      }
-
-      // storage event (تبويبات مختلفة)
-      window.addEventListener('storage', function(e) {
-        if (SYNC_KEYS.includes(e.key)) handleChange(e.key);
-      });
-
-      // BroadcastChannel (تبويبات نفس الصفحة)
-      if (bc) bc.onmessage = function(e) {
-        if (e.data && e.data.key) handleChange(e.data.key);
-      };
-
-      // ─── استقبال إشعار قبول الموعد من الممرضة ───
-      var _bcAccepted, _lastAcceptedTs = 0;
-      try { _bcAccepted = new BroadcastChannel('nurseAccepted'); } catch(e) {}
-      if (_bcAccepted) _bcAccepted.onmessage = function(e) {
-        if (e.data && e.data.type === 'accepted' && e.data.ts !== _lastAcceptedTs) {
-          _lastAcceptedTs = e.data.ts;
-          showDocNotifToast('تم قبول موعد');
-        }
-      };
-
-      // polling لـ nurseAcceptedNotif كـ fallback
-      var _lastAcceptedStorageTs = 0;
-      setInterval(function() {
-        try {
-          var raw = localStorage.getItem('nurseAcceptedNotif');
-          if (!raw) return;
-          var payload = JSON.parse(raw);
-          if (payload && payload.ts && payload.ts !== _lastAcceptedStorageTs && payload.ts !== _lastAcceptedTs) {
-            if (Date.now() - payload.ts < 10000) { // فقط إذا جديد (أقل من 10 ثوانٍ)
-              _lastAcceptedStorageTs = payload.ts;
-              _lastAcceptedTs = payload.ts;
-              showDocNotifToast('تم قبول موعد');
-            }
-          }
-        } catch(e) {}
-      }, 2000);
-
-      // polling خفيف كل 4 ثوان fallback
-      var _snapshots = {};
-      setInterval(function() {
-        SYNC_KEYS.forEach(function(k) {
-          var v = localStorage.getItem(k);
-          if (v !== _snapshots[k]) {
-            _snapshots[k] = v;
-            handleChange(k);
-          }
-        });
-      }, 4000);
-    })();
-
+  // ── تسجيل الخروج عبر Firebase ──
   window.docbookSignOut = function() {
     appConfirm('هل تريد تسجيل الخروج؟', 'تسجيل الخروج').then(ok => {
       if (!ok) return;
-      localStorage.removeItem('docbookSession');
-      var ov = document.getElementById('loginOverlay');
-      ov.style.display = 'flex'; ov.style.opacity = '0';
-      setTimeout(function(){ ov.style.opacity = '1'; ov.style.transition = 'opacity .3s'; }, 50);
-      var lu = document.getElementById('loginUser'); if(lu) lu.value = '';
-      var lp = document.getElementById('loginPassword'); if(lp) lp.value = '';
+      if (typeof _unsubAppt   === 'function') _unsubAppt();
+      if (typeof _unsubPat    === 'function') _unsubPat();
+      if (typeof _unsubClosed === 'function') _unsubClosed();
+      if (typeof _unsubAlerts === 'function') _unsubAlerts();
+      window._fb.signOut().then(function() {
+        var ov = document.getElementById('loginOverlay');
+        ov.style.display = 'flex'; ov.style.opacity = '0';
+        setTimeout(function(){ ov.style.opacity = '1'; ov.style.transition = 'opacity .3s'; }, 50);
+        var lu = document.getElementById('loginUser'); if(lu) lu.value = '';
+        var lp = document.getElementById('loginPassword'); if(lp) lp.value = '';
+      });
     });
   };
-
   </script>
 
   <!-- Confirm Bottom-Sheet -->

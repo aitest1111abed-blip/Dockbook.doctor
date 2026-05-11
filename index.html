@@ -1804,33 +1804,15 @@
     // ==================== تحميل البيانات ====================
     // ── ترحيل localStorage القديم إلى Firestore ──
     function migrateLocalStorageToFirestore() {
+      // مسح البيانات القديمة من localStorage — Firestore هو المصدر الوحيد
       try {
-        var oldRecords  = JSON.parse(localStorage.getItem('doctorAppointments') || '[]');
-        var oldPatients = JSON.parse(localStorage.getItem('doctorPatients') || '{}');
-        var oldClosed   = JSON.parse(localStorage.getItem('closedDays') || '[]');
-        if (!oldRecords.length && !Object.keys(oldPatients).length && !oldClosed.length) return;
-
-        var batch = window._fb.batch();
-        oldRecords.forEach(function(r) {
-          if (!r.id) return;
-          batch.set(window._fb.docRef('appointments', r.id),
-            Object.assign({}, r, { migratedFrom: 'localStorage' }), { merge: true });
-        });
-        Object.values(oldPatients).forEach(function(p) {
-          if (!p.id) return;
-          batch.set(window._fb.docRef('patients', p.id),
-            Object.assign({}, p, { migratedFrom: 'localStorage' }), { merge: true });
-        });
-        if (oldClosed.length) {
-          batch.set(window._fb.docRef('config', 'closedDays'), { list: oldClosed }, { merge: true });
-        }
-        batch.commit().then(function() {
-          localStorage.removeItem('doctorAppointments');
-          localStorage.removeItem('doctorPatients');
-          localStorage.removeItem('closedDays');
-          console.log('[DocBook] تم ترحيل البيانات القديمة بنجاح');
-        }).catch(function(e) { console.error('[DocBook] فشل الترحيل:', e); });
-      } catch(e) { console.error(e); }
+        localStorage.removeItem('doctorAppointments');
+        localStorage.removeItem('doctorPatients');
+        localStorage.removeItem('closedDays');
+        localStorage.removeItem('doctorSettings');
+        localStorage.removeItem('nurseSettings');
+        localStorage.removeItem('sharedNotes');
+      } catch(e) {}
     }
 
     // ── مستمعو Firestore ──
