@@ -1667,7 +1667,7 @@
     function calculateAge(b) { if(!b) return null; const birth=new Date(b); let age=today.getFullYear()-birth.getFullYear(); const m=today.getMonth()-birth.getMonth(); if(m<0 || (m===0 && today.getDate()<birth.getDate())) age--; return age; }
     function showToast(msg, type='info') { const toast=document.getElementById('toast'); const content=document.getElementById('toastContent'); content.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'info-circle'}"></i> ${msg}`; toast.classList.remove('hidden'); setTimeout(()=>toast.classList.add('hidden'),3000); }
 
-    // صوت تنبيه للطبيب
+    // صوت تنبيه للطبيب — AudioContext مشترك
     var _docAudioCtx = null;
     function getDocAudioCtx() {
       if (!_docAudioCtx || _docAudioCtx.state === 'closed') {
@@ -1678,27 +1678,30 @@
     function primeDocAudio() {
       var ctx = getDocAudioCtx();
       if (ctx && ctx.state === 'suspended') ctx.resume();
-      document.removeEventListener('click', primeDocAudio);
-      document.removeEventListener('keydown', primeDocAudio);
+      document.removeEventListener('click',      primeDocAudio);
+      document.removeEventListener('touchstart', primeDocAudio);
+      document.removeEventListener('keydown',    primeDocAudio);
     }
-    document.addEventListener('click', primeDocAudio);
-    document.addEventListener('keydown', primeDocAudio);
+    document.addEventListener('click',      primeDocAudio);
+    document.addEventListener('touchstart', primeDocAudio);
+    document.addEventListener('keydown',    primeDocAudio);
 
     function playDocNotifSound() {
       var ctx = getDocAudioCtx(); if (!ctx) return;
-      function doPlay() {
+      function _doPlay() {
         try {
-          [0, 0.2, 0.4].forEach(function(t) {
+          var now = ctx.currentTime;
+          [0, 0.18, 0.36].forEach(function(t) {
             var o = ctx.createOscillator(), g = ctx.createGain();
             o.connect(g); g.connect(ctx.destination);
             o.type = 'sine'; o.frequency.value = 880;
-            g.gain.setValueAtTime(0.35, ctx.currentTime + t);
-            g.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + t + 0.22);
-            o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.22);
+            g.gain.setValueAtTime(0.35, now + t);
+            g.gain.exponentialRampToValueAtTime(0.001, now + t + 0.22);
+            o.start(now + t); o.stop(now + t + 0.22);
           });
         } catch(e) {}
       }
-      if (ctx.state === 'suspended') ctx.resume().then(doPlay); else doPlay();
+      if (ctx.state === 'suspended') ctx.resume().then(_doPlay); else _doPlay();
     }
 
     // إشعار أسفل يمين بدون أيقونة — يبقى 8 ثوانٍ
