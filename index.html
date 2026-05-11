@@ -1417,6 +1417,10 @@
 
         <div style="font-weight:700; font-size:.82rem; color:var(--text-muted); margin-bottom:-8px;"><i class="fas fa-pen ml-1"></i>الملاحظات العامة:</div>
         <div id="noteContent" class="note-content" style="color:var(--text-primary);line-height:1.6;white-space:pre-wrap;word-break:break-word"></div>
+        <div id="noteUpdatedAt" style="display:none; font-size:.72rem; color:var(--text-muted); display:flex; align-items:center; gap:5px; margin-top:-4px; opacity:.85;">
+          <i class="far fa-clock" style="font-size:.7rem;"></i>
+          <span>آخر تعديل: <span id="noteUpdatedAtValue"></span></span>
+        </div>
         
         <!-- صور الزيارة -->
         <div id="noteImagesSection" style="display:none;">
@@ -1531,14 +1535,16 @@
       </div>
 
       <!-- Footer -->
-      <div style="padding:14px 24px;border-top:1.5px solid var(--border);background:var(--surface);flex-shrink:0;display:flex;gap:12px;align-items:center;">
+      <div style="padding:14px 24px;border-top:1.5px solid var(--border);background:var(--surface);flex-shrink:0;display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
         <button onclick="closeAddNoteModal()" class="btn-secondary" style="display:flex;align-items:center;gap:6px;white-space:nowrap;">
           <i class="fas fa-arrow-right"></i> عودة
         </button>
-        <button id="saveAndWhatsappBtn" class="btn-primary" style="flex:1;background:#25d366;border-color:#128c7e;justify-content:center;max-width:320px;margin:0 auto;">
+        <button id="saveOnlyBtn" class="btn-secondary" style="display:flex;align-items:center;gap:6px;white-space:nowrap;background:var(--primary-light);color:var(--primary);border-color:var(--border-strong);">
+          <i class="fas fa-save"></i> حفظ فقط
+        </button>
+        <button id="saveAndWhatsappBtn" class="btn-primary" style="flex:1;background:#25d366;border-color:#128c7e;justify-content:center;min-width:160px;">
           <i class="fab fa-whatsapp" style="margin-left:6px;"></i> حفظ وإرسال للمريض
         </button>
-        <p style="font-size:.68rem;color:var(--text-muted);text-align:left;flex:1;opacity:.8;">* الصور يجب إرفاقها يدوياً من الاستوديو بعد فتح واتساب.</p>
       </div>
 
     </div>
@@ -1622,6 +1628,29 @@
     function toLocalISODate(date) { const y=date.getFullYear(); const m=String(date.getMonth()+1).padStart(2,'0'); const d=String(date.getDate()).padStart(2,'0'); return `${y}-${m}-${d}`; }
     function parseLocalISODate(s) { const [y,m,d]=s.split('-').map(Number); return new Date(y,m-1,d); }
     function formatDateAr(s) { if(!s) return '-'; const d=parseLocalISODate(s); return d.toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'}); }
+
+    // تنسيق "آخر تعديل" — يعرض "اليوم 3:25م" / "أمس 9:10ص" / "قبل 3 أيام" / تاريخ كامل
+    function formatRelativeTime(ts) {
+      if (!ts) return '';
+      const now = new Date();
+      const d   = new Date(ts);
+      const diffMs   = now - d;
+      const diffMin  = Math.floor(diffMs / 60000);
+      const diffHr   = Math.floor(diffMs / 3600000);
+      const today0   = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+      const dDay0    = new Date(d.getFullYear(),   d.getMonth(),   d.getDate()).getTime();
+      const dayDiff  = Math.round((today0 - dDay0) / 86400000);
+
+      // الوقت بصيغة 3:25م
+      const time = d.toLocaleTimeString('ar-EG', { hour:'numeric', minute:'2-digit', hour12:true });
+
+      if (diffMin < 1)   return 'الآن';
+      if (diffMin < 60)  return `قبل ${diffMin} دقيقة`;
+      if (dayDiff === 0) return `اليوم ${time}`;
+      if (dayDiff === 1) return `أمس ${time}`;
+      if (dayDiff < 7)   return `قبل ${dayDiff} أيام`;
+      return d.toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric' }) + ` ${time}`;
+    }
     function calculateAge(b) { if(!b) return null; const birth=new Date(b); let age=today.getFullYear()-birth.getFullYear(); const m=today.getMonth()-birth.getMonth(); if(m<0 || (m===0 && today.getDate()<birth.getDate())) age--; return age; }
     function showToast(msg, type='info') { const toast=document.getElementById('toast'); const content=document.getElementById('toastContent'); content.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'info-circle'}"></i> ${msg}`; toast.classList.remove('hidden'); setTimeout(()=>toast.classList.add('hidden'),3000); }
     function normalizePhone(p) { return (p||'').replace(/[^\d+]/g,''); }
@@ -2306,6 +2335,7 @@
             data-date="${formatDateAr(v.date)}" 
             data-type="${v.visitType}"
             data-images="${imagesJson}"
+            data-updated-at="${v.noteUpdatedAt || ''}"
             title="عرض الملاحظة والصور" style="font-size:.75rem;color:var(--primary);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;font-family:inherit">
             <i class="fas fa-eye"></i> عرض${hasImages ? ` <span style="font-size:.68rem;background:var(--primary-light);padding:1px 5px;border-radius:8px;color:var(--primary);">${v.images.length} <i class="fas fa-image" style="font-size:.6rem;"></i></span>` : ''}</button>` : '<span style="color:var(--text-muted);font-size:.75rem">-</span>'}</td>
           <td><button class="edit-note-btn" data-patient-id="${patientId}" data-visit-idx="${idx}" title="تعديل الملاحظة والصور" style="font-size:.75rem;color:var(--primary);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;font-family:inherit"><i class="fas fa-pen"></i></button></td>
@@ -2325,7 +2355,8 @@
             prescription: this.dataset.prescription,
             dateFormatted: this.dataset.date,
             visitType: this.dataset.type,
-            images: images
+            images: images,
+            noteUpdatedAt: this.dataset.updatedAt ? parseInt(this.dataset.updatedAt, 10) : 0
           };
           showNote(visitData);
         });
@@ -2349,6 +2380,16 @@
     window.showNote = function(visitData) {
       document.getElementById('noteContent').textContent = visitData.note || 'لا توجد ملاحظة';
       document.getElementById('noteVisitInfo').textContent = `تاريخ: ${visitData.dateFormatted} | نوع: ${visitData.visitType}`;
+
+      // عرض "آخر تعديل"
+      const updatedAtEl = document.getElementById('noteUpdatedAt');
+      const updatedAtVal = document.getElementById('noteUpdatedAtValue');
+      if (visitData.noteUpdatedAt) {
+        updatedAtEl.style.display = 'flex';
+        updatedAtVal.textContent = formatRelativeTime(visitData.noteUpdatedAt);
+      } else {
+        updatedAtEl.style.display = 'none';
+      }
       
       // عرض الوصفة الطبية
       const prescriptionSection = document.getElementById('prescriptionSection');
@@ -2632,6 +2673,7 @@
         p.appointments[visitIndex].note = note;
         p.appointments[visitIndex].prescription = prescription;
         p.appointments[visitIndex].images = imagesToSave;
+        p.appointments[visitIndex].noteUpdatedAt = Date.now();
         
         lsSet(PATIENTS_STORAGE_KEY, allPatients);
         notifyOtherTab(PATIENTS_STORAGE_KEY);
@@ -2652,6 +2694,7 @@
       }
     }
 
+    document.getElementById('saveOnlyBtn')?.addEventListener('click', () => handleSaveNote(false));
     document.getElementById('saveAndWhatsappBtn')?.addEventListener('click', () => handleSaveNote(true));
 
     // ==================== التنقل بين الأقسام ====================
