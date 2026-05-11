@@ -1667,7 +1667,7 @@
     function calculateAge(b) { if(!b) return null; const birth=new Date(b); let age=today.getFullYear()-birth.getFullYear(); const m=today.getMonth()-birth.getMonth(); if(m<0 || (m===0 && today.getDate()<birth.getDate())) age--; return age; }
     function showToast(msg, type='info') { const toast=document.getElementById('toast'); const content=document.getElementById('toastContent'); content.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'info-circle'}"></i> ${msg}`; toast.classList.remove('hidden'); setTimeout(()=>toast.classList.add('hidden'),3000); }
 
-    // صوت تنبيه للطبيب — AudioContext مشترك
+    // ── Web Audio API — AudioContext مشترك مع keepalive ──
     var _docAudioCtx = null;
     function getDocAudioCtx() {
       if (!_docAudioCtx || _docAudioCtx.state === 'closed') {
@@ -1685,6 +1685,18 @@
     document.addEventListener('click',      primeDocAudio);
     document.addEventListener('touchstart', primeDocAudio);
     document.addEventListener('keydown',    primeDocAudio);
+    // keepalive: نبضة صامتة كل 30 ثانية
+    setInterval(function() {
+      var ctx = getDocAudioCtx();
+      if (ctx && ctx.state === 'running') {
+        try {
+          var o = ctx.createOscillator(), g = ctx.createGain();
+          g.gain.value = 0;
+          o.connect(g); g.connect(ctx.destination);
+          o.start(); o.stop(ctx.currentTime + 0.001);
+        } catch(e) {}
+      }
+    }, 30000);
 
     function playDocNotifSound() {
       var ctx = getDocAudioCtx(); if (!ctx) return;
@@ -3367,6 +3379,5 @@
   </div>
   <!-- إشعار قبول موعد -->
   <div id="docNotifToast"></div>
-
 </body>
 </html>
