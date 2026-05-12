@@ -844,6 +844,37 @@
   <link rel="apple-touch-icon" sizes="192x192" href="./icon-192.jpg"/>
   <link rel="manifest" href="./manifest.json"/>
   <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(function(){});</script>
+
+  <!-- OneSignal -->
+  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+  <script>
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    OneSignalDeferred.push(async function(OneSignal) {
+      await OneSignal.init({
+        appId: "be12e388-4bd7-4ea2-b30f-ee2250a3a4bf",
+        allowLocalhostAsSecureOrigin: true,
+        notifyButton: { enable: false },
+      });
+    });
+
+    // دالة لإرسال إشعار عبر OneSignal REST API
+    window.sendOSNotification = function(apiKey, heading, content, targetAppId) {
+      fetch('https://onesignal.com/api/v1/notifications', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Key ' + apiKey,
+        },
+        body: JSON.stringify({
+          app_id: targetAppId,
+          included_segments: ['Total Subscriptions'],
+          headings: { ar: heading, en: heading },
+          contents:  { ar: content,  en: content },
+        })
+      }).catch(function(e) { console.error('[OneSignal]', e); });
+    };
+  </script>
+
   <!-- ═══════ Firebase SDK ═══════ -->
   <script type="module">
     import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js';
@@ -950,12 +981,20 @@
     document.getElementById('loginUser').addEventListener('keydown', function(e){ if(e.key==='Enter') doLocalLogin(); });
 
     // مراقبة حالة تسجيل الدخول
-    var _authResolved = false;  // منع إعادة الخروج أثناء التحقق من الدور
+    var _authResolved = false;
     var _checkingRole  = false;
+    var _SESSION_KEY   = 'docbook_doc_auth';  // يبقى خلال نفس الجلسة
 
     function initAuthWatch() {
+      var ov = document.getElementById('loginOverlay');
+
+      // إذا كانت الجلسة محفوظة → أخفِ شاشة الدخول فوراً بدون انتظار
+      if (sessionStorage.getItem(_SESSION_KEY) === '1') {
+        ov.style.display = 'none';
+        _authResolved = true;
+      }
+
       window._fb.onAuth(function(user) {
-        var ov = document.getElementById('loginOverlay');
         if (user) {
           _checkingRole = true;
           window._fb.getDoc('users', user.uid).then(function(snap) {
@@ -963,6 +1002,7 @@
             var role = snap.exists() ? snap.data().role : null;
             if (role !== 'doctor') {
               _authResolved = false;
+              sessionStorage.removeItem(_SESSION_KEY);
               window._fb.signOut();
               ov.style.display = 'flex'; ov.style.opacity = '1';
               var errEl = document.getElementById('loginError');
@@ -970,6 +1010,7 @@
               return;
             }
             _authResolved = true;
+            sessionStorage.setItem(_SESSION_KEY, '1');
             ov.style.transition = 'opacity .3s'; ov.style.opacity = '0';
             setTimeout(function(){ ov.style.display = 'none'; }, 300);
             if (typeof loadData === 'function') loadData();
@@ -978,8 +1019,8 @@
             console.error('[Auth role check]', e);
           });
         } else {
-          // تجاهل null أثناء التحقق من الدور أو بعد الفتح
           if (_checkingRole || _authResolved) return;
+          sessionStorage.removeItem(_SESSION_KEY);
           ov.style.display = 'flex'; ov.style.opacity = '1';
         }
       });
@@ -3363,6 +3404,7 @@
       var label = type === 'next'  ? 'أدخل المريض التالي' :
                   type === 'enter' ? 'استدعاء الممرضة' :
                   (customAlertData.label || 'تنبيه مخصص');
+      // حفظ في Firestore
       window._fb.addDoc(window._fb.col('alerts'), {
         type:      type,
         direction: 'doctorToNurse',
@@ -3370,6 +3412,13 @@
         read:      false,
         createdAt: window._fb.serverTimestamp()
       }).catch(function(e) { console.error('alert send', e); });
+      // إشعار فوري عبر OneSignal للممرضة
+      window.sendOSNotification(
+        'os_v2_app_lk6saa7b55gozbtmesevtnw2zooo3lshuvvep6m7q4qbngagvzdyzjdgumixjtshz6pagbqjjqm2yhdudz27dlf4f2w5ozcruhrpnsq',
+        'تنبيه من الطبيب',
+        label,
+        '5abd2003-e1ef-4cec-866c-248959b6dacb'
+      );
     };
 
     // ── تخصيص الزر الثالث ──
@@ -3415,6 +3464,7 @@
       if (typeof _unsubClosed === 'function') _unsubClosed();
       if (typeof _unsubAlerts === 'function') _unsubAlerts();
       window._fb.signOut().then(function() {
+        sessionStorage.removeItem('docbook_doc_auth');
         var ov = document.getElementById('loginOverlay');
         ov.style.display = 'flex'; ov.style.opacity = '0';
         setTimeout(function(){ ov.style.opacity = '1'; ov.style.transition = 'opacity .3s'; }, 50);
