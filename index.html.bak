@@ -983,13 +983,21 @@
     // مراقبة حالة تسجيل الدخول
     var _authResolved = false;
     var _checkingRole  = false;
-    var _SESSION_KEY   = 'docbook_doc_auth';  // يبقى خلال نفس الجلسة
+    var _SESSION_KEY   = 'docbook_doc_auth';
+    var _SESSION_TTL   = 8 * 60 * 60 * 1000; // 8 ساعات
+
+    function _saveSession()  { localStorage.setItem(_SESSION_KEY, String(Date.now())); }
+    function _clearSession() { localStorage.removeItem(_SESSION_KEY); }
+    function _hasSession()   {
+      var t = parseInt(localStorage.getItem(_SESSION_KEY) || '0', 10);
+      return t > 0 && (Date.now() - t) < _SESSION_TTL;
+    }
 
     function initAuthWatch() {
       var ov = document.getElementById('loginOverlay');
 
-      // إذا كانت الجلسة محفوظة → أخفِ شاشة الدخول فوراً بدون انتظار
-      if (sessionStorage.getItem(_SESSION_KEY) === '1') {
+      // إذا كانت الجلسة محفوظة → أخفِ شاشة الدخول فوراً
+      if (_hasSession()) {
         ov.style.display = 'none';
         _authResolved = true;
       }
@@ -1002,7 +1010,7 @@
             var role = snap.exists() ? snap.data().role : null;
             if (role !== 'doctor') {
               _authResolved = false;
-              sessionStorage.removeItem(_SESSION_KEY);
+              _clearSession();
               window._fb.signOut();
               ov.style.display = 'flex'; ov.style.opacity = '1';
               var errEl = document.getElementById('loginError');
@@ -1010,7 +1018,7 @@
               return;
             }
             _authResolved = true;
-            sessionStorage.setItem(_SESSION_KEY, '1');
+            _saveSession();
             ov.style.transition = 'opacity .3s'; ov.style.opacity = '0';
             setTimeout(function(){ ov.style.display = 'none'; }, 300);
             if (typeof loadData === 'function') loadData();
@@ -1019,8 +1027,9 @@
             console.error('[Auth role check]', e);
           });
         } else {
-          if (_checkingRole || _authResolved) return;
-          sessionStorage.removeItem(_SESSION_KEY);
+          // تجاهل null إذا الجلسة لا تزال صالحة أو أثناء التحقق
+          if (_checkingRole || _authResolved || _hasSession()) return;
+          _clearSession();
           ov.style.display = 'flex'; ov.style.opacity = '1';
         }
       });
@@ -3464,7 +3473,7 @@
       if (typeof _unsubClosed === 'function') _unsubClosed();
       if (typeof _unsubAlerts === 'function') _unsubAlerts();
       window._fb.signOut().then(function() {
-        sessionStorage.removeItem('docbook_doc_auth');
+        _clearSession();
         var ov = document.getElementById('loginOverlay');
         ov.style.display = 'flex'; ov.style.opacity = '0';
         setTimeout(function(){ ov.style.opacity = '1'; ov.style.transition = 'opacity .3s'; }, 50);
