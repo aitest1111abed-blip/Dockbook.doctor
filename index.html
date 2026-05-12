@@ -845,38 +845,6 @@
   <link rel="manifest" href="./manifest.json"/>
   <script>if('serviceWorker'in navigator)navigator.serviceWorker.register('./sw.js').catch(function(){});</script>
 
-  <!-- OneSignal -->
-  <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-  <script>
-    window.OneSignalDeferred = window.OneSignalDeferred || [];
-    OneSignalDeferred.push(async function(OneSignal) {
-      await OneSignal.init({
-        appId: "be12e388-4bd7-4ea2-b30f-ee2250a3a4bf",
-        allowLocalhostAsSecureOrigin: true,
-        notifyButton: { enable: false },
-      });
-    });
-
-    // دالة لإرسال إشعار عبر OneSignal REST API
-    window.sendOSNotification = function(apiKey, heading, content, targetAppId) {
-      fetch('https://onesignal.com/api/v1/notifications', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Key ' + apiKey,
-        },
-        body: JSON.stringify({
-          app_id: targetAppId,
-          included_segments: ['Total Subscriptions'],
-          headings: { ar: heading, en: heading },
-          contents:  { ar: content,  en: content },
-          android_sound: 'notification',
-          ios_sound:     'notification.wav',
-          priority: 10,
-        })
-      }).catch(function(e) { console.error('[OneSignal]', e); });
-    };
-  </script>
 
   <!-- ═══════ Firebase SDK ═══════ -->
   <script type="module">
@@ -984,14 +952,6 @@
 
     // مراقبة حالة تسجيل الدخول
 
-    // طلب إذن الإشعارات بعد تسجيل الدخول
-    function requestPushPermission() {
-      try {
-        if (typeof OneSignal === 'undefined') return;
-        OneSignal.Notifications.requestPermission().then(function(accepted) {
-          console.log('[OneSignal] permission:', accepted ? 'granted' : 'denied');
-        }).catch(function(){});
-      } catch(e) {}
     }
     var _dataLoaded = false;
 
@@ -1018,7 +978,6 @@
               }
               _dataLoaded = true;
               if (typeof loadData === 'function') loadData();
-              setTimeout(requestPushPermission, 2000);
             }).catch(function(e) { console.error('[Auth]', e); });
           }
         } else {
@@ -1800,6 +1759,58 @@
     function showToast(msg, type='info') { const toast=document.getElementById('toast'); const content=document.getElementById('toastContent'); content.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'info-circle'}"></i> ${msg}`; toast.classList.remove('hidden'); setTimeout(()=>toast.classList.add('hidden'),3000); }
 
     // ── Web Audio API — AudioContext مشترك مع keepalive ──
+    var _docAudioCtx = null;
+    function _getDocCtx() {
+      if (!_docAudioCtx || _docAudioCtx.state === 'closed') {
+        try { _docAudioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) { return null; }
+      }
+      return _docAudioCtx;
+    }
+    function _primeDocAudio() {
+      var ctx = _getDocCtx();
+      if (ctx && ctx.state === 'suspended') ctx.resume();
+      document.removeEventListener('click',      _primeDocAudio);
+      document.removeEventListener('touchstart', _primeDocAudio);
+      document.removeEventListener('keydown',    _primeDocAudio);
+    }
+    document.addEventListener('click',      _primeDocAudio);
+    document.addEventListener('touchstart', _primeDocAudio);
+    document.addEventListener('keydown',    _primeDocAudio);
+    // keepalive: نبضة صامتة كل 30 ثانية
+    setInterval(function() {
+      var ctx = _getDocCtx();
+      if (ctx && ctx.state === 'running') {
+        try { var o=ctx.createOscillator(),g=ctx.createGain(); g.gain.value=0; o.connect(g); g.connect(ctx.destination); o.start(); o.stop(ctx.currentTime+0.001); } catch(e) {}
+      }
+    }, 30000);
+
+    function playDocNotifSound() {
+      var ctx = _getDocCtx(); if (!ctx) return;
+      function _play() {
+        try {
+          var now = ctx.currentTime;
+          [0, 0.18, 0.36].forEach(function(t) {
+            var o=ctx.createOscillator(), g=ctx.createGain();
+            o.connect(g); g.connect(ctx.destination);
+            o.type='sine'; o.frequency.value=880;
+            g.gain.setValueAtTime(0.35, now+t);
+            g.gain.exponentialRampToValueAtTime(0.001, now+t+0.22);
+            o.start(now+t); o.stop(now+t+0.22);
+          });
+        } catch(e) {}
+      }
+      if (ctx.state === 'suspended') ctx.resume().then(_play); else _play();
+    }
+
+    function showDocNotifToast(msg) {
+      var el = document.getElementById('docNotifToast');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.add('show');
+      playDocNotifSound();
+      clearTimeout(el._timer);
+      el._timer = setTimeout(function() { el.classList.remove('show'); }, 8000);
+    }
     var _docAudioCtx = null;
     function getDocAudioCtx() {
       if (!_docAudioCtx || _docAudioCtx.state === 'closed') {
@@ -3415,13 +3426,6 @@
         read:      false,
         createdAt: window._fb.serverTimestamp()
       }).catch(function(e) { console.error('alert send', e); });
-      // إشعار فوري عبر OneSignal للممرضة
-      window.sendOSNotification(
-        'os_v2_app_lk6saa7b55gozbtmesevtnw2zooo3lshuvvep6m7q4qbngagvzdyzjdgumixjtshz6pagbqjjqm2yhdudz27dlf4f2w5ozcruhrpnsq',
-        'تنبيه من الطبيب',
-        label,
-        '5abd2003-e1ef-4cec-866c-248959b6dacb'
-      );
     };
 
     // ── تخصيص الزر الثالث ──
