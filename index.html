@@ -229,10 +229,10 @@
     .patient-action-btn.secondary { background: #64748b !important; color: white !important; }
     .patient-action-btn.danger    { background: var(--red) !important; color: white !important; }
 
-    .btn-primary { background: var(--primary); color: white; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 700; font-family: inherit; cursor: pointer; transition: background .15s, transform .1s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-primary { background: var(--primary); color: white; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 700; font-family: inherit; cursor: pointer; transition: background .15s, transform .1s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-primary:hover { background: var(--primary-hover); }
     .btn-primary:active { transform: scale(.98); }
-    .btn-secondary { background: #e2e8f0 !important; color: #475569 !important; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 700; font-family: inherit; cursor: pointer; transition: background .15s; display: inline-flex; align-items: center; gap: 6px; }
+    .btn-secondary { background: #e2e8f0 !important; color: #475569 !important; border: none; border-radius: 10px; padding: 10px 20px; font-weight: 700; font-family: inherit; cursor: pointer; transition: background .15s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
     .btn-secondary:hover { background: #cbd5e1 !important; }
 
     .modal-overlay { background: rgba(13, 148, 136, 0.15); backdrop-filter: blur(4px); }
@@ -1348,7 +1348,7 @@
       <!-- Pills تظهر فوق الزر -->
       <div id="mobDocPills">
         <button class="doc-fab-pill" onclick="closeMobDocFab();sendNurseAlert('next')">
-          <span class="doc-fab-pill-icon next-p"><i class="fas fa-user-arrow-right"></i></span>
+          <span class="doc-fab-pill-icon next-p"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span>
           <span class="doc-fab-pill-label">أدخل المريض</span>
         </button>
         <button class="doc-fab-pill" onclick="closeMobDocFab();sendNurseAlert('enter')">
@@ -1379,7 +1379,7 @@
         <div id="statInfoDescription" style="color:var(--text-secondary);line-height:1.75"></div>
       </div>
       <div style="padding:20px;border-top:1.5px solid var(--border);display:flex;justify-content:flex-end">
-        <button onclick="closeStatInfoModal()" class="btn-primary px-4 py-2">حسناً</button>
+        <button onclick="closeStatInfoModal()" class="btn-primary px-4 py-2" style="justify-content:center;text-align:center;">حسناً</button>
       </div>
     </div>
   </div>
@@ -1393,7 +1393,7 @@
       </div>
       <div style="padding:18px;" id="dayDetailsContent"></div>
       <div style="padding:18px; border-top:1.5px solid var(--border); display:flex; justify-content:flex-end;">
-        <button onclick="closeDayDetailsModal()" class="btn-primary" style="padding:9px 22px;">حسناً</button>
+        <button onclick="closeDayDetailsModal()" class="btn-primary" style="padding:9px 22px;justify-content:center;text-align:center;">حسناً</button>
       </div>
     </div>
   </div>
@@ -1494,7 +1494,7 @@
       <!-- Footer -->
       <div style="padding:16px 20px; border-top:1.5px solid var(--border); display:flex; gap:10px;">
         <a id="appDetailsWhatsappBtn" href="#" target="_blank" style="flex:1; padding:12px; font-size:.9rem; background:#25D366; color:white; border:none; border-radius:var(--radius-sm); font-weight:700; font-family:inherit; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; gap:7px; text-decoration:none;"><i class="fab fa-whatsapp" style="font-size:1.1rem;"></i> واتساب</a>
-        <button onclick="closeAppointmentDetailsModal()" class="btn-primary" style="flex:1; padding:12px; font-size:.9rem;">حسناً</button>
+        <button onclick="closeAppointmentDetailsModal()" class="btn-primary" style="flex:1; padding:12px; font-size:.9rem;justify-content:center;text-align:center;">حسناً</button>
       </div>
     </div>
   </div>
@@ -1801,14 +1801,35 @@
       if (ctx.state === 'suspended') ctx.resume().then(_play); else _play();
     }
 
+    // ── نظام إشعارات متعددة متراكمة للطبيب ──
+    var _docNotifContainer = null;
+    function _getDocNotifContainer() {
+      if (!_docNotifContainer) {
+        _docNotifContainer = document.createElement('div');
+        _docNotifContainer.style.cssText = 'position:fixed;bottom:24px;right:24px;z-index:9998;display:flex;flex-direction:column-reverse;gap:10px;';
+        document.body.appendChild(_docNotifContainer);
+      }
+      return _docNotifContainer;
+    }
+
     function showDocNotifToast(msg) {
-      var el = document.getElementById('docNotifToast');
-      if (!el) return;
+      var el = document.createElement('div');
+      el.style.cssText = 'background:var(--primary);color:white;font-weight:800;font-size:.92rem;padding:13px 22px;border-radius:12px;box-shadow:0 4px 20px rgba(13,148,136,.35);opacity:0;transform:translateX(20px);transition:opacity .25s,transform .25s;white-space:nowrap;max-width:280px;cursor:pointer;';
       el.textContent = msg;
-      el.classList.add('show');
+      _getDocNotifContainer().appendChild(el);
+      requestAnimationFrame(function() {
+        requestAnimationFrame(function() {
+          el.style.opacity = '1'; el.style.transform = 'translateX(0)';
+        });
+      });
+      var dismiss = function() {
+        clearTimeout(el._t);
+        el.style.opacity = '0'; el.style.transform = 'translateX(20px)';
+        setTimeout(function() { if (el.parentNode) el.parentNode.removeChild(el); }, 280);
+      };
+      el.onclick = dismiss;
+      el._t = setTimeout(dismiss, 8000);
       playDocNotifSound();
-      clearTimeout(el._timer);
-      el._timer = setTimeout(function() { el.classList.remove('show'); }, 8000);
     }
     var _docAudioCtx = null;
     function getDocAudioCtx() {
@@ -1858,16 +1879,6 @@
       if (ctx.state === 'suspended') ctx.resume().then(_doPlay); else _doPlay();
     }
 
-    // إشعار أسفل يمين بدون أيقونة — يبقى 8 ثوانٍ
-    function showDocNotifToast(msg) {
-      var el = document.getElementById('docNotifToast');
-      if (!el) return;
-      el.textContent = msg;
-      el.classList.add('show');
-      playDocNotifSound();
-      clearTimeout(el._timer);
-      el._timer = setTimeout(function() { el.classList.remove('show'); }, 8000);
-    }
     function normalizePhone(p) { return (p||'').replace(/[^\d+]/g,''); }
     function escapeHtml(text) { const div = document.createElement('div'); div.textContent = text; return div.innerHTML; }
 
@@ -1892,23 +1903,29 @@
 
     // ── فحص التنبيهات الفائتة عند فتح اللوحة ──
     function checkMissedAlerts() {
-      var since = Date.now() - (24 * 60 * 60 * 1000); // آخر 24 ساعة
-      window._fb.getDoc('config', 'lastAlertSeen').then(function(snap) {
-        var lastSeen = snap.exists() ? (snap.data().ts || 0) : 0;
-        // اجلب التنبيهات غير المقروءة
-        window._fb.onSnapshot(window._fb.col('alerts'), function(snap) {
-          var unread = snap.docs
-            .map(function(d) { return Object.assign({ id: d.id }, d.data()); })
-            .filter(function(d) {
-              var ts = d.createdAt ? d.createdAt.toMillis() : 0;
-              return d.direction === 'nurseToDoctor' && !d.read && ts > lastSeen;
-            });
-          if (unread.length > 0) {
-            var latest = unread[unread.length - 1];
-            showDocNotifToast((unread.length > 1 ? unread.length + ' تنبيهات فائتة' : latest.message) || 'تم قبول موعد');
-          }
-        }, function(){});
-      }).catch(function(){});
+      var SEEN_KEY = 'docbook_doc_alertSeen';
+      var lastSeen = parseInt(localStorage.getItem(SEEN_KEY) || '0', 10);
+      var nowTs = Date.now();
+
+      // حدّث فوراً لمنع التكرار
+      localStorage.setItem(SEEN_KEY, String(nowTs));
+
+      if (lastSeen === 0) return; // أول مرة يفتح — لا إشعار
+
+      // اجلب التنبيهات الفائتة من Firestore
+      window._fb.onSnapshot(window._fb.col('alerts'), function(snap) {
+        var unread = snap.docs
+          .map(function(d) { return Object.assign({ id: d.id }, d.data()); })
+          .filter(function(d) {
+            var ts = d.createdAt ? d.createdAt.toMillis() : 0;
+            return d.direction === 'nurseToDoctor' && ts > lastSeen && ts < nowTs;
+          });
+        if (unread.length === 1) {
+          showDocNotifToast(unread[0].message || 'تم قبول موعد');
+        } else if (unread.length > 1) {
+          showDocNotifToast(unread.length + ' إجراءات فائتة');
+        }
+      }, function(){});
     }
 
     function loadData() {
@@ -1967,8 +1984,8 @@
             _lastAcceptedAlertId = change.doc.id;
             if (typeof showDocNotifToast === 'function') showDocNotifToast(d.message || 'تم قبول موعد');
             window._fb.updateDoc(change.doc.ref, { read: true });
-            // حفظ آخر وقت رأى الطبيب تنبيهاً
-            window._fb.setDoc(window._fb.docRef('config', 'lastAlertSeen'), { ts: Date.now() }, { merge: true });
+            // حدّث وقت آخر تنبيه مرئي
+            localStorage.setItem('docbook_doc_alertSeen', String(Date.now()));
           });
         },
         function(e) { console.error('[alerts]', e); }
@@ -3133,8 +3150,8 @@
   <!-- Pills منفصلة بـ fixed -->
   <div id="docDesktopPills">
     <button class="doc-fab-pill" id="deskDocPillNext" onclick="closeDocFabDial();sendNurseAlert('next')">
-      <span class="doc-fab-pill-icon next-p"><i class="fas fa-user-arrow-right"></i></span>
-      <span class="doc-fab-pill-label">أدخل المريض</span>
+      <span class="doc-fab-pill-icon next-p"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg></span>
+          <span class="doc-fab-pill-label">أدخل المريض</span>
     </button>
     <button class="doc-fab-pill" id="deskDocPillEnter" onclick="closeDocFabDial();sendNurseAlert('enter')">
       <span class="doc-fab-pill-icon enter-p"><i class="fas fa-door-open"></i></span>
@@ -3441,7 +3458,12 @@
       var label = type === 'next'  ? 'أدخل المريض التالي' :
                   type === 'enter' ? 'استدعاء الممرضة' :
                   (customAlertData.label || 'تنبيه مخصص');
-      // حفظ في Firestore
+      var payload = { type: type, direction: 'doctorToNurse', message: label, ts: Date.now() };
+      // ١. BroadcastChannel — فوري لنفس الجهاز/المتصفح
+      try { new BroadcastChannel('nurseAlerts').postMessage(payload); } catch(e) {}
+      // ٢. localStorage — فوري لتبويبات نفس المتصفح
+      try { localStorage.setItem('nurseAlertPayload', JSON.stringify(payload)); } catch(e) {}
+      // ٣. Firestore — للأجهزة الأخرى
       window._fb.addDoc(window._fb.col('alerts'), {
         type:      type,
         direction: 'doctorToNurse',
