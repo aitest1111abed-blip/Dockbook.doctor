@@ -1341,9 +1341,9 @@
   </div>
 
   <nav class="bottom-nav" style="height:64px; padding:0;">
-    <div class="bottom-nav-item active" id="mobileCalendar"><i class="fas fa-calendar-alt"></i><span>المواعيد</span></div>
-    <div class="bottom-nav-item" id="mobilePatients"><i class="fas fa-address-book"></i><span>المرضى</span></div>
     <div class="bottom-nav-item" id="mobileStats"><i class="fas fa-chart-pie"></i><span>إحصائيات</span></div>
+    <div class="bottom-nav-item" id="mobilePatients"><i class="fas fa-address-book"></i><span>المرضى</span></div>
+    <div class="bottom-nav-item active" id="mobileCalendar"><i class="fas fa-calendar-alt"></i><span>المواعيد</span></div>
     <!-- FAB على اليسار -->
     <div class="mob-doc-fab-container">
       <!-- Pills تظهر فوق الزر -->
@@ -1891,9 +1891,31 @@
     var _alertSeenAt = 0;
     var _lastAcceptedAlertId = null;
 
+    // ── فحص التنبيهات الفائتة عند فتح اللوحة ──
+    function checkMissedAlerts() {
+      var since = Date.now() - (24 * 60 * 60 * 1000); // آخر 24 ساعة
+      window._fb.getDoc('config', 'lastAlertSeen').then(function(snap) {
+        var lastSeen = snap.exists() ? (snap.data().ts || 0) : 0;
+        // اجلب التنبيهات غير المقروءة
+        window._fb.onSnapshot(window._fb.col('alerts'), function(snap) {
+          var unread = snap.docs
+            .map(function(d) { return Object.assign({ id: d.id }, d.data()); })
+            .filter(function(d) {
+              var ts = d.createdAt ? d.createdAt.toMillis() : 0;
+              return d.direction === 'nurseToDoctor' && !d.read && ts > lastSeen;
+            });
+          if (unread.length > 0) {
+            var latest = unread[unread.length - 1];
+            showDocNotifToast((unread.length > 1 ? unread.length + ' تنبيهات فائتة' : latest.message) || 'تم قبول موعد');
+          }
+        }, function(){});
+      }).catch(function(){});
+    }
+
     function loadData() {
       migrateLocalStorageToFirestore();
       _alertSeenAt = Date.now();
+      checkMissedAlerts();
 
       // المواعيد
       if (_unsubAppt) _unsubAppt();
@@ -1946,6 +1968,8 @@
             _lastAcceptedAlertId = change.doc.id;
             if (typeof showDocNotifToast === 'function') showDocNotifToast(d.message || 'تم قبول موعد');
             window._fb.updateDoc(change.doc.ref, { read: true });
+            // حفظ آخر وقت رأى الطبيب تنبيهاً
+            window._fb.setDoc(window._fb.docRef('config', 'lastAlertSeen'), { ts: Date.now() }, { merge: true });
           });
         },
         function(e) { console.error('[alerts]', e); }
