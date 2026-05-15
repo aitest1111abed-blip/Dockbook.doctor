@@ -4009,6 +4009,12 @@
 
   <script>
     // ══ فورم الموعد اليدوي - لوحة الطبيب ══
+    // دوال مساعدة مطلوبة للفورم
+    function normalizeDate(d) {
+      if (!d) return '';
+      if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+      try { return new Date(d).toISOString().split('T')[0]; } catch(e) { return d; }
+    }
     let oManualData = { patientName:'', phone:'', birthDate:'', address:'', visitType:'', selectedDate:'', selectedSlot:'Morning', currentStep:1 };
 
     function openManualFormOverlay() {
@@ -4199,8 +4205,8 @@
     window.oPrevMonth = function() { oCalDate.setMonth(oCalDate.getMonth()-1); oRenderCalendar(); };
     window.oNextMonth = function() { oCalDate.setMonth(oCalDate.getMonth()+1); oRenderCalendar(); };
 
-    // alias
-    function openDocManualForm() { openManualFormOverlay(); }
+    // alias - window لضمان الوصول من onclick
+    window.openDocManualForm = function() { openManualFormOverlay(); };
 
     // submit handler - يذهب للروزنامة كـ Accepted
     document.addEventListener('DOMContentLoaded', function() {
