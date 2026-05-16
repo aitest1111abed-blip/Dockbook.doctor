@@ -833,7 +833,8 @@
       inset: 0;
       z-index: 400;
       background: rgba(19,78,74,0.35);
-            -webkit-      align-items: center;
+      backdrop-filter: blur(4px);
+      align-items: center;
       justify-content: center;
       padding: 20px;
       animation: overlayFadeIn .2s ease;
@@ -4018,22 +4019,33 @@
     let oManualData = { patientName:'', phone:'', birthDate:'', address:'', visitType:'', selectedDate:'', selectedSlot:'Morning', currentStep:1 };
 
     function openManualFormOverlay() {
-      oManualData = { patientName:'', phone:'', birthDate:'', address:'', visitType:'', selectedDate:'', selectedSlot:'Morning', currentStep:1 };
-      // Reset fields
-      ['oManualPatientName','oManualPhone','oManualBirthDate','oManualAddress'].forEach(id => document.getElementById(id).value = '');
-      document.getElementById('oManualVisitType').value = '';
-      document.getElementById('oManualDateInput').value = '';
-      document.getElementById('oManualBirthDate').max = todayStr;
-      if (window.oSelectSlot) oSelectSlot('Morning');
-      document.getElementById('oClosedDayWarning').classList.add('hidden');
-      document.getElementById('oSelectedDayInfo').classList.add('hidden');
-      document.getElementById('oSlotSelectorWrapper').classList.add('hidden');
-      oCalDate = new Date(); oCalDate.setHours(0,0,0,0);
-      oUpdateSummary();
-      oGoToStep(1);
-      oRenderCalendar();
+      // أظهر الفورم أولاً
       document.getElementById('manualFormOverlay').classList.add('active');
       document.body.style.overflow = 'hidden';
+
+      oManualData = { patientName:'', phone:'', birthDate:'', address:'', visitType:'', selectedDate:'', selectedSlot:'Morning', currentStep:1 };
+      // Reset fields
+      ['oManualPatientName','oManualPhone','oManualBirthDate','oManualAddress'].forEach(id => {
+        var el = document.getElementById(id);
+        if (el) el.value = '';
+      });
+      var vt = document.getElementById('oManualVisitType');
+      if (vt) vt.value = '';
+      var di = document.getElementById('oManualDateInput');
+      if (di) di.value = '';
+      var bd = document.getElementById('oManualBirthDate');
+      if (bd) bd.max = todayStr;
+      if (window.oSelectSlot) oSelectSlot('Morning');
+      var cdw = document.getElementById('oClosedDayWarning');
+      if (cdw) cdw.classList.add('hidden');
+      var sdi = document.getElementById('oSelectedDayInfo');
+      if (sdi) sdi.classList.add('hidden');
+      var ssw = document.getElementById('oSlotSelectorWrapper');
+      if (ssw) ssw.classList.add('hidden');
+      oCalDate = new Date(); oCalDate.setHours(0,0,0,0);
+      try { oUpdateSummary(); } catch(e) { console.error('oUpdateSummary', e); }
+      try { oGoToStep(1); } catch(e) { console.error('oGoToStep', e); }
+      try { oRenderCalendar(); } catch(e) { console.error('oRenderCalendar', e); }
     }
 
     function closeManualFormOverlay() {
@@ -4212,24 +4224,24 @@
     document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('submitManualAppointment')?.addEventListener('click', function() {
         saveManualFormData();
-        if (!manualAppointmentData.patientName || !manualAppointmentData.phone ||
-            !manualAppointmentData.birthDate || !manualAppointmentData.visitType ||
-            !manualAppointmentData.selectedDate) {
+        if (!oManualData.patientName || !oManualData.phone ||
+            !oManualData.birthDate || !oManualData.visitType ||
+            !oManualData.selectedDate) {
           showToast('بيانات ناقصة', 'error'); return;
         }
         var apptId = 'appt_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
         var appointment = {
           id:          apptId,
-          PatientName: manualAppointmentData.patientName,
-          Phone:       manualAppointmentData.phone,
-          BirthDate:   manualAppointmentData.birthDate,
-          Address:     manualAppointmentData.address || '',
-          Age:         calculateAge(manualAppointmentData.birthDate),
-          Date:        manualAppointmentData.selectedDate,
-          Slot:        manualAppointmentData.selectedSlot,
-          VisitType:   manualAppointmentData.visitType,
+          PatientName: oManualData.patientName,
+          Phone:       oManualData.phone,
+          BirthDate:   oManualData.birthDate,
+          Address:     oManualData.address || '',
+          Age:         calculateAge(oManualData.birthDate),
+          Date:        oManualData.selectedDate,
+          Slot:        oManualData.selectedSlot,
+          VisitType:   oManualData.visitType,
           Status:      'Accepted',
-          DayName:     daysAr[parseLocalISODate(manualAppointmentData.selectedDate).getDay()],
+          DayName:     daysAr[parseLocalISODate(oManualData.selectedDate).getDay()],
           CreatedAt:   new Date().toISOString(),
         };
         window._fb.setDoc(
@@ -4239,7 +4251,7 @@
         ).then(function() {
           showToast('تم تسجيل الموعد بنجاح', 'success');
           closeManualFormOverlay();
-          selectedDayStr = manualAppointmentData.selectedDate;
+          selectedDayStr = oManualData.selectedDate;
           setActiveSection('calendar');
           setTimeout(function() {
             renderCalendar();
