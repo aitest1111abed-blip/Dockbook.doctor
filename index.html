@@ -515,6 +515,21 @@
     .appt-card-btn--details:hover { background: #475569; }
 
     /* زر عرض تفاصيل اليوم - نفس تصميم الممرضة */
+    .btn-add-manual {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 8px;
+      transition: all .15s;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+    }
+    .btn-add-manual:hover { color: var(--primary); background: var(--primary-light); }
     .btn-show-details {
       background: transparent !important;
       color: var(--text-muted) !important;
@@ -530,21 +545,6 @@
       align-items: center;
       justify-content: center;
     }
-    .btn-add-manual {
-      background: linear-gradient(135deg,#7c3aed,#6d28d9);
-      border: none;
-      cursor: pointer;
-      padding: 6px;
-      border-radius: 8px;
-      transition: all .15s;
-      width: 38px;
-      height: 38px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 2px 8px rgba(124,58,237,.35);
-    }
-    .btn-add-manual:hover { opacity: .88; transform: scale(1.05); }
     .btn-show-details:hover {
       color: var(--primary) !important;
       background: var(--primary-light) !important;
@@ -841,8 +841,8 @@
       #docDesktopSpeedDial { display: none !important; }
       #docDesktopPills     { display: none !important; }
     }
-  /* ─── Manual Appointment Form ─── */
-#manualFormOverlay {
+
+    #manualFormOverlay {
       display: none;
       position: fixed;
       inset: 0;
@@ -1269,7 +1269,7 @@
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <button id="showDayDetailsBtn" type="button" class="btn-show-details" title="عرض تفاصيل اليوم"><i class="fas fa-eye"></i></button>
                 <button onclick="openManualFormOverlay()" type="button" class="btn-add-manual" title="إضافة موعد يدوي">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="12" y1="14" x2="12" y2="18"/><line x1="10" y1="16" x2="14" y2="16"/></svg>
                 </button>
               </div>
             </div>
@@ -3818,6 +3818,7 @@
   <!-- إشعار قبول موعد -->
   <div id="docNotifToast"></div>
 
+
   <div id="manualFormOverlay" onclick="handleOverlayClick(event)">
     <div id="manualFormPanel">
       <button id="manualFormOverlayCloseBtn" onclick="closeManualFormOverlay()" title="إغلاق">
@@ -4017,40 +4018,35 @@
   </div><!-- /manualFormOverlay -->
 
   <script>
-    // normalizeDate helper
-    function normalizeDate(d) {
-      if (!d) return "";
-      if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
-      try { return new Date(d).toISOString().split("T")[0]; } catch(e) { return d; }
+    // ══════ فورم الموعد اليدوي - لوحة الطبيب ══════
+    // دالة مساعدة
+    if (typeof normalizeDate === 'undefined') {
+      function normalizeDate(d) {
+        if (!d) return '';
+        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) return d;
+        try { return new Date(d).toISOString().split('T')[0]; } catch(e) { return d; }
+      }
     }
 
     let oManualData = { patientName:'', phone:'', birthDate:'', address:'', visitType:'', selectedDate:'', selectedSlot:'Morning', currentStep:1 };
 
     function openManualFormOverlay() {
-      // أظهر الفورم أولاً قبل أي عملية أخرى
-      var overlay = document.getElementById('manualFormOverlay');
-      if (!overlay) { console.error('manualFormOverlay not found'); return; }
-      overlay.classList.add('active');
-      document.body.style.overflow = 'hidden';
-
-      // هيّئ البيانات
       oManualData = { patientName:'', phone:'', birthDate:'', address:'', visitType:'', selectedDate:'', selectedSlot:'Morning', currentStep:1 };
-
-      // هيّئ الحقول بأمان
-      ['oManualPatientName','oManualPhone','oManualBirthDate','oManualAddress'].forEach(function(id) {
-        var el = document.getElementById(id); if (el) el.value = '';
-      });
-      var vt = document.getElementById('oManualVisitType'); if (vt) vt.value = '';
-      var di = document.getElementById('oManualDateInput'); if (di) di.value = '';
-      var bd = document.getElementById('oManualBirthDate'); if (bd) bd.max = todayStr;
-      if (window.oSelectSlot) try { oSelectSlot('Morning'); } catch(e) {}
-      var cdw = document.getElementById('oClosedDayWarning'); if (cdw) cdw.classList.add('hidden');
-      var sdi = document.getElementById('oSelectedDayInfo'); if (sdi) sdi.classList.add('hidden');
-      var ssw = document.getElementById('oSlotSelectorWrapper'); if (ssw) ssw.classList.add('hidden');
+      // Reset fields
+      ['oManualPatientName','oManualPhone','oManualBirthDate','oManualAddress'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('oManualVisitType').value = '';
+      document.getElementById('oManualDateInput').value = '';
+      document.getElementById('oManualBirthDate').max = todayStr;
+      if (window.oSelectSlot) oSelectSlot('Morning');
+      document.getElementById('oClosedDayWarning').classList.add('hidden');
+      document.getElementById('oSelectedDayInfo').classList.add('hidden');
+      document.getElementById('oSlotSelectorWrapper').classList.add('hidden');
       oCalDate = new Date(); oCalDate.setHours(0,0,0,0);
-      try { oUpdateSummary(); } catch(e) { console.error(e); }
-      try { oGoToStep(1); } catch(e) { console.error(e); }
-      try { oRenderCalendar(); } catch(e) { console.error(e); }
+      oUpdateSummary();
+      oGoToStep(1);
+      oRenderCalendar();
+      document.getElementById('manualFormOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
     }
 
     function closeManualFormOverlay() {
@@ -4222,52 +4218,47 @@
     window.oPrevMonth = function() { oCalDate.setMonth(oCalDate.getMonth()-1); oRenderCalendar(); };
     window.oNextMonth = function() { oCalDate.setMonth(oCalDate.getMonth()+1); oRenderCalendar(); };
 
-    // alias
-    window.openManualFormOverlay = openManualFormOverlay;
-    window.closeManualFormOverlay = closeManualFormOverlay;
-    window.handleOverlayClick = function(e) { if(e.target.id==="manualFormOverlay") closeManualFormOverlay(); };
 
-    // ── تسجيل الموعد اليدوي للطبيب ──
-    document.addEventListener('DOMContentLoaded', function() {
-      document.getElementById('submitManualAppointment')?.addEventListener('click', function() {
-        saveManualFormData();
-        if (!manualAppointmentData.patientName || !manualAppointmentData.phone ||
-            !manualAppointmentData.birthDate  || !manualAppointmentData.visitType ||
-            !manualAppointmentData.selectedDate) {
-          showToast('بيانات ناقصة', 'error'); return;
-        }
-        var apptId = 'appt_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
-        var appt = {
-          id:          apptId,
-          PatientName: manualAppointmentData.patientName,
-          Phone:       manualAppointmentData.phone,
-          BirthDate:   manualAppointmentData.birthDate,
-          Address:     manualAppointmentData.address || '',
-          Age:         calculateAge(manualAppointmentData.birthDate),
-          Date:        manualAppointmentData.selectedDate,
-          Slot:        manualAppointmentData.selectedSlot,
-          VisitType:   manualAppointmentData.visitType,
-          Status:      'Accepted',
-          DayName:     daysAr[parseLocalISODate(manualAppointmentData.selectedDate).getDay()],
-          CreatedAt:   new Date().toISOString(),
-        };
-        window._fb.setDoc(
-          window._fb.docRef('appointments', apptId),
-          Object.assign({}, appt, { createdAt: window._fb.serverTimestamp() }),
-          { merge: true }
-        ).then(function() {
-          showToast('تم تسجيل الموعد بنجاح', 'success');
-          closeManualFormOverlay();
-          selectedDayStr = manualAppointmentData.selectedDate;
-          setActiveSection('calendar');
-          setTimeout(function() { renderCalendar(); renderAgendaForDay(selectedDayStr); }, 500);
-        }).catch(function(e) {
-          showToast('فشل الحفظ: ' + (e.code || ''), 'error');
-          console.error(e);
-        });
-      });
+    // جعل الدوال عالمية
+    window.openManualFormOverlay  = openManualFormOverlay;
+    window.closeManualFormOverlay = closeManualFormOverlay;
+    window.handleOverlayClick     = function(e) {
+      if (e.target.id === 'manualFormOverlay') closeManualFormOverlay();
+    };
+
+    // submit - يحفظ بـ Accepted ويذهب للروزنامة
+    document.getElementById('submitManualAppointment')?.addEventListener('click', () => {
+      saveManualFormData();
+      if(!manualAppointmentData.patientName||!manualAppointmentData.phone||!manualAppointmentData.birthDate||!manualAppointmentData.visitType||!manualAppointmentData.selectedDate){
+        showToast('بيانات ناقصة','error'); return;
+      }
+      const apptId = 'appt_' + Date.now() + '_' + Math.random().toString(36).substr(2,6);
+      const appointment = {
+        id: apptId,
+        PatientName: manualAppointmentData.patientName,
+        Phone:       manualAppointmentData.phone,
+        BirthDate:   manualAppointmentData.birthDate,
+        Address:     manualAppointmentData.address,
+        Age:         calculateAge(manualAppointmentData.birthDate),
+        Date:        manualAppointmentData.selectedDate,
+        Slot:        manualAppointmentData.selectedSlot,
+        VisitType:   manualAppointmentData.visitType,
+        Status:      'Accepted',
+        DayName:     daysAr[parseLocalISODate(manualAppointmentData.selectedDate).getDay()],
+        CreatedAt:   new Date().toISOString()
+      };
+      window._fb.setDoc(
+        window._fb.docRef('appointments', apptId),
+        Object.assign({}, appointment, { createdAt: window._fb.serverTimestamp() }),
+        { merge: true }
+      ).then(() => {
+        showToast('تم تسجيل الموعد بنجاح','success');
+        closeManualFormOverlay();
+        selectedDayStr = manualAppointmentData.selectedDate;
+        setActiveSection('calendar');
+        setTimeout(() => { renderCalendar(); renderAgendaForDay(selectedDayStr); }, 500);
+      }).catch(e => { showToast('فشل الحفظ: '+(e.code||''),'error'); console.error(e); });
     });
   </script>
-
 </body>
 </html>
