@@ -3563,7 +3563,6 @@
         // ٢. BroadcastChannel مع نفس doc ID
         var payload = { type: type, direction: 'doctorToNurse', message: label, ts: Date.now(), docId: docRef.id };
         try { new BroadcastChannel('nurseAlerts').postMessage(payload); } catch(e) {}
-        try { localStorage.setItem('nurseAlertPayload', JSON.stringify(payload)); } catch(e) {}
       }).catch(function(e) { console.error('alert send', e); });
     };
 
