@@ -1104,9 +1104,6 @@
             </div>
             <div class="flex gap-2">
               <!-- تم إزالة زر إضافة مريض جديد بناء على طلب المستخدم -->
-              <button onclick="exportAllPatientsPDF()" title="تصدير قائمة المرضى PDF" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:white;border:none;border-radius:10px;padding:7px 14px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;">
-                <i class="fas fa-file-pdf"></i> تصدير الكل
-              </button>
               <div style="padding:4px 12px;background:var(--primary-light);color:var(--primary);border-radius:8px;font-size:.75rem;font-weight:700;border:1px solid var(--border)"><i class="fas fa-users ml-1"></i> <span id="totalPatientsCount">0</span></div>
             </div>
           </div>
@@ -1408,9 +1405,6 @@
         <div class="flex justify-between items-center">
           <h3 id="modalPatientName" class="font-bold text-lg" style="color:var(--text-primary)">-</h3>
           <div style="display:flex;align-items:center;gap:8px;">
-            <button onclick="exportPatientPDF()" title="تصدير PDF" style="background:linear-gradient(135deg,#dc2626,#ef4444);color:white;border:none;border-radius:10px;padding:7px 14px;font-size:.78rem;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:6px;font-family:inherit;">
-              <i class="fas fa-file-pdf"></i> PDF
-            </button>
             <button id="closePatientDetailsModalBtn" style="color:var(--text-muted);cursor:pointer;background:none;border:none;font-size:1.2rem"><i class="fas fa-times text-xl"></i></button>
           </div>
         </div>
@@ -1907,7 +1901,7 @@
     // ── مستمعو Firestore ──
     var _unsubAppt = null, _unsubPat = null, _unsubClosed = null, _unsubAlerts = null;
     var _alertSeenAt = 0;
-    var _lastAcceptedAlertId = null;
+    var _shownAlertIds = new Set(); // منع التكرار بدلاً من _lastAcceptedAlertId
 
     // ── فحص التنبيهات الفائتة عند فتح اللوحة ──
     function checkMissedAlerts() {
@@ -1988,16 +1982,28 @@
             if (d.read) return;
             var ts = d.createdAt ? d.createdAt.toMillis() : 0;
             if (ts <= _alertSeenAt) return;
-            if (change.doc.id === _lastAcceptedAlertId) return;
-            _lastAcceptedAlertId = change.doc.id;
+            if (_shownAlertIds.has(change.doc.id)) return;
+            _shownAlertIds.add(change.doc.id); // أضف فوراً قبل العرض
             if (typeof showDocNotifToast === 'function') showDocNotifToast(d.message || 'تم قبول موعد');
             window._fb.updateDoc(change.doc.ref, { read: true });
-            // حدّث وقت آخر تنبيه مرئي
             localStorage.setItem('docbook_doc_alertSeen', String(Date.now()));
           });
         },
         function(e) { console.error('[alerts]', e); }
       );
+
+      // ── BroadcastChannel: fast path لنفس الجهاز ──
+      function _handleNurseAlert(payload) {
+        if (!payload || payload.direction !== 'nurseToDoctor') return;
+        var key = payload.docId || (String(payload.ts) + payload.type);
+        if (_shownAlertIds.has(key)) return;
+        _shownAlertIds.add(key); // أضف فوراً قبل العرض
+        if (typeof showDocNotifToast === 'function') showDocNotifToast(payload.message || 'تم قبول موعد');
+      }
+      try {
+        var _docBC = new BroadcastChannel('doctorAlerts');
+        _docBC.onmessage = function(e) { _handleNurseAlert(e.data); };
+      } catch(e) {}
 
       // الإعدادات
       window._fb.getDoc('settings', 'doctor').then(function(snap) {
