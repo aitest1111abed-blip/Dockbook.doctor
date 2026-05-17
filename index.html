@@ -537,6 +537,132 @@
       box-shadow: none;
     }
 
+    /* ── زر إضافة موعد يدوي بجانب العين ── */
+    .btn-add-manual-appt {
+      background: var(--primary) !important;
+      color: white !important;
+      border: none !important;
+      font-size: .85rem;
+      font-weight: 700;
+      cursor: pointer;
+      padding: 0;
+      border-radius: 8px;
+      transition: background .15s, transform .1s;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .btn-add-manual-appt:hover { background: var(--primary-hover) !important; }
+    .btn-add-manual-appt:active { transform: scale(.96); }
+
+    /* ── Manual Appointment Overlay (Doctor) ── */
+    #docManualFormOverlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 400;
+      background: rgba(19,78,74,0.35);
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      animation: overlayFadeIn .2s ease;
+    }
+    #docManualFormOverlay.active { display: flex; }
+    @keyframes overlayFadeIn {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+    #docManualFormPanel {
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-xl, 20px);
+      box-shadow: var(--shadow-lg);
+      width: 100%;
+      max-width: 620px;
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 24px;
+      position: relative;
+      animation: panelSlideUp .25s cubic-bezier(.34,1.56,.64,1);
+    }
+    @keyframes panelSlideUp {
+      from { opacity: 0; transform: translateY(24px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
+    @media (min-width: 768px) {
+      #docManualFormPanel {
+        max-width: 1100px;
+        max-height: 92vh;
+        padding: 28px 32px;
+      }
+      #docManualFormPanel .doc-form-step-indicator { display: none; }
+      #docManualFormPanel .doc-form-step { display: block !important; }
+      #docDesktopGrid {
+        display: grid;
+        grid-template-columns: 1fr 1.5fr 1fr;
+        gap: 20px;
+        align-items: start;
+      }
+      #docNextToStep2, #docBackToStep1, #docNextToStep3, #docBackToStep2 { display: none !important; }
+      #docSubmitManualAppointment { display: flex !important; width: 100%; justify-content: center; }
+      .doc-step-col {
+        background: var(--bg);
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-lg, 14px);
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+      }
+      .doc-step-col-title {
+        display: flex !important;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 1.5px solid var(--border);
+      }
+      #docOverlayStep2 .doc-form-summary { display: none; }
+    }
+    @media (max-width: 767px) {
+      #docDesktopGrid { display: contents; }
+      .doc-step-col { display: contents; }
+      .doc-step-col-title { display: none; }
+    }
+    #docManualFormOverlayCloseBtn {
+      position: absolute;
+      top: 16px; left: 16px;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border);
+      background: var(--surface);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all .15s;
+      z-index: 1;
+    }
+    #docManualFormOverlayCloseBtn:hover {
+      background: var(--red-light);
+      border-color: #fca5a5;
+      color: var(--red);
+    }
+    .doc-form-step { display: none; }
+    .doc-form-step.active { display: block; }
+    .doc-form-navigation { display: flex; justify-content: space-between; margin-top: 24px; }
+    .doc-form-step-indicator {
+      display: flex; justify-content: center; align-items: center;
+      gap: 0; margin-bottom: 32px; position: relative;
+    }
+    .doc-form-summary {
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm, 10px);
+      padding: 14px;
+    }
+
     /* بطاقات الإحصائيات - نفس تصميم ملف الممرضة */
     .stat-card {
       background: var(--surface);
@@ -1070,6 +1196,7 @@
               </div>
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <button id="showDayDetailsBtn" type="button" class="btn-show-details" title="عرض تفاصيل اليوم"><i class="fas fa-eye"></i></button>
+                <button id="addManualApptBtn" type="button" class="btn-add-manual-appt" title="إضافة موعد يدوي"><i class="fas fa-plus"></i></button>
               </div>
             </div>
             <div style="display:grid; grid-template-columns:1fr; gap:16px;">
@@ -1758,6 +1885,8 @@
     }
     function calculateAge(b) { if(!b) return null; const birth=new Date(b); let age=today.getFullYear()-birth.getFullYear(); const m=today.getMonth()-birth.getMonth(); if(m<0 || (m===0 && today.getDate()<birth.getDate())) age--; return age; }
     function showToast(msg, type='info') { const toast=document.getElementById('toast'); const content=document.getElementById('toastContent'); content.innerHTML = `<i class="fas fa-${type==='success'?'check-circle':'info-circle'}"></i> ${msg}`; toast.classList.remove('hidden'); setTimeout(()=>toast.classList.add('hidden'),3000); }
+    function normalizeDate(d) { if (!d) return ''; if (d && d.toDate) d = d.toDate(); if (d instanceof Date) return toLocalISODate(d); return String(d).slice(0,10); }
+    function isDayClosed(dateStr) { return Array.isArray(closedDays) && closedDays.indexOf(dateStr) !== -1; }
 
     // ── Web Audio API — AudioContext مشترك مع keepalive ──
     var _docAudioCtx = null;
@@ -3143,6 +3272,250 @@
     document.getElementById('prevMonthBtn')?.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth()-1); renderCalendar(); });
     document.getElementById('nextMonthBtn')?.addEventListener('click', () => { currentDate.setMonth(currentDate.getMonth()+1); renderCalendar(); });
     document.getElementById('showDayDetailsBtn')?.addEventListener('click', showDayDetails);
+
+    // ── Manual Appointment Overlay (Doctor) ──
+    var _docManualData = {};
+    var _docOCalDate = new Date(); _docOCalDate.setHours(0,0,0,0);
+
+    function openDocManualFormOverlay() {
+      var preDate = selectedDayStr || todayStr;
+      _docManualData = { patientName:'', phone:'', birthDate:'', address:'', visitType:'', selectedDate: preDate, selectedSlot:'Morning', currentStep:1 };
+      // Reset fields
+      ['docManualPatientName','docManualPhone','docManualBirthDate','docManualAddress'].forEach(function(id) {
+        var el = document.getElementById(id); if (el) el.value = '';
+      });
+      var vt = document.getElementById('docManualVisitType'); if (vt) vt.value = '';
+      document.getElementById('docManualDateInput').value = preDate;
+      var bd = document.getElementById('docManualBirthDate');
+      if (bd) bd.max = todayStr;
+      // Show preselected day badge
+      var badge = document.getElementById('docPreselectedDayBadge');
+      var lbl   = document.getElementById('docPreselectedDayLabel');
+      if (badge && lbl) {
+        var dateObj = parseLocalISODate(preDate);
+        lbl.textContent = (daysAr ? daysAr[dateObj.getDay()] + ' — ' : '') + formatDateAr(preDate);
+        badge.style.display = 'flex';
+      }
+      // Show slot selector since day is pre-selected
+      var closedWarn = document.getElementById('docOClosedDayWarning');
+      var slotWrap   = document.getElementById('docOSlotSelectorWrapper');
+      var isClosed = typeof isDayClosed === 'function' && isDayClosed(preDate);
+      if (closedWarn) closedWarn.classList.toggle('hidden', !isClosed);
+      if (slotWrap)   slotWrap.classList.toggle('hidden', isClosed);
+      docOSelectSlot('Morning');
+      _docOCalDate = parseLocalISODate(preDate); _docOCalDate.setHours(0,0,0,0);
+      docOUpdateSummary();
+      docOGoToStep(1);
+      docORenderCalendar();
+      document.getElementById('docManualFormOverlay').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    window.closeDocManualFormOverlay = function() {
+      document.getElementById('docManualFormOverlay').classList.remove('active');
+      document.body.style.overflow = '';
+    };
+
+    window.docHandleOverlayClick = function(e) {
+      if (e.target.id === 'docManualFormOverlay') closeDocManualFormOverlay();
+    };
+
+    function docOGoToStep(step) {
+      _docManualData.currentStep = step;
+      document.querySelectorAll('#docManualFormPanel .doc-form-step').forEach(function(s) { s.classList.remove('active'); });
+      var el = document.getElementById('docOverlayStep' + step); if (el) el.classList.add('active');
+      // Update dots
+      [1,2,3].forEach(function(n) {
+        var dot = document.getElementById('docStep' + n + 'Dot');
+        var wrap = document.getElementById('docStep' + n + 'Wrapper');
+        var conn1 = document.getElementById('docConnector1');
+        var conn2 = document.getElementById('docConnector2');
+        if (!dot) return;
+        dot.style.background = ''; dot.style.borderColor = ''; dot.style.color = '';
+        dot.innerHTML = n;
+        if (n < step) {
+          dot.style.background = 'var(--green)'; dot.style.borderColor = 'var(--green)'; dot.style.color = 'white';
+          dot.innerHTML = '<i class="fas fa-check" style="font-size:.75rem;"></i>';
+          if (wrap) { var sp = wrap.querySelector('span'); if(sp) sp.style.color = 'var(--green)'; }
+        } else if (n === step) {
+          dot.style.background = 'var(--primary)'; dot.style.borderColor = 'var(--primary)'; dot.style.color = 'white';
+          if (wrap) { var sp = wrap.querySelector('span'); if(sp) sp.style.color = 'var(--primary)'; }
+        } else {
+          dot.style.background = 'var(--bg)'; dot.style.borderColor = 'var(--border)'; dot.style.color = 'var(--text-muted)';
+          if (wrap) { var sp = wrap.querySelector('span'); if(sp) sp.style.color = 'var(--text-muted)'; }
+        }
+        if (conn1) conn1.style.background = step > 1 ? 'var(--green)' : 'var(--border)';
+        if (conn2) conn2.style.background = step > 2 ? 'var(--green)' : 'var(--border)';
+      });
+    }
+
+    function docOUpdateSummary() {
+      var name = _docManualData.patientName || '-';
+      var age  = _docManualData.birthDate ? (calculateAge(_docManualData.birthDate) + ' سنة') : '-';
+      var el;
+      el = document.getElementById('docOSummaryPatientName'); if (el) el.textContent = name;
+      el = document.getElementById('docOSummaryAge');         if (el) el.textContent = age;
+      el = document.getElementById('docOConfirmPatientName'); if (el) el.textContent = name;
+      el = document.getElementById('docOConfirmPhone');       if (el) el.textContent = _docManualData.phone || '-';
+      el = document.getElementById('docOConfirmVisitType');   if (el) el.textContent = _docManualData.visitType || '-';
+      el = document.getElementById('docOConfirmDate');        if (el) el.textContent = _docManualData.selectedDate ? formatDateAr(_docManualData.selectedDate) : '-';
+      el = document.getElementById('docOConfirmSlot');        if (el) el.textContent = _docManualData.selectedSlot === 'Morning' ? 'صباحاً' : 'مساءً';
+    }
+
+    function docORenderCalendar() {
+      var grid = document.getElementById('docOCalGrid'); if (!grid) return;
+      grid.innerHTML = '';
+      var year = _docOCalDate.getFullYear(), month = _docOCalDate.getMonth();
+      var monthEl = document.getElementById('docOCalMonth');
+      if (monthEl) monthEl.textContent = (typeof monthsAr !== 'undefined' ? monthsAr[month] : month) + ' ' + year;
+      var today2 = new Date(); today2.setHours(0,0,0,0);
+      var maxDate = new Date(today2); maxDate.setMonth(maxDate.getMonth() + 3);
+      var firstDay = new Date(year, month, 1).getDay();
+      var daysInMonth = new Date(year, month+1, 0).getDate();
+      var startOffset = (firstDay + 3) % 7;
+      for (var i = startOffset-1; i >= 0; i--) {
+        var emp = document.createElement('div'); emp.className = 'compact-calendar-day other-month'; grid.appendChild(emp);
+      }
+      for (var d = 1; d <= daysInMonth; d++) {
+        (function(day) {
+          var dateObj = new Date(year, month, day); dateObj.setHours(0,0,0,0);
+          var dateStr = toLocalISODate(dateObj);
+          var isClosed = typeof isDayClosed === 'function' && isDayClosed(dateStr);
+          var isFutureTooFar = dateObj > maxDate;
+          var isSelected = _docManualData.selectedDate === dateStr;
+          var isToday = dateObj.getTime() === today2.getTime();
+          var recs = (allRecords || []).filter(function(r) {
+            return (r.Status === 'Accepted' || r.Status === 'Pending' || r.Status === 'InProgress') && normalizeDate(r.Date) === dateStr;
+          });
+          var total = recs.length;
+          var el = document.createElement('div');
+          el.className = 'compact-calendar-day';
+          if (isToday)   el.classList.add('today');
+          if (isSelected) el.classList.add('selected');
+          if (isClosed)  el.classList.add('closed-day');
+          if (isFutureTooFar) { el.classList.add('past-day'); el.style.cursor = 'default'; }
+          el.textContent = day;
+          if (!isFutureTooFar && total > 0) {
+            var dot = document.createElement('div');
+            dot.className = 'compact-appointment-dot ' + (total <= 2 ? 'compact-dot-low' : total <= 4 ? 'compact-dot-medium' : 'compact-dot-high');
+            el.appendChild(dot);
+          }
+          if (!isClosed && !isFutureTooFar) {
+            el.addEventListener('click', function() { docOSelectDay(dateStr); });
+          }
+          grid.appendChild(el);
+        })(d);
+      }
+    }
+
+    function docOSelectDay(dateStr) {
+      _docManualData.selectedDate = dateStr;
+      document.getElementById('docManualDateInput').value = dateStr;
+      var isClosed = typeof isDayClosed === 'function' && isDayClosed(dateStr);
+      var closedWarn = document.getElementById('docOClosedDayWarning');
+      var slotWrap   = document.getElementById('docOSlotSelectorWrapper');
+      if (closedWarn) closedWarn.classList.toggle('hidden', !isClosed);
+      if (slotWrap)   slotWrap.classList.toggle('hidden', isClosed);
+      // Update badge label
+      var lbl = document.getElementById('docPreselectedDayLabel');
+      if (lbl) {
+        var dateObj = parseLocalISODate(dateStr);
+        lbl.textContent = (daysAr ? daysAr[dateObj.getDay()] + ' — ' : '') + formatDateAr(dateStr);
+      }
+      docOUpdateSummary();
+      docORenderCalendar();
+    }
+
+    window.docOSelectSlot = function(slot) {
+      _docManualData.selectedSlot = slot;
+      var mEl = document.getElementById('docOSlotMorning');
+      var eEl = document.getElementById('docOSlotEvening');
+      if (!mEl || !eEl) return;
+      if (slot === 'Morning') {
+        mEl.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;background:var(--primary);color:white;font-weight:700;font-size:.85rem;box-shadow:0 2px 6px rgba(13,148,136,.3);';
+        eEl.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;color:var(--text-muted);font-weight:600;font-size:.85rem;';
+      } else {
+        eEl.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;background:#4f46e5;color:white;font-weight:700;font-size:.85rem;box-shadow:0 2px 6px rgba(79,70,229,.3);';
+        mEl.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;color:var(--text-muted);font-weight:600;font-size:.85rem;';
+      }
+      docOUpdateSummary();
+    };
+
+    window.docOPrevMonth = function() { _docOCalDate.setMonth(_docOCalDate.getMonth()-1); docORenderCalendar(); };
+    window.docONextMonth = function() { _docOCalDate.setMonth(_docOCalDate.getMonth()+1); docORenderCalendar(); };
+
+    // Bind + button
+    document.getElementById('addManualApptBtn')?.addEventListener('click', function() {
+      openDocManualFormOverlay();
+    });
+
+    // Bind form events
+    ['docManualPatientName','docManualPhone','docManualBirthDate','docManualAddress'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', function(e) {
+        var map = { docManualPatientName:'patientName', docManualPhone:'phone', docManualBirthDate:'birthDate', docManualAddress:'address' };
+        _docManualData[map[id]] = e.target.value;
+        docOUpdateSummary();
+      });
+    });
+    var vtEl = document.getElementById('docManualVisitType');
+    if (vtEl) vtEl.addEventListener('change', function(e) { _docManualData.visitType = e.target.value; docOUpdateSummary(); });
+
+    document.getElementById('docNextToStep2')?.addEventListener('click', function() {
+      _docManualData.patientName = document.getElementById('docManualPatientName').value.trim();
+      _docManualData.phone       = document.getElementById('docManualPhone').value.trim();
+      _docManualData.birthDate   = document.getElementById('docManualBirthDate').value;
+      _docManualData.address     = document.getElementById('docManualAddress').value.trim();
+      _docManualData.visitType   = document.getElementById('docManualVisitType').value;
+      if (!_docManualData.patientName || !_docManualData.phone || !_docManualData.birthDate || !_docManualData.visitType) {
+        showToast('املأ جميع الحقول المطلوبة', 'error'); return;
+      }
+      docOUpdateSummary(); docORenderCalendar(); docOGoToStep(2);
+    });
+    document.getElementById('docBackToStep1')?.addEventListener('click', function() { docOGoToStep(1); });
+    document.getElementById('docNextToStep3')?.addEventListener('click', function() {
+      _docManualData.selectedDate = document.getElementById('docManualDateInput').value;
+      if (!_docManualData.selectedDate) { showToast('اختر تاريخ الموعد', 'error'); return; }
+      if (typeof isDayClosed === 'function' && isDayClosed(_docManualData.selectedDate)) { showToast('هذا اليوم مغلق للحجز', 'error'); return; }
+      docOUpdateSummary(); docOGoToStep(3);
+    });
+    document.getElementById('docBackToStep2')?.addEventListener('click', function() { docOGoToStep(2); });
+    document.getElementById('docSubmitManualAppointment')?.addEventListener('click', function() {
+      _docManualData.patientName = document.getElementById('docManualPatientName').value.trim();
+      _docManualData.phone       = document.getElementById('docManualPhone').value.trim();
+      _docManualData.visitType   = document.getElementById('docManualVisitType').value;
+      _docManualData.selectedDate = document.getElementById('docManualDateInput').value;
+      if (!_docManualData.patientName) { showToast('أدخل اسم المريض', 'error'); return; }
+      if (!_docManualData.phone)       { showToast('أدخل رقم الهاتف', 'error'); return; }
+      if (!_docManualData.visitType)   { showToast('اختر نوع الزيارة', 'error'); return; }
+      if (!_docManualData.selectedDate){ showToast('اختر تاريخ الموعد', 'error'); return; }
+      if (typeof isDayClosed === 'function' && isDayClosed(_docManualData.selectedDate)) { showToast('هذا اليوم مغلق للحجز', 'error'); return; }
+      var appointment = {
+        PatientName: _docManualData.patientName,
+        Phone:       _docManualData.phone,
+        BirthDate:   _docManualData.birthDate,
+        Address:     _docManualData.address,
+        VisitType:   _docManualData.visitType,
+        Date:        _docManualData.selectedDate,
+        Slot:        _docManualData.selectedSlot,
+        Status:      'Accepted',
+        createdAt:   new Date().toISOString(),
+        source:      'manual'
+      };
+      window._fb.addDoc(window._fb.col('appointments'), appointment)
+        .then(function() {
+          closeDocManualFormOverlay();
+          showToast('تم تسجيل الموعد بنجاح', 'success');
+          // انتقل للروزنامة وحدد اليوم
+          setActiveSection('calendar');
+          if (typeof selectDay === 'function') selectDay(_docManualData.selectedDate);
+        })
+        .catch(function(e) { showToast('فشل الحفظ: ' + (e.code || e.message), 'error'); console.error(e); });
+    });
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') closeDocManualFormOverlay();
+    });
     document.getElementById('patientBookSearch')?.addEventListener('input', renderPatientBook);
 
     document.getElementById('dayDetailsModal')?.addEventListener('click', function(e) {
@@ -3730,6 +4103,170 @@
 
 
   
+
+  <!-- ========== MANUAL APPOINTMENT OVERLAY (DOCTOR) ========== -->
+  <div id="docManualFormOverlay" onclick="docHandleOverlayClick(event)">
+    <div id="docManualFormPanel">
+      <button id="docManualFormOverlayCloseBtn" onclick="closeDocManualFormOverlay()" title="إغلاق">
+        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:20px;padding-top:4px;">
+        <div class="card-icon"><i class="fas fa-calendar-plus"></i></div>
+        <div>
+          <div style="font-weight:800;font-size:1rem;color:var(--text);">تسجيل موعد يدوي</div>
+          <div class="card-subtitle">للمرضى الذين يحجزون مباشرة في العيادة</div>
+        </div>
+      </div>
+
+      <!-- Step indicator (mobile only) -->
+      <div class="doc-form-step-indicator">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;" id="docStep1Wrapper">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--primary);border:2px solid var(--primary);display:flex;align-items:center;justify-content:center;font-weight:800;color:white;font-size:.82rem;" id="docStep1Dot">1</div>
+          <span style="font-size:.65rem;font-weight:700;color:var(--primary);">البيانات</span>
+        </div>
+        <div style="height:2px;width:40px;background:var(--border);margin-top:-16px;transition:background .3s;" id="docConnector1"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;" id="docStep2Wrapper">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--text-muted);font-size:.82rem;" id="docStep2Dot">2</div>
+          <span style="font-size:.65rem;font-weight:700;color:var(--text-muted);">الموعد</span>
+        </div>
+        <div style="height:2px;width:40px;background:var(--border);margin-top:-16px;transition:background .3s;" id="docConnector2"></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;" id="docStep3Wrapper">
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:800;color:var(--text-muted);font-size:.82rem;" id="docStep3Dot">3</div>
+          <span style="font-size:.65rem;font-weight:700;color:var(--text-muted);">تأكيد</span>
+        </div>
+      </div>
+
+      <div id="docDesktopGrid">
+
+        <!-- COL 1: البيانات -->
+        <div class="doc-step-col">
+          <div class="doc-step-col-title">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:white;font-weight:800;font-size:.8rem;">1</span></div>
+            <span style="font-weight:700;font-size:.9rem;color:var(--text);">بيانات المريض</span>
+          </div>
+          <div id="docOverlayStep1" class="doc-form-step active">
+            <div style="display:flex;flex-direction:column;gap:16px;">
+              <div><label style="display:block;font-weight:700;font-size:.8rem;color:var(--text-muted);margin-bottom:5px;">اسم المريض الكامل</label><input type="text" id="docManualPatientName" class="form-input" placeholder="أدخل الاسم الكامل"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+                <div><label style="display:block;font-weight:700;font-size:.8rem;color:var(--text-muted);margin-bottom:5px;">رقم الهاتف</label><input type="tel" id="docManualPhone" class="form-input" placeholder="05xxxxxxxx"></div>
+                <div><label style="display:block;font-weight:700;font-size:.8rem;color:var(--text-muted);margin-bottom:5px;">تاريخ الميلاد</label><input type="date" id="docManualBirthDate" class="form-input"></div>
+              </div>
+              <div><label style="display:block;font-weight:700;font-size:.8rem;color:var(--text-muted);margin-bottom:5px;">العنوان</label><input type="text" id="docManualAddress" class="form-input" placeholder="اختياري"></div>
+              <div><label style="display:block;font-weight:700;font-size:.8rem;color:var(--text-muted);margin-bottom:5px;">نوع الزيارة</label>
+                <select id="docManualVisitType" class="form-input">
+                  <option value="">اختر نوع الزيارة</option>
+                  <option value="كشف جديد">كشف جديد</option>
+                  <option value="مراجعة">مراجعة</option>
+                  <option value="تحاليل">تحاليل</option>
+                </select>
+              </div>
+            </div>
+            <div class="doc-form-navigation">
+              <div></div>
+              <button id="docNextToStep2" class="btn-primary">التالي <i class="fas fa-arrow-left"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- COL 2: الموعد -->
+        <div class="doc-step-col">
+          <div class="doc-step-col-title">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:white;font-weight:800;font-size:.8rem;">2</span></div>
+            <span style="font-weight:700;font-size:.9rem;color:var(--text);">اختيار الموعد</span>
+          </div>
+          <div id="docOverlayStep2" class="doc-form-step">
+            <input type="hidden" id="docManualDateInput">
+
+            <!-- اليوم المحدد تلقائياً -->
+            <div id="docPreselectedDayBadge" style="background:var(--primary-light);border:1.5px solid var(--border-strong);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;gap:8px;">
+              <i class="fas fa-calendar-check" style="color:var(--primary);"></i>
+              <span style="font-weight:700;font-size:.88rem;color:var(--primary);" id="docPreselectedDayLabel"></span>
+              <span style="font-size:.75rem;color:var(--text-muted);margin-right:auto;">تم التحديد تلقائياً</span>
+            </div>
+
+            <!-- Calendar -->
+            <div class="compact-calendar-container" style="margin-bottom:12px;padding:14px !important;">
+              <div class="compact-calendar-header" style="margin-bottom:10px;">
+                <button onclick="docOPrevMonth()" class="compact-nav-btn" type="button"><i class="fas fa-chevron-right"></i></button>
+                <div style="text-align:center;">
+                  <span id="docOCalMonth" style="font-weight:700;font-size:.92rem;color:var(--text);"></span>
+                  <div class="density-legend" style="margin-top:3px;">
+                    <div style="display:flex;align-items:center;gap:4px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--green);"></div><span>خفيف</span></div>
+                    <div style="display:flex;align-items:center;gap:4px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--amber);"></div><span>متوسط</span></div>
+                    <div style="display:flex;align-items:center;gap:4px;"><div style="width:7px;height:7px;border-radius:50%;background:var(--red);"></div><span>مزدحم</span></div>
+                  </div>
+                </div>
+                <button onclick="docONextMonth()" class="compact-nav-btn" type="button"><i class="fas fa-chevron-left"></i></button>
+              </div>
+              <div class="compact-calendar-grid" style="margin-bottom:6px;">
+                <div class="compact-calendar-day-name">الجمعة</div>
+                <div class="compact-calendar-day-name">السبت</div>
+                <div class="compact-calendar-day-name">الأحد</div>
+                <div class="compact-calendar-day-name">الإثنين</div>
+                <div class="compact-calendar-day-name">الثلاثاء</div>
+                <div class="compact-calendar-day-name">الأربعاء</div>
+                <div class="compact-calendar-day-name">الخميس</div>
+              </div>
+              <div id="docOCalGrid" class="compact-calendar-grid"></div>
+            </div>
+
+            <!-- Slot selector -->
+            <div id="docOSlotSelectorWrapper" class="hidden" style="margin-bottom:12px;">
+              <label style="display:block;font-weight:700;font-size:.8rem;color:var(--text-muted);margin-bottom:6px;">اختر الفترة</label>
+              <div style="display:flex;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;padding:4px;gap:4px;">
+                <div id="docOSlotMorning" onclick="docOSelectSlot('Morning')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;background:var(--primary);color:white;font-weight:700;font-size:.85rem;box-shadow:0 2px 6px rgba(13,148,136,.3);">
+                  <i class="fas fa-sun" style="font-size:.9rem;color:#fcd34d;"></i><span>صباحاً</span>
+                </div>
+                <div id="docOSlotEvening" onclick="docOSelectSlot('Evening')" style="flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;color:var(--text-muted);font-weight:600;font-size:.85rem;">
+                  <i class="fas fa-moon" style="font-size:.9rem;color:#a5b4fc;"></i><span>مساءً</span>
+                </div>
+              </div>
+            </div>
+
+            <div id="docOClosedDayWarning" class="hidden" style="background:var(--red-light);color:var(--red);border-radius:10px;padding:10px 14px;font-size:.82rem;margin-bottom:8px;"><i class="fas fa-ban" style="margin-left:6px;"></i>هذا اليوم مغلق للحجز</div>
+
+            <div class="doc-form-summary" style="margin-bottom:4px;">
+              <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:var(--text-muted);font-size:.82rem;">المريض:</span><span id="docOSummaryPatientName" style="font-weight:600;color:var(--text);">-</span></div>
+              <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);font-size:.82rem;">العمر:</span><span id="docOSummaryAge" style="font-weight:600;color:var(--text);">-</span></div>
+            </div>
+
+            <div class="doc-form-navigation">
+              <button id="docBackToStep1" class="btn-secondary"><i class="fas fa-arrow-right"></i> السابق</button>
+              <button id="docNextToStep3" class="btn-primary">التالي <i class="fas fa-arrow-left"></i></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- COL 3: التأكيد -->
+        <div class="doc-step-col">
+          <div class="doc-step-col-title">
+            <div style="width:28px;height:28px;border-radius:50%;background:var(--primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;"><span style="color:white;font-weight:800;font-size:.8rem;">3</span></div>
+            <span style="font-weight:700;font-size:.9rem;color:var(--text);">تأكيد الحجز</span>
+          </div>
+          <div id="docOverlayStep3" class="doc-form-step">
+            <div style="background:var(--primary-light);border:1.5px solid var(--border-strong);border-radius:var(--radius);padding:18px;margin-bottom:16px;">
+              <h3 style="font-weight:700;font-size:.95rem;margin-bottom:12px;color:var(--primary);">ملخص الحجز</h3>
+              <div style="display:flex;flex-direction:column;gap:8px;font-size:.88rem;">
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">الاسم:</span><span id="docOConfirmPatientName" style="font-weight:600;color:var(--text);"></span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">الهاتف:</span><span id="docOConfirmPhone" style="font-weight:600;color:var(--text);"></span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">النوع:</span><span id="docOConfirmVisitType" style="font-weight:600;color:var(--text);"></span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">التاريخ:</span><span id="docOConfirmDate" style="font-weight:600;color:var(--text);"></span></div>
+                <div style="display:flex;justify-content:space-between;"><span style="color:var(--text-muted);">الفترة:</span><span id="docOConfirmSlot" style="font-weight:600;color:var(--text);"></span></div>
+              </div>
+            </div>
+            <div class="doc-form-navigation">
+              <button id="docBackToStep2" class="btn-secondary"><i class="fas fa-arrow-right"></i> السابق</button>
+              <button id="docSubmitManualAppointment" class="btn-primary" style="background:linear-gradient(135deg,#059669,#10b981)!important;">
+                <i class="fas fa-check"></i> تسجيل الموعد
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /docDesktopGrid -->
+    </div><!-- /docManualFormPanel -->
+  </div><!-- /docManualFormOverlay -->
 
   <!-- Confirm Bottom-Sheet -->
   <div id="confirmSheet">
