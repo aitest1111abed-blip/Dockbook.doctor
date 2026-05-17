@@ -3350,16 +3350,22 @@
     }
 
     function docOUpdateSummary() {
-      var name = _docManualData.patientName || '-';
-      var age  = _docManualData.birthDate ? (calculateAge(_docManualData.birthDate) + ' سنة') : '-';
+      // اقرأ مباشرة من الحقول لضمان التزامن على desktop
+      var name      = (document.getElementById('docManualPatientName')?.value.trim()) || _docManualData.patientName || '-';
+      var phone     = (document.getElementById('docManualPhone')?.value.trim())       || _docManualData.phone       || '-';
+      var visitType = (document.getElementById('docManualVisitType')?.value)          || _docManualData.visitType   || '-';
+      var birthDate = (document.getElementById('docManualBirthDate')?.value)          || _docManualData.birthDate;
+      var age       = birthDate ? (calculateAge(birthDate) + ' سنة') : '-';
+      var date      = _docManualData.selectedDate ? formatDateAr(_docManualData.selectedDate) : '-';
+      var slot      = (_docManualData.selectedSlot || 'Morning') === 'Morning' ? 'صباحاً' : 'مساءً';
       var el;
       el = document.getElementById('docOSummaryPatientName'); if (el) el.textContent = name;
       el = document.getElementById('docOSummaryAge');         if (el) el.textContent = age;
       el = document.getElementById('docOConfirmPatientName'); if (el) el.textContent = name;
-      el = document.getElementById('docOConfirmPhone');       if (el) el.textContent = _docManualData.phone || '-';
-      el = document.getElementById('docOConfirmVisitType');   if (el) el.textContent = _docManualData.visitType || '-';
-      el = document.getElementById('docOConfirmDate');        if (el) el.textContent = _docManualData.selectedDate ? formatDateAr(_docManualData.selectedDate) : '-';
-      el = document.getElementById('docOConfirmSlot');        if (el) el.textContent = _docManualData.selectedSlot === 'Morning' ? 'صباحاً' : 'مساءً';
+      el = document.getElementById('docOConfirmPhone');       if (el) el.textContent = phone;
+      el = document.getElementById('docOConfirmVisitType');   if (el) el.textContent = visitType;
+      el = document.getElementById('docOConfirmDate');        if (el) el.textContent = date;
+      el = document.getElementById('docOConfirmSlot');        if (el) el.textContent = slot;
     }
 
     function docORenderCalendar() {
@@ -3438,18 +3444,21 @@
         eEl.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;background:#4f46e5;color:white;font-weight:700;font-size:.85rem;box-shadow:0 2px 6px rgba(79,70,229,.3);';
         mEl.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;color:var(--text-muted);font-weight:600;font-size:.85rem;';
       }
-      docOUpdateSummary();
+      docOUpdateSummary(); // حدّث التأكيد فوراً
     };
 
     window.docOPrevMonth = function() { _docOCalDate.setMonth(_docOCalDate.getMonth()-1); docORenderCalendar(); };
     window.docONextMonth = function() { _docOCalDate.setMonth(_docOCalDate.getMonth()+1); docORenderCalendar(); };
+
+    // ── Manual Appointment Overlay (Doctor) — Event Bindings ──
+    document.addEventListener('DOMContentLoaded', function() {
 
     // Bind + button
     document.getElementById('addManualApptBtn')?.addEventListener('click', function() {
       openDocManualFormOverlay();
     });
 
-    // Bind form events
+    // Live input → update summary instantly (مهم على desktop حيث الخطوات كلها ظاهرة)
     ['docManualPatientName','docManualPhone','docManualBirthDate','docManualAddress'].forEach(function(id) {
       var el = document.getElementById(id);
       if (!el) return;
@@ -3477,45 +3486,64 @@
     document.getElementById('docNextToStep3')?.addEventListener('click', function() {
       _docManualData.selectedDate = document.getElementById('docManualDateInput').value;
       if (!_docManualData.selectedDate) { showToast('اختر تاريخ الموعد', 'error'); return; }
-      if (typeof isDayClosed === 'function' && isDayClosed(_docManualData.selectedDate)) { showToast('هذا اليوم مغلق للحجز', 'error'); return; }
+      if (isDayClosed(_docManualData.selectedDate)) { showToast('هذا اليوم مغلق للحجز', 'error'); return; }
       docOUpdateSummary(); docOGoToStep(3);
     });
     document.getElementById('docBackToStep2')?.addEventListener('click', function() { docOGoToStep(2); });
+
     document.getElementById('docSubmitManualAppointment')?.addEventListener('click', function() {
-      _docManualData.patientName = document.getElementById('docManualPatientName').value.trim();
-      _docManualData.phone       = document.getElementById('docManualPhone').value.trim();
-      _docManualData.visitType   = document.getElementById('docManualVisitType').value;
-      _docManualData.selectedDate = document.getElementById('docManualDateInput').value;
-      if (!_docManualData.patientName) { showToast('أدخل اسم المريض', 'error'); return; }
-      if (!_docManualData.phone)       { showToast('أدخل رقم الهاتف', 'error'); return; }
-      if (!_docManualData.visitType)   { showToast('اختر نوع الزيارة', 'error'); return; }
-      if (!_docManualData.selectedDate){ showToast('اختر تاريخ الموعد', 'error'); return; }
-      if (typeof isDayClosed === 'function' && isDayClosed(_docManualData.selectedDate)) { showToast('هذا اليوم مغلق للحجز', 'error'); return; }
+      // اقرأ القيم مباشرة من الحقول (أضمن من الـ state)
+      var patientName = document.getElementById('docManualPatientName').value.trim();
+      var phone       = document.getElementById('docManualPhone').value.trim();
+      var birthDate   = document.getElementById('docManualBirthDate').value;
+      var address     = document.getElementById('docManualAddress').value.trim();
+      var visitType   = document.getElementById('docManualVisitType').value;
+      var selectedDate = document.getElementById('docManualDateInput').value;
+      var selectedSlot = _docManualData.selectedSlot || 'Morning';
+
+      if (!patientName) { showToast('أدخل اسم المريض', 'error'); return; }
+      if (!phone)       { showToast('أدخل رقم الهاتف', 'error'); return; }
+      if (!visitType)   { showToast('اختر نوع الزيارة', 'error'); return; }
+      if (!selectedDate){ showToast('اختر تاريخ الموعد', 'error'); return; }
+      if (isDayClosed(selectedDate)) { showToast('هذا اليوم مغلق للحجز', 'error'); return; }
+
+      var btn = document.getElementById('docSubmitManualAppointment');
+      if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري الحفظ...'; }
+
       var appointment = {
-        PatientName: _docManualData.patientName,
-        Phone:       _docManualData.phone,
-        BirthDate:   _docManualData.birthDate,
-        Address:     _docManualData.address,
-        VisitType:   _docManualData.visitType,
-        Date:        _docManualData.selectedDate,
-        Slot:        _docManualData.selectedSlot,
+        PatientName: patientName,
+        Phone:       phone,
+        BirthDate:   birthDate,
+        Address:     address,
+        VisitType:   visitType,
+        Date:        selectedDate,
+        Slot:        selectedSlot,
         Status:      'Accepted',
         createdAt:   new Date().toISOString(),
         source:      'manual'
       };
+
       window._fb.addDoc(window._fb.col('appointments'), appointment)
         .then(function() {
           closeDocManualFormOverlay();
-          showToast('تم تسجيل الموعد بنجاح', 'success');
-          // انتقل للروزنامة وحدد اليوم
+          showToast('تم تسجيل الموعد بنجاح ✓', 'success');
           setActiveSection('calendar');
-          if (typeof selectDay === 'function') selectDay(_docManualData.selectedDate);
+          if (typeof selectDay === 'function') selectDay(selectedDate);
         })
-        .catch(function(e) { showToast('فشل الحفظ: ' + (e.code || e.message), 'error'); console.error(e); });
+        .catch(function(e) {
+          showToast('فشل الحفظ: ' + (e.code || e.message), 'error');
+          console.error(e);
+        })
+        .finally(function() {
+          if (btn) { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> تسجيل الموعد'; }
+        });
     });
+
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') closeDocManualFormOverlay();
     });
+
+    }); // end DOMContentLoaded
     document.getElementById('patientBookSearch')?.addEventListener('input', renderPatientBook);
 
     document.getElementById('dayDetailsModal')?.addEventListener('click', function(e) {
