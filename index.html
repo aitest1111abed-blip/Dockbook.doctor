@@ -1484,6 +1484,12 @@
           <span class="doc-fab-pill-icon enter-p"><i class="fas fa-door-open"></i></span>
           <span class="doc-fab-pill-label">استدعاء الممرضة</span>
         </button>
+        <button class="doc-fab-pill" onclick="closeMobDocFab();openContactsManager()">
+          <span class="doc-fab-pill-icon" style="background:linear-gradient(135deg,#16a34a,#15803d);">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.63a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+          </span>
+          <span class="doc-fab-pill-label">التواصل</span>
+        </button>
         <button class="doc-fab-pill" id="customPillMob" onclick="closeMobDocFab();sendNurseAlert('custom')">
           <span class="doc-fab-pill-icon custom-p"><i class="fas fa-star"></i></span>
           <span class="doc-fab-pill-label" id="customAlertLabel">تنبيه مخصص</span>
@@ -1675,9 +1681,15 @@
             <div id="whatsappImagesThumbnails" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:5px;"></div>
           </div>
 
-          <button id="sendToWhatsappBtn" class="btn-primary" style="width:100%; background:#25d366; border-color:#128c7e; justify-content:center;">
-            <i class="fab fa-whatsapp"></i> إرسال عبر واتساب
-          </button>
+          <div style="display:flex;gap:8px;margin-bottom:0;">
+            <button id="sendToWhatsappBtn" class="btn-primary" style="flex:1; background:#25d366; border-color:#128c7e; justify-content:center;">
+              <i class="fab fa-whatsapp"></i> إرسال للمريض
+            </button>
+            <button onclick="openSendToContact()" class="btn-primary" style="flex:1; background:linear-gradient(135deg,#7c3aed,#6d28d9); border-color:transparent; justify-content:center;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="margin-left:5px;"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.63a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+              إرسال للصيدلية
+            </button>
+          </div>
           <p style="font-size:.65rem; color:var(--text-muted); margin-top:6px; text-align:center;">
             * ملاحظة: سيتم فتح واتساب مع النص، الصور يجب إرفاقها يدوياً من الاستوديو بعد فتح المحادثة.
           </p>
@@ -2035,39 +2047,59 @@
     var _shownAlertIds = new Set(); // منع التكرار بدلاً من _lastAcceptedAlertId
 
     // ── فحص التنبيهات الفائتة عند فتح اللوحة ──
+    // ── فحص الطلبات الجديدة الفائتة عند فتح لوحة الممرضة ──
+    function checkMissedNewRequests() {
+      var SEEN_KEY = 'docbook_nur_apptSeen';
+      var lastSeen = parseInt(localStorage.getItem(SEEN_KEY) || '0', 10);
+      var nowTs = Date.now();
+      localStorage.setItem(SEEN_KEY, String(nowTs));
+      if (lastSeen === 0) return;
+      var pending = allRecords.filter(function(r) {
+        if (r.Status !== 'Pending') return false;
+        var ts = r.createdAt && r.createdAt.toMillis ? r.createdAt.toMillis()
+               : r.createdAt ? new Date(r.createdAt).getTime() : 0;
+        return ts > lastSeen && ts <= nowTs;
+      });
+      if (pending.length === 0) return;
+      var msg = pending.length === 1
+        ? 'طلب جديد: ' + (pending[0].PatientName || 'مريض')
+        : pending.length + ' طلبات جديدة';
+      if (typeof showNotifToast === 'function') showNotifToast(msg);
+    }
+
+    // ── فحص الإجراءات الفائتة عند فتح لوحة الطبيب ──
     function checkMissedAlerts() {
       var SEEN_KEY = 'docbook_doc_alertSeen';
       var lastSeen = parseInt(localStorage.getItem(SEEN_KEY) || '0', 10);
       var nowTs = Date.now();
-
-      // حدّث فوراً لمنع التكرار
       localStorage.setItem(SEEN_KEY, String(nowTs));
-
-      if (lastSeen === 0) return; // أول مرة يفتح — لا إشعار
-
-      // اجلب التنبيهات الفائتة من Firestore
-      window._fb.onSnapshot(window._fb.col('alerts'), function(snap) {
-        var unread = snap.docs
+      if (lastSeen === 0) return; // أول مرة — لا إشعار
+      // جلب مرة واحدة ثم إلغاء الاستماع
+      var unsub = window._fb.onSnapshot(window._fb.col('alerts'), function(snap) {
+        if (unsub) { unsub(); unsub = null; }
+        var missed = snap.docs
           .map(function(d) { return Object.assign({ id: d.id }, d.data()); })
-          .filter(function(d) {
-            var ts = d.createdAt ? d.createdAt.toMillis() : 0;
-            return d.direction === 'nurseToDoctor' && ts > lastSeen && ts < nowTs;
+          .filter(function(a) {
+            var ts = a.createdAt && a.createdAt.toMillis ? a.createdAt.toMillis()
+                   : a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            // فقط nurseToDoctor — مستثنى استدعاء الممرضة وأدخل المريض
+            return a.direction === 'nurseToDoctor' && ts > lastSeen && ts <= nowTs;
           });
-        if (unread.length === 1) {
-          showDocNotifToast(unread[0].message || 'تم قبول موعد');
-        } else if (unread.length > 1) {
-          showDocNotifToast(unread.length + ' إجراءات فائتة');
-        }
-      }, function(){});
+        if (missed.length === 0) return;
+        var msg = missed.length === 1
+          ? (missed[missed.length-1].message || 'تم قبول موعد')
+          : missed.length + ' إجراءات فائتة';
+        if (typeof showDocNotifToast === 'function') showDocNotifToast(msg);
+      }, function() {});
     }
 
     function loadData() {
       migrateLocalStorageToFirestore();
       _alertSeenAt = Date.now();
-      checkMissedAlerts();
 
       // المواعيد
       if (_unsubAppt) _unsubAppt();
+      var _nurseApptFirstLoad = true;
       _unsubAppt = window._fb.onSnapshot(window._fb.col('appointments'),
         function(snap) {
           allRecords = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
@@ -2075,6 +2107,11 @@
           renderCalendar();
           if (selectedDayStr) renderAgendaForDay(selectedDayStr);
           if (currentSection === 'stats') calculateStatsFromPatients();
+          // فحص الطلبات الفائتة عند أول تحميل فقط
+          if (_nurseApptFirstLoad) {
+            _nurseApptFirstLoad = false;
+            setTimeout(checkMissedNewRequests, 1000);
+          }
         },
         function(e) { console.error('[appointments]', e); }
       );
@@ -3675,6 +3712,12 @@
       <span class="doc-fab-pill-icon enter-p"><i class="fas fa-door-open"></i></span>
       <span class="doc-fab-pill-label">استدعاء الممرضة</span>
     </button>
+    <button class="doc-fab-pill" id="deskDocPillContact" onclick="closeDocFabDial();openContactsManager()">
+      <span class="doc-fab-pill-icon" style="background:linear-gradient(135deg,#16a34a,#15803d);">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.63a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+      </span>
+      <span class="doc-fab-pill-label">التواصل</span>
+    </button>
     <button class="doc-fab-pill" id="deskDocPillCustom" onclick="closeDocFabDial();sendNurseAlert('custom')">
       <span class="doc-fab-pill-icon custom-p"><i class="fas fa-star"></i></span>
       <span class="doc-fab-pill-label" id="customAlertLabelDesk">تنبيه مخصص</span>
@@ -4107,6 +4150,31 @@
       transition: background .15s;
     }
     .alert-banner-close:hover { background: rgba(255,255,255,0.35); }
+
+    /* ─── Contacts (Pharmacy/Lab) Module ─── */
+    #contactsModal .modal-content { max-width: 480px; }
+    .contact-card {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 12px 14px; border-radius: 12px; background: var(--surface);
+      border: 1.5px solid var(--border); margin-bottom: 8px;
+      transition: border-color .15s;
+    }
+    .contact-card:hover { border-color: var(--primary); }
+    .contact-card-info { display: flex; flex-direction: column; gap: 2px; }
+    .contact-card-name { font-weight: 700; font-size: .88rem; color: var(--text-primary); }
+    .contact-card-phone { font-size: .75rem; color: var(--text-muted); direction: ltr; text-align: right; }
+    .contact-card-type { font-size: .68rem; padding: 2px 8px; border-radius: 20px; font-weight: 700; }
+    .contact-type-pharmacy { background: #dcfce7; color: #16a34a; }
+    .contact-type-lab      { background: #ede9fe; color: #7c3aed; }
+    .btn-send-contact {
+      background: #25d366; color: white; border: none; border-radius: 10px;
+      padding: 7px 14px; font-size: .78rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; gap: 5px; font-family: inherit;
+      transition: opacity .15s; white-space: nowrap;
+    }
+    .btn-send-contact:hover { opacity: .88; }
+    #sendToContactModal { z-index: 500; }
+
   </style>
 
   <!-- ===== بانر تنبيه الدكتور ===== -->
@@ -4327,6 +4395,213 @@
   <div id="notifToast"></div>
 
   <!-- Confirm Bottom-Sheet -->
+
+
+  <!-- ══ مودال إدارة جهات التواصل (صيدليات/مختبرات) ══ -->
+  <div id="contactsModal" class="hidden fixed inset-0 z-[300] flex items-center justify-center p-4 modal-overlay" onclick="if(event.target===this)closeContactsManager()">
+    <div class="modal-content w-full" style="max-width:480px;border-radius:20px;overflow:hidden;display:flex;flex-direction:column;max-height:85vh;">
+      <!-- Header -->
+      <div style="padding:16px 20px;border-bottom:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="font-weight:800;font-size:1rem;color:var(--text-primary);">📋 جهات التواصل</h3>
+        <button onclick="closeContactsManager()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.1rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <!-- Add Form -->
+      <div style="padding:16px 20px;border-bottom:1.5px solid var(--border);background:var(--surface-alt,#f8fafc);">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+          <select id="contactTypeInput" style="flex:1;min-width:120px;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:.84rem;background:white;color:var(--text-primary);">
+            <option value="pharmacy">💊 صيدلية</option>
+            <option value="lab">🔬 مختبر</option>
+          </select>
+          <input id="contactNameInput" type="text" placeholder="الاسم" style="flex:2;min-width:140px;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:.84rem;">
+          <input id="contactPhoneInput" type="tel" placeholder="رقم الهاتف" dir="ltr" style="flex:2;min-width:140px;padding:9px 12px;border:1.5px solid var(--border);border-radius:10px;font-family:inherit;font-size:.84rem;">
+        </div>
+        <button onclick="saveContact()" style="width:100%;padding:10px;background:var(--primary);color:white;border:none;border-radius:10px;font-weight:700;font-size:.88rem;cursor:pointer;font-family:inherit;">
+          <span id="contactSaveBtnText">+ إضافة</span>
+        </button>
+      </div>
+      <!-- List -->
+      <div id="contactsList" style="overflow-y:auto;padding:16px 20px;flex:1;">
+        <div style="text-align:center;color:var(--text-muted);font-size:.85rem;padding:20px;">لا توجد جهات تواصل بعد</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ مودال الإرسال لصيدلية/مختبر ══ -->
+  <div id="sendToContactModal" class="hidden fixed inset-0 flex items-center justify-center p-4 modal-overlay" style="z-index:500;" onclick="if(event.target===this)closeSendToContact()">
+    <div class="modal-content w-full" style="max-width:420px;border-radius:20px;overflow:hidden;">
+      <div style="padding:16px 20px;border-bottom:1.5px solid var(--border);display:flex;justify-content:space-between;align-items:center;">
+        <h3 style="font-weight:800;font-size:.95rem;color:var(--text-primary);">إرسال للصيدلية / المختبر</h3>
+        <button onclick="closeSendToContact()" style="background:none;border:none;cursor:pointer;color:var(--text-muted);font-size:1.1rem;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div style="padding:16px 20px;">
+        <p style="font-size:.8rem;color:var(--text-muted);margin-bottom:12px;">اختر جهة التواصل لإرسال الوصفة/الملاحظة عبر واتساب:</p>
+        <div id="sendContactList" style="max-height:300px;overflow-y:auto;"></div>
+        <div id="sendContactEmpty" style="display:none;text-align:center;color:var(--text-muted);font-size:.85rem;padding:20px;">
+          لا توجد جهات تواصل. <button onclick="closeSendToContact();openContactsManager()" style="background:none;border:none;color:var(--primary);font-weight:700;cursor:pointer;">أضف الآن</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    // ══════════════════════════════════════════════
+    // نظام جهات التواصل — صيدليات ومختبرات
+    // ══════════════════════════════════════════════
+
+    var _contacts = [];
+    var _editingContactId = null;
+    var _CONTACTS_KEY = 'docbook_contacts';
+
+    // ── تحميل وحفظ من Firestore ──
+    function loadContacts(cb) {
+      if (window._fbReady) {
+        window._fb.getDoc('config', 'contacts').then(function(snap) {
+          _contacts = snap.exists() ? (snap.data().list || []) : [];
+          if (cb) cb();
+        }).catch(function() { _contacts = []; if (cb) cb(); });
+      } else {
+        window.addEventListener('fbReady', function() { loadContacts(cb); }, { once: true });
+      }
+    }
+
+    function saveContactsToFirestore() {
+      if (!window._fbReady) return;
+      window._fb.setDoc(window._fb.docRef('config', 'contacts'), { list: _contacts }, { merge: true })
+        .catch(function(e) { console.error('contacts save', e); });
+    }
+
+    // ── فتح مدير جهات التواصل ──
+    window.openContactsManager = function() {
+      document.getElementById('contactsModal').classList.remove('hidden');
+      _editingContactId = null;
+      document.getElementById('contactSaveBtnText').textContent = '+ إضافة';
+      document.getElementById('contactNameInput').value = '';
+      document.getElementById('contactPhoneInput').value = '';
+      loadContacts(renderContactsList);
+    };
+
+    window.closeContactsManager = function() {
+      document.getElementById('contactsModal').classList.add('hidden');
+    };
+
+    function renderContactsList() {
+      var list = document.getElementById('contactsList');
+      if (!list) return;
+      if (!_contacts.length) {
+        list.innerHTML = '<div style="text-align:center;color:var(--text-muted);font-size:.85rem;padding:20px;">لا توجد جهات تواصل بعد</div>';
+        return;
+      }
+      list.innerHTML = _contacts.map(function(ct) {
+        var typeLabel = ct.type === 'lab' ? '🔬 مختبر' : '💊 صيدلية';
+        var typeClass = ct.type === 'lab' ? 'contact-type-lab' : 'contact-type-pharmacy';
+        return '<div class="contact-card">' +
+          '<div class="contact-card-info">' +
+          '<div style="display:flex;align-items:center;gap:6px;">' +
+          '<span class="contact-card-name">' + ct.name + '</span>' +
+          '<span class="contact-card-type ' + typeClass + '">' + typeLabel + '</span>' +
+          '</div>' +
+          '<span class="contact-card-phone">' + ct.phone + '</span>' +
+          '</div>' +
+          '<div style="display:flex;gap:6px;">' +
+          '<button onclick="editContact(' + JSON.stringify(ct.id) + ')" style="background:var(--primary-light);border:none;border-radius:8px;padding:6px 10px;cursor:pointer;color:var(--primary);">' +
+          '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>' +
+          '</button>' +
+          '<button onclick="deleteContact(' + JSON.stringify(ct.id) + ')" style="background:#fee2e2;border:none;border-radius:8px;padding:6px 10px;cursor:pointer;color:#dc2626;">' +
+          '<i class="fas fa-trash" style="font-size:.75rem;"></i>' +
+          '</button>' +
+          '</div>' +
+          '</div>';
+      }).join('');
+    }
+
+    window.saveContact = function() {
+      var name  = document.getElementById('contactNameInput').value.trim();
+      var phone = document.getElementById('contactPhoneInput').value.trim().replace(/[^0-9+]/g,'');
+      var type  = document.getElementById('contactTypeInput').value;
+      if (!name || !phone) { showToast('أدخل الاسم ورقم الهاتف', 'error'); return; }
+      if (_editingContactId) {
+        var idx = _contacts.findIndex(function(c) { return c.id === _editingContactId; });
+        if (idx !== -1) { _contacts[idx].name = name; _contacts[idx].phone = phone; _contacts[idx].type = type; }
+        _editingContactId = null;
+        document.getElementById('contactSaveBtnText').textContent = '+ إضافة';
+      } else {
+        _contacts.push({ id: Date.now(), name: name, phone: phone, type: type });
+      }
+      document.getElementById('contactNameInput').value = '';
+      document.getElementById('contactPhoneInput').value = '';
+      saveContactsToFirestore();
+      renderContactsList();
+      showToast('تم الحفظ', 'success');
+    };
+
+    window.editContact = function(id) {
+      var ct = _contacts.find(function(c) { return c.id === id; });
+      if (!ct) return;
+      _editingContactId = id;
+      document.getElementById('contactNameInput').value  = ct.name;
+      document.getElementById('contactPhoneInput').value = ct.phone;
+      document.getElementById('contactTypeInput').value  = ct.type;
+      document.getElementById('contactSaveBtnText').textContent = '💾 تحديث';
+      document.getElementById('contactNameInput').focus();
+    };
+
+    window.deleteContact = function(id) {
+      _contacts = _contacts.filter(function(c) { return c.id !== id; });
+      saveContactsToFirestore();
+      renderContactsList();
+    };
+
+    // ── فتح مودال الإرسال للصيدلية/مختبر ──
+    window.openSendToContact = function() {
+      var msg = document.getElementById('whatsappMsgInput')?.value?.trim() || '';
+      if (!msg) { showToast('أكتب الوصفة أو الملاحظة أولاً', 'error'); return; }
+      document.getElementById('sendToContactModal').classList.remove('hidden');
+      renderSendContactList(msg);
+    };
+
+    window.closeSendToContact = function() {
+      document.getElementById('sendToContactModal').classList.add('hidden');
+    };
+
+    function renderSendContactList(msg) {
+      var list  = document.getElementById('sendContactList');
+      var empty = document.getElementById('sendContactEmpty');
+      loadContacts(function() {
+        if (!_contacts.length) {
+          list.style.display = 'none';
+          empty.style.display = 'block';
+          return;
+        }
+        empty.style.display = 'none';
+        list.style.display  = 'block';
+        list.innerHTML = _contacts.map(function(ct) {
+          var typeLabel = ct.type === 'lab' ? '🔬 مختبر' : '💊 صيدلية';
+          var typeClass = ct.type === 'lab' ? 'contact-type-lab' : 'contact-type-pharmacy';
+          return '<div class="contact-card" style="margin-bottom:8px;">' +
+            '<div class="contact-card-info">' +
+            '<div style="display:flex;align-items:center;gap:6px;">' +
+            '<span class="contact-card-name">' + ct.name + '</span>' +
+            '<span class="contact-card-type ' + typeClass + '">' + typeLabel + '</span>' +
+            '</div>' +
+            '<span class="contact-card-phone">' + ct.phone + '</span>' +
+            '</div>' +
+            '<button class="btn-send-contact" onclick="sendToContactWhatsApp(' + JSON.stringify(ct.phone) + ',' + JSON.stringify(msg) + ')">' +
+            '<svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.524 5.855L0 24l6.336-1.504A11.955 11.955 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.652-.516-5.168-1.416l-.371-.22-3.762.893.951-3.66-.24-.387A9.956 9.956 0 0 1 2 12C2 6.478 6.478 2 12 2s10 4.478 10 10-4.478 10-10 10z"/></svg> إرسال' +
+            '</button>' +
+            '</div>';
+        }).join('');
+      });
+    }
+
+    window.sendToContactWhatsApp = function(phone, msg) {
+      var cleaned = phone.replace(/[^0-9+]/g, '');
+      if (!cleaned.startsWith('+')) cleaned = '+' + cleaned;
+      var url = 'https://wa.me/' + cleaned + '?text=' + encodeURIComponent(msg);
+      window.open(url, '_blank');
+      closeSendToContact();
+    };
+  </script>
 
 </body>
 </html>
