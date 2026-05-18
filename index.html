@@ -539,22 +539,24 @@
 
     /* ── زر إضافة موعد يدوي بجانب العين ── */
     .btn-add-manual-appt {
-      background: var(--primary) !important;
-      color: white !important;
+      background: transparent !important;
+      color: var(--primary) !important;
       border: none !important;
-      font-size: .85rem;
-      font-weight: 700;
+      font-size: 1.1rem;
       cursor: pointer;
-      padding: 0;
+      padding: 6px;
       border-radius: 8px;
-      transition: background .15s, transform .1s;
+      transition: all .15s;
       width: 38px;
       height: 38px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
-    .btn-add-manual-appt:hover { background: var(--primary-hover) !important; }
+    .btn-add-manual-appt:hover {
+      background: var(--primary-light) !important;
+      transform: none;
+    }
     .btn-add-manual-appt:active { transform: scale(.96); }
 
     /* ── Manual Appointment Overlay (Doctor) ── */
@@ -3524,7 +3526,22 @@
       };
 
       window._fb.addDoc(window._fb.col('appointments'), appointment)
-        .then(function() {
+        .then(function(apptRef) {
+          // ── إرسال إشعار للممرضة ──
+          var alertPayload = {
+            type:      'newManualAppt',
+            direction: 'doctorToNurse',
+            message:   'موعد جديد: ' + patientName,
+            read:      false,
+            createdAt: window._fb.serverTimestamp()
+          };
+          window._fb.addDoc(window._fb.col('alerts'), alertPayload)
+            .then(function(alertRef) {
+              var bc = { type:'newManualAppt', direction:'doctorToNurse',
+                         message:'موعد جديد: ' + patientName,
+                         ts: Date.now(), docId: alertRef.id };
+              try { new BroadcastChannel('nurseAlerts').postMessage(bc); } catch(e) {}
+            }).catch(function(){});
           closeDocManualFormOverlay();
           showToast('تم تسجيل الموعد بنجاح ✓', 'success');
           setActiveSection('calendar');
