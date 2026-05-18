@@ -1481,13 +1481,13 @@
           <span class="doc-fab-pill-label">أدخل المريض</span>
         </button>
         <button class="doc-fab-pill" onclick="closeMobDocFab();sendNurseAlert('enter')">
-          <span class="doc-fab-pill-icon enter-p"><i class="fas fa-door-open"></i></span>
+          <span class="doc-fab-pill-icon enter-p"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 4v5h5"/><line x1="9" y1="12" x2="15" y2="12"/></svg></span>
           <span class="doc-fab-pill-label">استدعاء الممرضة</span>
         </button>
         <button class="doc-fab-pill" id="customPillMob" onclick="closeMobDocFab();sendNurseAlert('custom')">
-          <span class="doc-fab-pill-icon custom-p"><i class="fas fa-star"></i></span>
+          <span class="doc-fab-pill-icon custom-p"><svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
           <span class="doc-fab-pill-label" id="customAlertLabel">تنبيه مخصص</span>
-          <span class="doc-fab-pill-sublabel" onclick="event.stopPropagation();closeMobDocFab();openCustomAlertEdit()"><i class="fas fa-pencil-alt"></i></span>
+          <span class="doc-fab-pill-sublabel" onclick="event.stopPropagation();closeMobDocFab();openCustomAlertEdit()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
         </button>
         <button class="doc-fab-pill" onclick="closeMobDocFab();openContactsManager()">
           <span class="doc-fab-pill-icon" style="background:linear-gradient(135deg,#16a34a,#15803d);">
@@ -3706,19 +3706,19 @@
           <span class="doc-fab-pill-label">أدخل المريض</span>
     </button>
     <button class="doc-fab-pill" id="deskDocPillEnter" onclick="closeDocFabDial();sendNurseAlert('enter')">
-      <span class="doc-fab-pill-icon enter-p"><i class="fas fa-door-open"></i></span>
+      <span class="doc-fab-pill-icon enter-p"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 4H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M13 4v5h5"/><line x1="9" y1="12" x2="15" y2="12"/></svg></span>
       <span class="doc-fab-pill-label">استدعاء الممرضة</span>
+    </button>
+    <button class="doc-fab-pill" id="deskDocPillCustom" onclick="closeDocFabDial();sendNurseAlert('custom')">
+      <span class="doc-fab-pill-icon custom-p"><svg width="16" height="16" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+      <span class="doc-fab-pill-label" id="customAlertLabelDesk">تنبيه مخصص</span>
+      <span class="doc-fab-pill-sublabel" onclick="event.stopPropagation();closeDocFabDial();openCustomAlertEdit()"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></span>
     </button>
     <button class="doc-fab-pill" id="deskDocPillContact" onclick="closeDocFabDial();openContactsManager()">
       <span class="doc-fab-pill-icon" style="background:linear-gradient(135deg,#16a34a,#15803d);">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.35 2 2 0 0 1 3.6 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.63a16 16 0 0 0 6.29 6.29l.95-.95a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
       </span>
       <span class="doc-fab-pill-label">التواصل</span>
-    </button>
-    <button class="doc-fab-pill" id="deskDocPillCustom" onclick="closeDocFabDial();sendNurseAlert('custom')">
-      <span class="doc-fab-pill-icon custom-p"><i class="fas fa-star"></i></span>
-      <span class="doc-fab-pill-label" id="customAlertLabelDesk">تنبيه مخصص</span>
-      <span class="doc-fab-pill-sublabel" onclick="event.stopPropagation();closeDocFabDial();openCustomAlertEdit()"><i class="fas fa-pencil-alt"></i></span>
     </button>
   </div>
   <!-- الزر الرئيسي فقط -->
@@ -4551,7 +4551,14 @@
 
     // ── فتح مودال الإرسال للصيدلية/مختبر ──
     window.openSendToContact = function() {
-      var msg = document.getElementById('whatsappMsgInput')?.value?.trim() || '';
+      // اجمع النص من حقول الكتابة
+      var prescription = (document.getElementById('prescriptionText')?.value || '').trim();
+      var note         = (document.getElementById('noteText')?.value || '').trim();
+      var msg = '';
+      if (prescription) msg += 'الوصفة الطبية:\n' + prescription;
+      if (note) msg += (msg ? '\n\n' : '') + 'الملاحظات:\n' + note;
+      // fallback لمودال العرض
+      if (!msg) msg = (document.getElementById('whatsappMsgInput')?.value || '').trim();
       if (!msg) { showToast('أكتب الوصفة أو الملاحظة أولاً', 'error'); return; }
       document.getElementById('sendToContactModal').classList.remove('hidden');
       renderSendContactList(msg);
