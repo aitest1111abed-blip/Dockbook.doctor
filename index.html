@@ -1140,6 +1140,10 @@
 
   <main style="max-width:1280px;margin:0 auto;padding:20px 16px;display:flex;flex-direction:column;gap:20px;" class="md:flex-row md:gap-6">
     <aside class="sidebar md:flex">
+      <div class="sidebar-item" id="sidebarHome">
+        <div class="sidebar-icon"><i class="fas fa-home"></i></div>
+        <div><h3 class="font-bold">الرئيسية</h3><div class="sidebar-sub">لمحة سريعة عن اليوم</div></div>
+      </div>
       <div class="sidebar-item active" id="sidebarCalendar">
         <div class="sidebar-icon"><i class="fas fa-calendar-alt"></i></div>
         <div><h3 class="font-bold">المواعيد المؤكدة</h3><div class="sidebar-sub">الروزنامة اليومية</div></div>
@@ -1165,6 +1169,30 @@
           <span class="font-bold" style="color:var(--primary)">جاري جلب البيانات...</span>
         </div>
       </div>
+
+      <!-- قسم الصفحة الرئيسية -->
+      <section id="homeSection" class="hidden">
+        <!-- بطاقة الترحيب اليومية -->
+        <div class="glass-card" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%) !important; border-color: var(--primary-hover) !important; margin-bottom: 20px; overflow: hidden; position: relative;">
+          <!-- زخرفة خلفية -->
+          <div style="position:absolute;top:-30px;left:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none;"></div>
+          <div style="position:absolute;bottom:-20px;right:60px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none;"></div>
+          <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
+            <div>
+              <div id="homeGreeting" style="font-size:1.05rem;font-weight:800;color:rgba(255,255,255,0.85);margin-bottom:4px;">صباح الخير 👋</div>
+              <div id="homeDoctorName" style="font-size:1.5rem;font-weight:800;color:#fff;line-height:1.2;margin-bottom:8px;">دكتور...</div>
+              <div id="homeDate" style="font-size:0.82rem;color:rgba(255,255,255,0.75);font-weight:500;display:flex;align-items:center;gap:6px;">
+                <i class="fas fa-calendar-day"></i>
+                <span>—</span>
+              </div>
+            </div>
+            <div style="text-align:center;background:rgba(255,255,255,0.15);border-radius:16px;padding:14px 20px;backdrop-filter:blur(4px);">
+              <div id="homeTodayCount" style="font-size:2.2rem;font-weight:900;color:#fff;line-height:1;">—</div>
+              <div style="font-size:0.72rem;color:rgba(255,255,255,0.8);font-weight:700;margin-top:2px;">موعد اليوم</div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <!-- قسم الروزنامة -->
       <section id="calendarSection">
@@ -1469,6 +1497,7 @@
   </div>
 
   <nav class="bottom-nav" style="height:64px; padding:0;">
+    <div class="bottom-nav-item" id="mobileHome"><i class="fas fa-home"></i><span>الرئيسية</span></div>
     <div class="bottom-nav-item" id="mobileStats"><i class="fas fa-chart-pie"></i><span>إحصائيات</span></div>
     <div class="bottom-nav-item" id="mobilePatients"><i class="fas fa-address-book"></i><span>المرضى</span></div>
     <div class="bottom-nav-item active" id="mobileCalendar"><i class="fas fa-calendar-alt"></i><span>المواعيد</span></div>
@@ -3274,7 +3303,10 @@
       document.querySelectorAll('.bottom-nav-item').forEach(el => el.classList.remove('active'));
       document.getElementById(`mobile${section.charAt(0).toUpperCase()+section.slice(1)}`)?.classList.add('active');
       document.querySelectorAll('section').forEach(el => el.classList.add('hidden'));
-      if (section === 'calendar') document.getElementById('calendarSection').classList.remove('hidden');
+      if (section === 'home') {
+        document.getElementById('homeSection').classList.remove('hidden');
+        renderHomePage();
+      } else if (section === 'calendar') document.getElementById('calendarSection').classList.remove('hidden');
       else if (section === 'patients') { 
         document.getElementById('patientBookSection').classList.remove('hidden'); 
         renderPatientBook(); 
@@ -3298,9 +3330,11 @@
     }
 
     // ربط الأحداث
+    document.getElementById('sidebarHome')?.addEventListener('click', () => setActiveSection('home'));
     document.getElementById('sidebarCalendar')?.addEventListener('click', () => setActiveSection('calendar'));
     document.getElementById('sidebarPatients')?.addEventListener('click', () => setActiveSection('patients'));
     document.getElementById('sidebarStats')?.addEventListener('click', () => setActiveSection('stats'));
+    document.getElementById('mobileHome')?.addEventListener('click', () => setActiveSection('home'));
     document.getElementById('mobileCalendar')?.addEventListener('click', () => setActiveSection('calendar'));
     document.getElementById('mobilePatients')?.addEventListener('click', () => setActiveSection('patients'));
     document.getElementById('mobileStats')?.addEventListener('click', () => setActiveSection('stats'));
@@ -3615,6 +3649,40 @@
       setActiveSection('calendar');
       document.getElementById('doctorHeaderDate').textContent = today.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
     });
+    // ================== الصفحة الرئيسية ==================
+    function renderHomePage() {
+      // تحديد التحية حسب الوقت
+      const hour = new Date().getHours();
+      let greeting = 'مرحباً';
+      if (hour >= 5 && hour < 12) greeting = 'صباح الخير 🌅';
+      else if (hour >= 12 && hour < 17) greeting = 'مساء الخير ☀️';
+      else if (hour >= 17 && hour < 21) greeting = 'مساء النور 🌇';
+      else greeting = 'تصبح على خير 🌙';
+
+      const greetEl = document.getElementById('homeGreeting');
+      if (greetEl) greetEl.textContent = greeting;
+
+      // اسم الطبيب من الإعدادات
+      const nameEl = document.getElementById('homeDoctorName');
+      if (nameEl) nameEl.textContent = settings.title || 'دكتور';
+
+      // التاريخ
+      const dateEl = document.getElementById('homeDate');
+      if (dateEl) {
+        const now = new Date();
+        const daysArabic = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+        const monthsArabic = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+        dateEl.innerHTML = `<i class="fas fa-calendar-day"></i> <span>${daysArabic[now.getDay()]}، ${now.getDate()} ${monthsArabic[now.getMonth()]} ${now.getFullYear()}</span>`;
+      }
+
+      // عدد مواعيد اليوم
+      const countEl = document.getElementById('homeTodayCount');
+      if (countEl) {
+        const todayAppointments = (appointments || []).filter(a => a.date === todayStr);
+        countEl.textContent = todayAppointments.length;
+      }
+    }
+
     // ================== الإعدادات ==================
     const SETTINGS_KEY = 'doctorSettings';
     let settings = {};
