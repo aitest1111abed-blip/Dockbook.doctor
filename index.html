@@ -1140,11 +1140,11 @@
 
   <main style="max-width:1280px;margin:0 auto;padding:20px 16px;display:flex;flex-direction:column;gap:20px;" class="md:flex-row md:gap-6">
     <aside class="sidebar md:flex">
-      <div class="sidebar-item" id="sidebarHome">
-        <div class="sidebar-icon"><i class="fas fa-home"></i></div>
-        <div><h3 class="font-bold">الرئيسية</h3><div class="sidebar-sub">لمحة سريعة عن اليوم</div></div>
+      <div class="sidebar-item active" id="sidebarHome">
+        <div class="sidebar-icon"><i class="fas fa-house"></i></div>
+        <div><h3 class="font-bold">الصفحة الرئيسية</h3><div class="sidebar-sub">لمحة عن يومك</div></div>
       </div>
-      <div class="sidebar-item active" id="sidebarCalendar">
+      <div class="sidebar-item" id="sidebarCalendar">
         <div class="sidebar-icon"><i class="fas fa-calendar-alt"></i></div>
         <div><h3 class="font-bold">المواعيد المؤكدة</h3><div class="sidebar-sub">الروزنامة اليومية</div></div>
       </div>
@@ -1170,32 +1170,107 @@
         </div>
       </div>
 
+      <!-- قسم الروزنامة -->
       <!-- قسم الصفحة الرئيسية -->
-      <section id="homeSection" class="hidden">
-        <!-- بطاقة الترحيب اليومية -->
-        <div class="glass-card" style="background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%) !important; border-color: var(--primary-hover) !important; margin-bottom: 20px; overflow: hidden; position: relative;">
-          <!-- زخرفة خلفية -->
-          <div style="position:absolute;top:-30px;left:-30px;width:140px;height:140px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none;"></div>
-          <div style="position:absolute;bottom:-20px;right:60px;width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.05);pointer-events:none;"></div>
-          <div style="position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-            <div>
-              <div id="homeGreeting" style="font-size:1.05rem;font-weight:800;color:rgba(255,255,255,0.85);margin-bottom:4px;">صباح الخير 👋</div>
-              <div id="homeDoctorName" style="font-size:1.5rem;font-weight:800;color:#fff;line-height:1.2;margin-bottom:8px;">دكتور...</div>
-              <div id="homeDate" style="font-size:0.82rem;color:rgba(255,255,255,0.75);font-weight:500;display:flex;align-items:center;gap:6px;">
-                <i class="fas fa-calendar-day"></i>
-                <span>—</span>
+      <section id="homeSection">
+        <div style="display:flex;flex-direction:column;gap:16px;">
+          <!-- 1) بطاقة الترحيب -->
+          <div class="glass-card" style="background:linear-gradient(135deg, var(--primary-faint), var(--primary-light));border:1.5px solid var(--border-strong);">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:220px;">
+                <p id="homeGreeting" style="font-size:1.25rem;font-weight:800;color:var(--text-primary);margin:0;">صباح الخير دكتور</p>
+                <p id="homeDateLabel" style="font-size:.82rem;color:var(--text-secondary);margin-top:6px;font-weight:600;">-</p>
+              </div>
+              <div style="background:var(--surface);border:1.5px solid var(--border-strong);border-radius:16px;padding:14px 20px;text-align:center;box-shadow:var(--shadow-sm);min-width:130px;">
+                <div id="homeTodayCount" style="font-size:2rem;font-weight:800;color:var(--primary);line-height:1;">0</div>
+                <div style="font-size:.72rem;color:var(--text-muted);font-weight:700;margin-top:4px;">موعد اليوم</div>
               </div>
             </div>
-            <div style="text-align:center;background:rgba(255,255,255,0.15);border-radius:16px;padding:14px 20px;backdrop-filter:blur(4px);">
-              <div id="homeTodayCount" style="font-size:2.2rem;font-weight:900;color:#fff;line-height:1;">—</div>
-              <div style="font-size:0.72rem;color:rgba(255,255,255,0.8);font-weight:700;margin-top:2px;">موعد اليوم</div>
+          </div>
+
+          <!-- 2) ٤ بطاقات ملخص اليوم -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="homeSummaryGrid">
+            <div class="home-mini-card" style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow-sm);">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:.75rem;color:var(--text-muted);font-weight:700;">مواعيد اليوم</span>
+                <div style="width:32px;height:32px;border-radius:9px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;"><i class="fas fa-calendar-day"></i></div>
+              </div>
+              <div id="homeStatTotal" style="font-size:1.6rem;font-weight:800;color:var(--text-primary);line-height:1;">0</div>
             </div>
+            <div class="home-mini-card" style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow-sm);">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:.75rem;color:var(--text-muted);font-weight:700;">المتبقية</span>
+                <div style="width:32px;height:32px;border-radius:9px;background:#dbeafe;color:#2563eb;display:flex;align-items:center;justify-content:center;"><i class="fas fa-hourglass-half"></i></div>
+              </div>
+              <div id="homeStatRemaining" style="font-size:1.6rem;font-weight:800;color:#2563eb;line-height:1;">0</div>
+            </div>
+            <div class="home-mini-card" style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow-sm);">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:.75rem;color:var(--text-muted);font-weight:700;">الحضور</span>
+                <div style="width:32px;height:32px;border-radius:9px;background:var(--green-light);color:var(--green);display:flex;align-items:center;justify-content:center;"><i class="fas fa-check"></i></div>
+              </div>
+              <div id="homeStatVisited" style="font-size:1.6rem;font-weight:800;color:var(--green);line-height:1;">0</div>
+            </div>
+            <div class="home-mini-card" style="background:var(--surface);border:1.5px solid var(--border);border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px;box-shadow:var(--shadow-sm);">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <span style="font-size:.75rem;color:var(--text-muted);font-weight:700;">الغياب</span>
+                <div style="width:32px;height:32px;border-radius:9px;background:var(--red-light);color:var(--red);display:flex;align-items:center;justify-content:center;"><i class="fas fa-user-times"></i></div>
+              </div>
+              <div id="homeStatNoShow" style="font-size:1.6rem;font-weight:800;color:var(--red);line-height:1;">0</div>
+            </div>
+          </div>
+
+          <!-- 4) تنبيهات وإشعارات -->
+          <div id="homeAlertsWrap" style="display:none;flex-direction:column;gap:8px;"></div>
+
+          <!-- 5) أزرار إجراءات سريعة -->
+          <div class="glass-card">
+            <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0 0 12px 0;display:flex;align-items:center;gap:8px;"><i class="fas fa-bolt" style="color:var(--primary);"></i> إجراءات سريعة</h3>
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <button onclick="openDocManualFormOverlay()" class="home-quick-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--primary);color:white;cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:800;transition:all .15s;">
+                <i class="fas fa-plus"></i> إضافة موعد
+              </button>
+              <button onclick="sendNurseAlert('next')" class="home-quick-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:800;transition:all .15s;">
+                <i class="fas fa-user-check" style="color:var(--primary);"></i> أدخل المريض
+              </button>
+              <button onclick="sendNurseAlert('enter')" class="home-quick-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:800;transition:all .15s;">
+                <i class="fas fa-bell" style="color:var(--amber);"></i> استدعاء الممرضة
+              </button>
+              <button onclick="setActiveSection('calendar')" class="home-quick-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:800;transition:all .15s;">
+                <i class="fas fa-calendar" style="color:var(--primary);"></i> تفاصيل اليوم
+              </button>
+            </div>
+          </div>
+
+          <!-- 3) مواعيد اليوم القادمة + 6) آخر المرضى -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <div class="glass-card">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;"><i class="fas fa-clock" style="color:var(--primary);"></i> المواعيد القادمة</h3>
+                <span id="homeUpcomingCount" style="font-size:.7rem;background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:20px;font-weight:700;">0</span>
+              </div>
+              <div id="homeUpcomingList" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+            <div class="glass-card">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;"><i class="fas fa-user-clock" style="color:var(--primary);"></i> آخر المرضى المُزارين</h3>
+              </div>
+              <div id="homeRecentPatients" style="display:flex;flex-direction:column;gap:8px;"></div>
+            </div>
+          </div>
+
+          <!-- 7) مؤشر الأسبوع -->
+          <div class="glass-card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+              <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;"><i class="fas fa-chart-column" style="color:var(--primary);"></i> كثافة الأسبوع</h3>
+              <span id="homeWeekRange" style="font-size:.7rem;color:var(--text-muted);font-weight:700;">-</span>
+            </div>
+            <div id="homeWeekBars" style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:120px;"></div>
           </div>
         </div>
       </section>
 
-      <!-- قسم الروزنامة -->
-      <section id="calendarSection">
+      <section id="calendarSection" class="hidden">
         <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-5">
           <div>
             <div class="compact-calendar-container">
@@ -1497,10 +1572,10 @@
   </div>
 
   <nav class="bottom-nav" style="height:64px; padding:0;">
-    <div class="bottom-nav-item" id="mobileHome"><i class="fas fa-home"></i><span>الرئيسية</span></div>
+    <div class="bottom-nav-item active" id="mobileHome"><i class="fas fa-house"></i><span>الرئيسية</span></div>
     <div class="bottom-nav-item" id="mobileStats"><i class="fas fa-chart-pie"></i><span>إحصائيات</span></div>
     <div class="bottom-nav-item" id="mobilePatients"><i class="fas fa-address-book"></i><span>المرضى</span></div>
-    <div class="bottom-nav-item active" id="mobileCalendar"><i class="fas fa-calendar-alt"></i><span>المواعيد</span></div>
+    <div class="bottom-nav-item" id="mobileCalendar"><i class="fas fa-calendar-alt"></i><span>المواعيد</span></div>
     <!-- FAB على اليسار -->
     <div class="mob-doc-fab-container">
       <!-- Pills تظهر فوق الزر -->
@@ -1892,7 +1967,7 @@
     let closedDays  = [];
     let currentDate = new Date();
     let selectedDayStr = todayStr;
-    let currentSection = 'calendar';
+    let currentSection = 'home';
     let currentPatientIdForVisit = null;
     let currentChartPeriod = 'monthly';
 
@@ -3305,8 +3380,9 @@
       document.querySelectorAll('section').forEach(el => el.classList.add('hidden'));
       if (section === 'home') {
         document.getElementById('homeSection').classList.remove('hidden');
-        renderHomePage();
-      } else if (section === 'calendar') document.getElementById('calendarSection').classList.remove('hidden');
+        renderHomeSection();
+      }
+      else if (section === 'calendar') document.getElementById('calendarSection').classList.remove('hidden');
       else if (section === 'patients') { 
         document.getElementById('patientBookSection').classList.remove('hidden'); 
         renderPatientBook(); 
@@ -3327,14 +3403,15 @@
       if (currentSection === 'stats') updateStats(false);
       if (currentSection === 'patients') renderPatientBook();
       if (currentSection === 'calendar') { renderCalendar(); if (selectedDayStr) renderAgendaForDay(selectedDayStr); }
+      if (currentSection === 'home') renderHomeSection();
     }
 
     // ربط الأحداث
     document.getElementById('sidebarHome')?.addEventListener('click', () => setActiveSection('home'));
+    document.getElementById('mobileHome')?.addEventListener('click', () => setActiveSection('home'));
     document.getElementById('sidebarCalendar')?.addEventListener('click', () => setActiveSection('calendar'));
     document.getElementById('sidebarPatients')?.addEventListener('click', () => setActiveSection('patients'));
     document.getElementById('sidebarStats')?.addEventListener('click', () => setActiveSection('stats'));
-    document.getElementById('mobileHome')?.addEventListener('click', () => setActiveSection('home'));
     document.getElementById('mobileCalendar')?.addEventListener('click', () => setActiveSection('calendar'));
     document.getElementById('mobilePatients')?.addEventListener('click', () => setActiveSection('patients'));
     document.getElementById('mobileStats')?.addEventListener('click', () => setActiveSection('stats'));
@@ -3646,43 +3723,156 @@
     // تهيئة
     document.addEventListener('DOMContentLoaded', () => {
       // loadData() تُستدعى من onAuth بعد التحقق من تسجيل الدخول
-      setActiveSection('calendar');
+      setActiveSection('home');
       document.getElementById('doctorHeaderDate').textContent = today.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
     });
-    // ================== الصفحة الرئيسية ==================
-    function renderHomePage() {
-      // تحديد التحية حسب الوقت
-      const hour = new Date().getHours();
-      let greeting = 'مرحباً';
-      if (hour >= 5 && hour < 12) greeting = 'صباح الخير 🌅';
-      else if (hour >= 12 && hour < 17) greeting = 'مساء الخير ☀️';
-      else if (hour >= 17 && hour < 21) greeting = 'مساء النور 🌇';
-      else greeting = 'تصبح على خير 🌙';
 
-      const greetEl = document.getElementById('homeGreeting');
-      if (greetEl) greetEl.textContent = greeting;
+    // ==================== الصفحة الرئيسية ====================
+    function renderHomeSection() {
+      var now = new Date();
+      var h = now.getHours();
+      var greet = (h < 12) ? 'صباح الخير' : (h < 18 ? 'مساء الخير' : 'مساء الخير');
+      var nameEl = document.getElementById('profileDisplayName');
+      var name = (nameEl && nameEl.textContent && nameEl.textContent.trim()) ? nameEl.textContent.trim() : 'لوحة الطبيب';
+      var displayName = name.replace(/^لوحة\s*/, '');
+      var g = document.getElementById('homeGreeting');
+      if (g) g.textContent = greet + ' دكتور ' + displayName + ' 👋';
+      var d = document.getElementById('homeDateLabel');
+      if (d) d.textContent = now.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+      try {
+        var records = (typeof allRecords !== 'undefined' && allRecords) ? allRecords : [];
+        var todays = records.filter(function(r){ return r.Date === todayStr; });
+        var accepted = todays.filter(function(r){ return r.Status === 'Accepted'; });
+        var visited  = todays.filter(function(r){ return r.Status === 'Visited'; });
+        var noShow   = todays.filter(function(r){ return r.Status === 'NoShow'; });
+        var totalToday = accepted.length + visited.length + noShow.length;
 
-      // اسم الطبيب من الإعدادات
-      const nameEl = document.getElementById('homeDoctorName');
-      if (nameEl) nameEl.textContent = settings.title || 'دكتور';
+        setText('homeTodayCount', accepted.length);
+        setText('homeStatTotal', totalToday);
+        setText('homeStatRemaining', accepted.length);
+        setText('homeStatVisited', visited.length);
+        setText('homeStatNoShow', noShow.length);
 
-      // التاريخ
-      const dateEl = document.getElementById('homeDate');
-      if (dateEl) {
-        const now = new Date();
-        const daysArabic = ['الأحد','الاثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-        const monthsArabic = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
-        dateEl.innerHTML = `<i class="fas fa-calendar-day"></i> <span>${daysArabic[now.getDay()]}، ${now.getDate()} ${monthsArabic[now.getMonth()]} ${now.getFullYear()}</span>`;
-      }
+        // المواعيد القادمة (أقرب 5)
+        var upcoming = accepted.slice().sort(function(a,b){
+          var sa = (a.Slot === 'Morning' ? 0 : 1);
+          var sb = (b.Slot === 'Morning' ? 0 : 1);
+          return sa - sb;
+        }).slice(0, 5);
+        var ul = document.getElementById('homeUpcomingList');
+        setText('homeUpcomingCount', upcoming.length);
+        if (ul) {
+          if (!upcoming.length) {
+            ul.innerHTML = '<div style="text-align:center;padding:18px;color:var(--text-muted);font-size:.82rem;">لا توجد مواعيد قادمة اليوم</div>';
+          } else {
+            ul.innerHTML = upcoming.map(function(r){
+              var slotAr = r.Slot === 'Evening' ? 'مساءً' : 'صباحاً';
+              return '<div onclick="openAppointmentDetailsModal(\''+r.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--primary-faint);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:all .15s;">'
+                + '<div style="width:36px;height:36px;border-radius:10px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;"><i class="fas fa-user"></i></div>'
+                + '<div style="flex:1;min-width:0;">'
+                + '<div style="font-weight:700;font-size:.85rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(r.PatientName||'-')+'</div>'
+                + '<div style="font-size:.7rem;color:var(--text-muted);margin-top:2px;">'+(r.VisitType||'-')+' · '+slotAr+'</div>'
+                + '</div>'
+                + '<i class="fas fa-chevron-left" style="color:var(--text-muted);font-size:.75rem;"></i>'
+                + '</div>';
+            }).join('');
+          }
+        }
 
-      // عدد مواعيد اليوم
-      const countEl = document.getElementById('homeTodayCount');
-      if (countEl) {
-        const todayAppointments = (appointments || []).filter(a => a.date === todayStr);
-        countEl.textContent = todayAppointments.length;
-      }
+        // التنبيهات
+        var alerts = [];
+        // تنبيه: موعد خلال 15د (لا يوجد حقل وقت، نكتفي بـ "مواعيد متبقية اليوم")
+        if (accepted.length > 0) {
+          alerts.push({icon:'fa-bell', color:'#2563eb', bg:'#dbeafe', text:'لديك '+accepted.length+' موعد متبقٍّ اليوم'});
+        }
+        // تنبيه أمس: لم يحضروا
+        var y = new Date(); y.setDate(y.getDate()-1);
+        var yStr = toLocalISODate(y);
+        var yNo = records.filter(function(r){ return r.Date === yStr && r.Status === 'NoShow'; }).length;
+        if (yNo > 0) {
+          alerts.push({icon:'fa-triangle-exclamation', color:'var(--red)', bg:'var(--red-light)', text:yNo+' مريض لم يحضر أمس'});
+        }
+        var aw = document.getElementById('homeAlertsWrap');
+        if (aw) {
+          if (!alerts.length) { aw.style.display = 'none'; aw.innerHTML = ''; }
+          else {
+            aw.style.display = 'flex';
+            aw.innerHTML = alerts.map(function(a){
+              return '<div style="display:flex;align-items:center;gap:10px;padding:12px 14px;background:'+a.bg+';border:1.5px solid '+a.color+';border-radius:12px;">'
+                + '<i class="fas '+a.icon+'" style="color:'+a.color+';font-size:1rem;"></i>'
+                + '<span style="font-size:.85rem;font-weight:700;color:var(--text-primary);">'+a.text+'</span>'
+                + '</div>';
+            }).join('');
+          }
+        }
+
+        // آخر المرضى المُزارين
+        var rp = document.getElementById('homeRecentPatients');
+        if (rp) {
+          var recent = [];
+          if (typeof allPatients !== 'undefined' && allPatients) {
+            Object.values(allPatients).forEach(function(p){
+              var lastTs = 0, lastVisit = null;
+              (p.appointments||[]).forEach(function(v){
+                var ts = v.noteUpdatedAt || (v.date ? new Date(v.date).getTime() : 0);
+                if (ts > lastTs) { lastTs = ts; lastVisit = v; }
+              });
+              if (lastTs > 0) recent.push({patient:p, ts:lastTs, visit:lastVisit});
+            });
+            recent.sort(function(a,b){ return b.ts - a.ts; });
+            recent = recent.slice(0, 4);
+          }
+          if (!recent.length) {
+            rp.innerHTML = '<div style="text-align:center;padding:18px;color:var(--text-muted);font-size:.82rem;">لا توجد زيارات حديثة</div>';
+          } else {
+            rp.innerHTML = recent.map(function(it){
+              var p = it.patient;
+              var rel = formatRelativeTime ? formatRelativeTime(it.ts) : '';
+              return '<div onclick="openPatientDetailsModal(\''+p.id+'\')" style="display:flex;align-items:center;gap:10px;padding:10px;background:var(--primary-faint);border:1.5px solid var(--border);border-radius:10px;cursor:pointer;">'
+                + '<div style="width:36px;height:36px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0;">'+(p.name?p.name.charAt(0):'?')+'</div>'
+                + '<div style="flex:1;min-width:0;">'
+                + '<div style="font-weight:700;font-size:.85rem;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+(p.name||'-')+'</div>'
+                + '<div style="font-size:.7rem;color:var(--text-muted);margin-top:2px;">آخر زيارة: '+rel+'</div>'
+                + '</div>'
+                + '<i class="fas fa-chevron-left" style="color:var(--text-muted);font-size:.75rem;"></i>'
+                + '</div>';
+            }).join('');
+          }
+        }
+
+        // مؤشر الأسبوع — نبدأ من الجمعة (يوم 5)
+        var wb = document.getElementById('homeWeekBars');
+        if (wb) {
+          var weekStart = new Date(today);
+          var dow = weekStart.getDay(); // الأحد=0 .. السبت=6 ، الجمعة=5
+          var diffToFri = (dow - 5 + 7) % 7;
+          weekStart.setDate(weekStart.getDate() - diffToFri);
+          var dayNames = ['الجمعة','السبت','الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس'];
+          var counts = [];
+          var max = 1;
+          for (var i=0;i<7;i++){
+            var dd = new Date(weekStart); dd.setDate(weekStart.getDate()+i);
+            var ds = toLocalISODate(dd);
+            var c = records.filter(function(r){ return r.Date === ds && (r.Status==='Accepted'||r.Status==='Visited'); }).length;
+            counts.push({ds:ds, count:c, isToday: ds===todayStr});
+            if (c > max) max = c;
+          }
+          wb.innerHTML = counts.map(function(c,i){
+            var pct = Math.max(6, Math.round((c.count/max)*100));
+            var bg = c.isToday ? 'var(--primary)' : (c.count===0 ? 'var(--border)' : 'var(--primary-3)');
+            return '<div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:6px;">'
+              + '<div style="font-size:.7rem;font-weight:800;color:'+(c.isToday?'var(--primary)':'var(--text-primary)')+';">'+c.count+'</div>'
+              + '<div title="'+c.count+' موعد" style="width:100%;background:'+bg+';height:'+pct+'%;border-radius:6px 6px 4px 4px;transition:height .3s;"></div>'
+              + '<div style="font-size:.65rem;color:'+(c.isToday?'var(--primary)':'var(--text-muted)')+';font-weight:'+(c.isToday?'800':'600')+';">'+dayNames[i]+'</div>'
+              + '</div>';
+          }).join('');
+          var endDate = new Date(weekStart); endDate.setDate(weekStart.getDate()+6);
+          setText('homeWeekRange', formatDateAr(toLocalISODate(weekStart)) + ' — ' + formatDateAr(toLocalISODate(endDate)));
+        }
+      } catch(e) { console.warn('renderHomeSection error', e); }
+
+      function setText(id, val){ var el = document.getElementById(id); if (el) el.textContent = val; }
     }
-
     // ================== الإعدادات ==================
     const SETTINGS_KEY = 'doctorSettings';
     let settings = {};
