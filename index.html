@@ -2560,6 +2560,30 @@
         function(snap) {
           allRecords = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
           window._allRecords = allRecords;
+
+          // ====== تحويل المواعيد المؤكدة الماضية تلقائياً إلى "لم يحضر" ======
+          (function autoMarkNoShow() {
+            var todayStr = new Date().toISOString().slice(0, 10);
+            var toMark = allRecords.filter(function(r) {
+              return r.Status === 'Accepted' && r.Date && r.Date < todayStr;
+            });
+            if (!toMark.length) return;
+            try {
+              var batch = window._fb.batch();
+              toMark.forEach(function(r) {
+                batch.update(window._fb.docRef('appointments', r.id), { Status: 'NoShow' });
+              });
+              batch.commit().catch(function(e) { console.error('[autoNoShow]', e); });
+            } catch(e) {
+              // fallback واحد واحد
+              toMark.forEach(function(r) {
+                window._fb.updateDoc(window._fb.docRef('appointments', r.id), { Status: 'NoShow' })
+                  .catch(function(err) { console.error('[autoNoShow]', err); });
+              });
+            }
+          })();
+          // ================================================================
+
           purgeExpiredImages();
           renderCalendar();
           if (selectedDayStr) renderAgendaForDay(selectedDayStr);
