@@ -326,10 +326,20 @@
       .home-fab { width: 46px; height: 46px; }
     }
 
-    /* ===== الروزنامة في الصفحة الرئيسية ===== */
-    @media (min-width: 1024px) {
+    /* ===== layout ثنائي الأعمدة في الصفحة الرئيسية ===== */
+    @media (min-width: 900px) {
+      #homeTwoCol {
+        grid-template-columns: 1fr 340px !important;
+      }
+      /* الروزنامة بجانب تفاصيل اليوم في العمود الأيمن */
       #homeCalendarGrid {
-        grid-template-columns: 360px 1fr !important;
+        grid-template-columns: 1fr !important;
+      }
+      /* إخفاء panel التفاصيل ضمن العمود الأيمن دائماً مرئي إن كان مفتوحاً */
+    }
+    @media (min-width: 1200px) {
+      #homeTwoCol {
+        grid-template-columns: 1fr 360px !important;
       }
     }
     .compact-calendar-container { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--border-radius); padding: 18px; box-shadow: var(--shadow-sm); }
@@ -1347,16 +1357,21 @@
       <!-- قسم الروزنامة -->
       <!-- قسم الصفحة الرئيسية -->
       <section id="homeSection">
-        <div style="display:flex;flex-direction:column;gap:16px;">
+        <div style="display:flex;flex-direction:column;gap:12px;">
 
           <!-- ① الترحيب -->
-          <div style="padding:4px 0 8px 0;">
-            <h1 id="homeGreeting" style="font-size:clamp(1.5rem,4vw,2rem);font-weight:900;color:var(--text-primary);margin:0;line-height:1.2;letter-spacing:-0.5px;">صباح الخير دكتور 👋</h1>
-            <p id="homeDateLabel" style="font-size:.88rem;color:var(--text-muted);margin-top:6px;font-weight:500;">-</p>
+          <div style="padding:2px 0 4px 0;">
+            <h1 id="homeGreeting" style="font-size:clamp(1.3rem,3vw,1.8rem);font-weight:900;color:var(--text-primary);margin:0;line-height:1.2;letter-spacing:-0.5px;">صباح الخير دكتور 👋</h1>
+            <p id="homeDateLabel" style="font-size:.85rem;color:var(--text-muted);margin-top:4px;font-weight:500;">-</p>
           </div>
 
+          <!-- layout ثنائي: يسار=بطاقات+مواعيد+إنجاز+ملاحظات+كثافة  |  يمين=روزنامة+تفاصيل -->
+          <div id="homeTwoCol" style="display:grid;grid-template-columns:1fr;gap:14px;align-items:start;">
+
+            <!-- العمود الأيسر -->
+            <div id="homeLeftCol" style="display:flex;flex-direction:column;gap:12px;">
           <!-- ② ٤ بطاقات ملخص اليوم — MediCare Style -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="homeSummaryGrid">
+          <div class="grid grid-cols-2 gap-3" id="homeSummaryGrid">
 
             <!-- مواعيد اليوم -->
             <div class="home-mini-card glass-card" style="padding:20px 18px;">
@@ -1456,63 +1471,6 @@
                 </h3>
               </div>
               <div id="homeRecentPatients" style="display:flex;flex-direction:column;gap:8px;"></div>
-            </div>
-          </div>
-
-          <!-- ④ الروزنامة الرئيسية مع لوحة اليوم الجانبية -->
-          <div id="homeCalendarSection" style="display:grid;grid-template-columns:1fr;gap:16px;">
-            <!-- الروزنامة -->
-            <div style="display:grid;grid-template-columns:1fr;gap:16px;" id="homeCalendarGrid">
-              <div class="compact-calendar-container" style="flex:0 0 auto;">
-                <div class="compact-calendar-header">
-                  <button id="homePrevMonthBtn" class="compact-nav-btn"><i class="fas fa-chevron-right"></i></button>
-                  <div class="text-center">
-                    <h3 id="homeCurrentMonth" class="text-base font-bold mb-1" style="color:var(--text-primary)">-</h3>
-                    <div class="density-legend">
-                      <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-low"></div><span>خفيف</span></div>
-                      <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-medium"></div><span>متوسط</span></div>
-                      <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-high"></div><span>مزدحم</span></div>
-                    </div>
-                  </div>
-                  <button id="homeNextMonthBtn" class="compact-nav-btn"><i class="fas fa-chevron-left"></i></button>
-                </div>
-                <div class="compact-calendar-grid mb-2">
-                  <div class="compact-calendar-day-name">الجمعة</div><div class="compact-calendar-day-name">السبت</div><div class="compact-calendar-day-name">الأحد</div>
-                  <div class="compact-calendar-day-name">الإثنين</div><div class="compact-calendar-day-name">الثلاثاء</div><div class="compact-calendar-day-name">الأربعاء</div><div class="compact-calendar-day-name">الخميس</div>
-                </div>
-                <div id="homeCalGrid" class="compact-calendar-grid"></div>
-              </div>
-
-              <!-- لوحة اليوم — تظهر عند اختيار يوم -->
-              <div id="homeDayPanel" class="glass-card" style="display:none;align-self:start;">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;">
-                  <div>
-                    <h3 id="homePanelTitle" style="font-weight:700;font-size:.9rem;color:var(--text-primary);">-</h3>
-                    <p id="homePanelCount" style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">عدد المواعيد: 0</p>
-                  </div>
-                  <button onclick="document.getElementById('homeDayPanel').style.display='none'" style="width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  </button>
-                </div>
-                <div style="display:grid;grid-template-columns:1fr;gap:16px;">
-                  <div>
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                      <i class="fas fa-sun" style="color:var(--amber);font-size:.9rem;"></i>
-                      <span style="font-weight:700;font-size:.88rem;">الصباح</span>
-                      <span id="homePanelMorningCount" style="background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">0</span>
-                    </div>
-                    <div id="homePanelMorning"></div>
-                  </div>
-                  <div>
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-                      <i class="fas fa-moon" style="color:#6366f1;font-size:.9rem;"></i>
-                      <span style="font-weight:700;font-size:.88rem;">المساء</span>
-                      <span id="homePanelEveningCount" style="background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">0</span>
-                    </div>
-                    <div id="homePanelEvening"></div>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -1623,6 +1581,69 @@
 
           <!-- ⑨ تنبيهات النظام -->
           <div id="homeAlertsWrap" style="display:none;flex-direction:column;gap:8px;"></div>
+
+            </div><!-- /homeLeftCol -->
+
+            <!-- العمود الأيمن: الروزنامة + تفاصيل اليوم -->
+            <div id="homeRightCol" style="display:flex;flex-direction:column;gap:12px;position:sticky;top:16px;">
+          <!-- ④ الروزنامة الرئيسية مع لوحة اليوم -->
+          <div id="homeCalendarSection" style="display:flex;flex-direction:column;gap:12px;">
+            <div class="compact-calendar-container" style="flex:0 0 auto;">
+                <div class="compact-calendar-header">
+                  <button id="homePrevMonthBtn" class="compact-nav-btn"><i class="fas fa-chevron-right"></i></button>
+                  <div class="text-center">
+                    <h3 id="homeCurrentMonth" class="text-base font-bold mb-1" style="color:var(--text-primary)">-</h3>
+                    <div class="density-legend">
+                      <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-low"></div><span>خفيف</span></div>
+                      <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-medium"></div><span>متوسط</span></div>
+                      <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-high"></div><span>مزدحم</span></div>
+                    </div>
+                  </div>
+                  <button id="homeNextMonthBtn" class="compact-nav-btn"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <div class="compact-calendar-grid mb-2">
+                  <div class="compact-calendar-day-name">الجمعة</div><div class="compact-calendar-day-name">السبت</div><div class="compact-calendar-day-name">الأحد</div>
+                  <div class="compact-calendar-day-name">الإثنين</div><div class="compact-calendar-day-name">الثلاثاء</div><div class="compact-calendar-day-name">الأربعاء</div><div class="compact-calendar-day-name">الخميس</div>
+                </div>
+                <div id="homeCalGrid" class="compact-calendar-grid"></div>
+              </div>
+
+              <!-- لوحة اليوم — تظهر عند اختيار يوم -->
+              <div id="homeDayPanel" class="glass-card" style="display:none;align-self:start;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;">
+                  <div>
+                    <h3 id="homePanelTitle" style="font-weight:700;font-size:.9rem;color:var(--text-primary);">-</h3>
+                    <p id="homePanelCount" style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">عدد المواعيد: 0</p>
+                  </div>
+                  <button onclick="document.getElementById('homeDayPanel').style.display='none'" style="width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr;gap:16px;">
+                  <div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                      <i class="fas fa-sun" style="color:var(--amber);font-size:.9rem;"></i>
+                      <span style="font-weight:700;font-size:.88rem;">الصباح</span>
+                      <span id="homePanelMorningCount" style="background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">0</span>
+                    </div>
+                    <div id="homePanelMorning"></div>
+                  </div>
+                  <div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                      <i class="fas fa-moon" style="color:#6366f1;font-size:.9rem;"></i>
+                      <span style="font-weight:700;font-size:.88rem;">المساء</span>
+                      <span id="homePanelEveningCount" style="background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">0</span>
+                    </div>
+                    <div id="homePanelEvening"></div>
+                  </div>
+                </div>
+              </div>
+          </div>
+
+
+            </div><!-- /homeRightCol -->
+
+          </div><!-- /homeTwoCol -->
 
         </div>
       </section>
