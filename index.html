@@ -1365,11 +1365,12 @@
             <p id="homeDateLabel" style="font-size:.85rem;color:var(--text-muted);margin-top:4px;font-weight:500;">-</p>
           </div>
 
-          <!-- layout ثنائي: يسار=بطاقات+مواعيد+إنجاز+ملاحظات+كثافة  |  يمين=روزنامة+تفاصيل -->
+          <!-- layout ثنائي: يسار=بطاقات+رسوم | يمين=روزنامة+تفاصيل -->
           <div id="homeTwoCol" style="display:grid;grid-template-columns:1fr;gap:14px;align-items:start;">
 
             <!-- العمود الأيسر -->
             <div id="homeLeftCol" style="display:flex;flex-direction:column;gap:12px;">
+
           <!-- ② ٤ بطاقات ملخص اليوم — MediCare Style -->
           <div class="grid grid-cols-2 gap-3" id="homeSummaryGrid">
 
@@ -1451,121 +1452,70 @@
 
           </div>
 
-          <!-- ③ المواعيد القادمة + آخر المرضى — أهم معلومة لحظية -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-            <div class="glass-card">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  المواعيد القادمة
-                </h3>
-                <span id="homeUpcomingCount" style="font-size:.7rem;background:var(--primary-light);color:var(--primary);padding:3px 10px;border-radius:20px;font-weight:700;">0</span>
-              </div>
-              <div id="homeUpcomingList" style="display:flex;flex-direction:column;gap:8px;"></div>
-            </div>
-            <div class="glass-card">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
-                <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                  آخر المرضى المُزارين
-                </h3>
-              </div>
-              <div id="homeRecentPatients" style="display:flex;flex-direction:column;gap:8px;"></div>
-            </div>
-          </div>
 
-          <!-- ⑤ شريط إنجاز اليوم — كيف ماشي يومه -->
-          <div class="glass-card" style="padding:16px 20px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-              <div style="display:flex;align-items:center;gap:8px;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
-                <span style="font-size:.88rem;font-weight:800;color:var(--text-primary);">إنجاز اليوم</span>
-              </div>
-              <span id="homeProgressLabel" style="font-size:.9rem;font-weight:900;color:var(--primary);">0%</span>
-            </div>
-            <div style="background:var(--border);border-radius:20px;height:10px;overflow:hidden;">
-              <div id="homeProgressBar" style="height:100%;width:0%;background:linear-gradient(90deg,var(--primary-3),var(--primary));border-radius:20px;transition:width .7s cubic-bezier(.4,0,.2,1);"></div>
-            </div>
-            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
-              <span id="homeProgressSub" style="font-size:.72rem;color:var(--text-muted);font-weight:600;">0 من 0 موعد مكتمل</span>
-              <span id="homeProgressStatus" style="font-size:.72rem;font-weight:800;padding:2px 10px;border-radius:20px;background:var(--primary-light);color:var(--primary);">جاري التحميل</span>
-            </div>
-          </div>
-
-          <!-- ⑥ الملاحظات السريعة + مقارنة الأسبوع — تحليل واهتمام -->
-          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
-
-            <!-- ملاحظات سريعة -->
-            <div class="glass-card" style="background:linear-gradient(135deg,#fefce8,#fef9c3) !important;border-color:#fde047 !important;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
-                <h3 style="font-size:.88rem;font-weight:800;color:#713f12;margin:0;display:flex;align-items:center;gap:8px;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#ca8a04" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
-                  ملاحظاتي السريعة
-                </h3>
-                <div style="display:flex;align-items:center;gap:6px;">
-                  <span id="homeNoteSaved" style="font-size:.68rem;color:#a16207;font-weight:600;display:none;align-items:center;gap:3px;">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#a16207" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                    محفوظ
-                  </span>
-                  <button onclick="saveQuickNote()" style="font-size:.72rem;font-weight:800;background:#ca8a04;color:white;border:none;border-radius:8px;padding:5px 12px;cursor:pointer;font-family:inherit;">حفظ</button>
+              <!-- توزيع الأيام — مخطط خطي -->
+              <div class="glass-card">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                  <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    توزيع الأيام
+                  </h3>
+                  <span style="font-size:.72rem;color:var(--text-muted);font-weight:600;">عدد المواعيد لكل يوم من الأسبوع</span>
                 </div>
+                <div id="homeWeekdayBarsWrap" style="display:block;width:100%;height:160px;position:relative;"></div>
+                <div id="homeWeekdayBarsLabels" style="display:flex;gap:6px;margin-top:6px;"></div>
               </div>
-              <textarea id="homeQuickNote" placeholder="اكتب ملاحظاتك هنا... (مثل: مراجعة نتائج مريض، اتصال بالمختبر، تذكير بموعد مهم)" style="width:100%;min-height:110px;background:transparent;border:1.5px solid #fde047;border-radius:10px;padding:10px;font-family:inherit;font-size:.82rem;color:#713f12;resize:vertical;outline:none;line-height:1.6;font-weight:500;" oninput="onQuickNoteChange()"></textarea>
-              <div style="display:flex;justify-content:space-between;margin-top:6px;">
-                <span id="homeNoteDate" style="font-size:.65rem;color:#a16207;font-weight:600;">-</span>
-                <button onclick="clearQuickNote()" style="font-size:.65rem;color:#a16207;font-weight:700;background:none;border:none;cursor:pointer;font-family:inherit;padding:0;display:flex;align-items:center;gap:4px;">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#a16207" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-                  مسح
-                </button>
-              </div>
-            </div>
 
-            <!-- مقارنة الأسابيع -->
-            <div class="glass-card">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-                <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-                  هذا الأسبوع vs الماضي
-                </h3>
-              </div>
-              <div style="display:flex;align-items:center;gap:16px;">
-                <div style="flex:1;text-align:center;padding:12px;background:var(--primary-faint);border-radius:12px;border:1.5px solid var(--border);">
-                  <div id="homeWeekCurrent" style="font-size:1.8rem;font-weight:900;color:var(--primary);line-height:1;">0</div>
-                  <div style="font-size:.72rem;color:var(--text-muted);font-weight:700;margin-top:4px;">هذا الأسبوع</div>
-                </div>
-                <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
-                  <div id="homeWeekDiffIcon" style="color:var(--text-muted);">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="5" y1="9" x2="19" y2="9"/><line x1="5" y1="15" x2="19" y2="15"/></svg>
+              <!-- توزيع الزيارات + أحدث الزيارات -->
+              <div class="grid grid-cols-1 lg:grid-cols-2 gap-3" style="gap:12px;">
+
+                <!-- دونات توزيع الزيارات -->
+                <div class="glass-card">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                    <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                      توزيع الزيارات
+                    </h3>
+                    <span style="font-size:.72rem;color:var(--text-muted);font-weight:600;">صباحي / مسائي</span>
                   </div>
-                  <div id="homeWeekDiffLabel" style="font-size:.7rem;font-weight:800;color:var(--text-muted);white-space:nowrap;">لا فرق</div>
+                  <div class="donut-container" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+                    <div style="position:relative;width:110px;height:110px;flex-shrink:0;">
+                      <svg width="110" height="110" viewBox="0 0 140 140">
+                        <circle cx="70" cy="70" r="54" stroke="var(--border)" stroke-width="20" fill="none"/>
+                        <circle id="homeSourceSeg1" cx="70" cy="70" r="54" stroke="#fbbf24" stroke-width="20" fill="none" stroke-dasharray="0 339.3" stroke-dashoffset="0"/>
+                        <circle id="homeSourceSeg2" cx="70" cy="70" r="54" stroke="#3b82f6" stroke-width="20" fill="none" stroke-dasharray="0 339.3" stroke-dashoffset="0"/>
+                      </svg>
+                      <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center;">
+                        <div id="homeSourceTotal" style="font-size:1.4rem;font-weight:900;color:var(--text-primary);line-height:1;">0</div>
+                        <div style="font-size:.65rem;color:var(--text-muted);font-weight:600;">موعد</div>
+                      </div>
+                    </div>
+                    <div id="homeSourceLegend" style="display:flex;flex-direction:column;gap:8px;font-size:.82rem;"></div>
+                  </div>
                 </div>
-                <div style="flex:1;text-align:center;padding:12px;background:var(--bg);border-radius:12px;border:1.5px solid var(--border);">
-                  <div id="homeWeekLast" style="font-size:1.8rem;font-weight:900;color:var(--text-secondary);line-height:1;">0</div>
-                  <div style="font-size:.72rem;color:var(--text-muted);font-weight:700;margin-top:4px;">الأسبوع الماضي</div>
-                </div>
-              </div>
-              <div style="margin-top:12px;display:flex;gap:4px;height:8px;border-radius:20px;overflow:hidden;">
-                <div id="homeWeekBarCurrent" style="height:100%;background:var(--primary);border-radius:20px;transition:width .6s ease;width:50%;"></div>
-                <div id="homeWeekBarLast" style="height:100%;background:var(--border);border-radius:20px;transition:width .6s ease;width:50%;"></div>
-              </div>
-              <div style="display:flex;justify-content:space-between;margin-top:6px;">
-                <span style="font-size:.65rem;color:var(--primary);font-weight:700;display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--primary);display:inline-block;"></span> هذا الأسبوع</span>
-                <span style="font-size:.65rem;color:var(--text-muted);font-weight:700;display:flex;align-items:center;gap:4px;"><span style="width:8px;height:8px;border-radius:50%;background:var(--border);display:inline-block;"></span> الأسبوع الماضي</span>
-              </div>
-            </div>
-          </div>
 
-          <!-- ⑦ كثافة الأسبوع — تحليل بصري -->
-          <div class="glass-card">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-              <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="3" width="4" height="18"/><rect x="10" y="8" width="4" height="13"/><rect x="2" y="13" width="4" height="8"/></svg>
-                كثافة الأسبوع
-              </h3>
-              <span id="homeWeekRange" style="font-size:.7rem;color:var(--text-muted);font-weight:700;">-</span>
-            </div>
-            <div id="homeWeekBars" style="display:grid;grid-template-columns:repeat(7,1fr);gap:8px;align-items:end;height:120px;"></div>
-          </div>
+                <!-- أحدث الزيارات (10 فقط) -->
+                <div class="glass-card">
+                  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                    <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;">
+                      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+                      أحدث الزيارات
+                    </h3>
+                    <span style="font-size:.72rem;background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:20px;font-weight:700;">آخر 10</span>
+                  </div>
+                  <div style="overflow-y:auto;max-height:200px;">
+                    <table style="width:100%;font-size:.82rem;border-collapse:collapse;">
+                      <thead><tr>
+                        <th style="text-align:right;color:var(--text-muted);font-weight:700;padding-bottom:8px;font-size:.75rem;">المريض</th>
+                        <th style="text-align:right;color:var(--text-muted);font-weight:700;padding-bottom:8px;font-size:.75rem;">النوع</th>
+                        <th style="text-align:right;color:var(--text-muted);font-weight:700;padding-bottom:8px;font-size:.75rem;">التاريخ</th>
+                      </tr></thead>
+                      <tbody id="homeRecentVisitsTable"></tbody>
+                    </table>
+                  </div>
+                </div>
+
+              </div>
 
           <!-- ⑧ تنبيه آخر النهار — يظهر فقط مساءً في الأسفل -->
           <div id="homeEodAlert" style="display:none;align-items:center;gap:12px;padding:14px 16px;background:#fff7ed;border:1.5px solid #f97316;border-radius:14px;">
@@ -1581,6 +1531,11 @@
 
           <!-- ⑨ تنبيهات النظام -->
           <div id="homeAlertsWrap" style="display:none;flex-direction:column;gap:8px;"></div>
+
+            </div><!-- /homeLeftCol -->
+
+            <!-- العمود الأيمن: الروزنامة + تفاصيل اليوم -->
+            <div id="homeRightCol" style="display:flex;flex-direction:column;gap:12px;position:sticky;top:16px;">
 
             </div><!-- /homeLeftCol -->
 
@@ -1608,8 +1563,8 @@
                 <div id="homeCalGrid" class="compact-calendar-grid"></div>
               </div>
 
-              <!-- لوحة اليوم — تظهر عند اختيار يوم -->
-              <div id="homeDayPanel" class="glass-card" style="display:none;align-self:start;">
+              <!-- لوحة اليوم — نفس عرض الروزنامة -->
+              <div id="homeDayPanel" class="glass-card" style="display:none;">
                 <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;">
                   <div>
                     <h3 id="homePanelTitle" style="font-weight:700;font-size:.9rem;color:var(--text-primary);">-</h3>
@@ -1619,19 +1574,19 @@
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </button>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr;gap:16px;">
+                <div style="display:flex;flex-direction:column;gap:14px;">
                   <div>
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
                       <i class="fas fa-sun" style="color:var(--amber);font-size:.9rem;"></i>
-                      <span style="font-weight:700;font-size:.88rem;">الصباح</span>
+                      <span style="font-weight:700;font-size:.85rem;">الصباح</span>
                       <span id="homePanelMorningCount" style="background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">0</span>
                     </div>
                     <div id="homePanelMorning"></div>
                   </div>
                   <div>
-                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
                       <i class="fas fa-moon" style="color:#6366f1;font-size:.9rem;"></i>
-                      <span style="font-weight:700;font-size:.88rem;">المساء</span>
+                      <span style="font-weight:700;font-size:.85rem;">المساء</span>
                       <span id="homePanelEveningCount" style="background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">0</span>
                     </div>
                     <div id="homePanelEvening"></div>
@@ -1639,8 +1594,6 @@
                 </div>
               </div>
           </div>
-
-
             </div><!-- /homeRightCol -->
 
           </div><!-- /homeTwoCol -->
@@ -2588,6 +2541,9 @@
           renderCalendar();
           if (selectedDayStr) renderAgendaForDay(selectedDayStr);
           if (currentSection === 'stats') calculateStatsFromPatients();
+          updateHomeSummaryStats();
+          renderHomeWidgets();
+          renderHomeCalendar();
           // فحص الطلبات الفائتة عند أول تحميل فقط
           if (_nurseApptFirstLoad) {
             _nurseApptFirstLoad = false;
@@ -4109,6 +4065,7 @@
     });
 
     // ==================== الصفحة الرئيسية ====================
+    function updateHomeSummaryStats() { renderHomeSection(); }
     function renderHomeSection() {
       var now = new Date();
       var h = now.getHours();
@@ -5522,7 +5479,98 @@
     setTimeout(() => {
       renderHomeCalendar();
       updateFloatingActions(currentSection || 'home');
-    }, 300);
+      renderHomeWidgets();
+    }, 400);
+
+    // ==================== ويدجتس الصفحة الرئيسية الجديدة ====================
+    function renderHomeWidgets() {
+      if (!allRecords || allRecords.length === 0) return;
+
+      // --- توزيع الأيام (نفس renderWeekdayBars لكن بـ IDs مختلفة) ---
+      const weekdayCounts = Array(7).fill(0);
+      allRecords.filter(r => ['Accepted','Visited'].includes(r.Status)).forEach(r => {
+        if (r.Date) { const d = new Date(r.Date); weekdayCounts[d.getDay()]++; }
+      });
+
+      const wWrap   = document.getElementById('homeWeekdayBarsWrap');
+      const wLabels = document.getElementById('homeWeekdayBarsLabels');
+      if (wWrap && wLabels) {
+        const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+        const max = Math.max(...weekdayCounts, 1);
+        const W = 560, H = 130, padX = 32, padY = 22;
+        const chartW = W - padX*2, chartH = H - padY*2;
+        const pts = weekdayCounts.map((v,i) => ({ x: padX+(i/6)*chartW, y: padY+chartH-(v/max)*chartH, v }));
+        function smooth(p) {
+          if (p.length<2) return '';
+          let d='M'+p[0].x+','+p[0].y;
+          for(let i=0;i<p.length-1;i++){const cx1=p[i].x+(p[i+1].x-p[i].x)*.5,cx2=p[i+1].x-(p[i+1].x-p[i].x)*.5;d+=' C'+cx1+','+p[i].y+' '+cx2+','+p[i+1].y+' '+p[i+1].x+','+p[i+1].y;}
+          return d;
+        }
+        const linePath = smooth(pts);
+        const areaPath = linePath+' L'+pts[6].x+','+(padY+chartH)+' L'+pts[0].x+','+(padY+chartH)+' Z';
+        const gridLines = [0,.25,.5,.75,1].map(r=>{const y=padY+chartH-r*chartH,v=Math.round(r*max);return '<line x1="'+padX+'" y1="'+y+'" x2="'+(W-padX)+'" y2="'+y+'" stroke="rgba(148,163,184,0.18)" stroke-width="1"/>'+(v>0?'<text x="'+(padX-5)+'" y="'+(y+4)+'" text-anchor="end" font-size="8.5" fill="rgba(148,163,184,0.85)">'+v+'</text>':'');}).join('');
+        const maxIdx = weekdayCounts.indexOf(Math.max(...weekdayCounts));
+        const dots = pts.map((p,i)=>!p.v?'':`<circle cx="${p.x}" cy="${p.y}" r="${i===maxIdx?5:3.5}" fill="${i===maxIdx?'#6366f1':'white'}" stroke="#6366f1" stroke-width="2" style="cursor:pointer;" data-v="${p.v}" data-i="${i}"/>`).join('');
+        wWrap.innerHTML = '<div id="hwTip" style="position:absolute;background:rgba(15,23,42,0.9);color:white;padding:5px 11px;border-radius:8px;font-size:.76rem;font-weight:700;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;z-index:10;"></div>'
+          +'<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:100%;overflow:visible;">'
+          +'<defs><linearGradient id="hwAreaG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.2"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0"/></linearGradient>'
+          +'<linearGradient id="hwLineG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs>'
+          +gridLines+'<path d="'+areaPath+'" fill="url(#hwAreaG)"/>'
+          +'<path d="'+linePath+'" fill="none" stroke="url(#hwLineG)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'
+          +dots+'</svg>';
+        // Tooltip
+        wWrap.querySelectorAll('circle').forEach(c=>{
+          c.addEventListener('mouseenter',e=>{const tip=wWrap.querySelector('#hwTip');tip.textContent=dayNames[+c.dataset.i]+': '+c.dataset.v+' موعد';tip.style.opacity='1';tip.style.left=(e.offsetX-40)+'px';tip.style.top=(e.offsetY-34)+'px';});
+          c.addEventListener('mouseleave',()=>{const tip=wWrap.querySelector('#hwTip');if(tip)tip.style.opacity='0';});
+        });
+        wLabels.innerHTML = dayNames.map((n,i)=>`<div style="flex:1;text-align:center;font-size:.65rem;color:${i===maxIdx?'#6366f1':'var(--text-muted)'};font-weight:${i===maxIdx?'800':'600'};">${n}</div>`).join('');
+      }
+
+      // --- دونات توزيع الزيارات ---
+      const visited = allRecords.filter(r => r.Status === 'Visited');
+      const morningC = visited.filter(r => (r.Slot||'Morning')==='Morning').length;
+      const eveningC = visited.filter(r => r.Slot==='Evening').length;
+      const totalSlot = morningC + eveningC;
+      const circ = 339.3;
+      const mAng = totalSlot > 0 ? (morningC/totalSlot)*circ : 0;
+      const eAng = totalSlot > 0 ? (eveningC/totalSlot)*circ : 0;
+      const mPct = totalSlot > 0 ? Math.round(morningC/totalSlot*100) : 0;
+      const ePct = totalSlot > 0 ? Math.round(eveningC/totalSlot*100) : 0;
+      const seg1 = document.getElementById('homeSourceSeg1');
+      const seg2 = document.getElementById('homeSourceSeg2');
+      if (seg1) { seg1.setAttribute('stroke-dasharray', `${mAng} ${circ}`); }
+      if (seg2) { seg2.setAttribute('stroke-dasharray', `${eAng} ${circ}`); seg2.setAttribute('stroke-dashoffset', -mAng); }
+      const tot = document.getElementById('homeSourceTotal');
+      if (tot) tot.textContent = totalSlot;
+      const leg = document.getElementById('homeSourceLegend');
+      if (leg) leg.innerHTML = `
+        <div style="display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#fbbf24;flex-shrink:0;"></span><span style="color:var(--text-primary);font-weight:700;">صباحي (${mPct}%)</span></div>
+        <div style="display:flex;align-items:center;gap:8px;"><span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#3b82f6;flex-shrink:0;"></span><span style="color:var(--text-primary);font-weight:700;">مسائي (${ePct}%)</span></div>`;
+
+      // --- أحدث 10 زيارات ---
+      const tbody = document.getElementById('homeRecentVisitsTable');
+      if (tbody) {
+        const visits = allRecords
+          .filter(r => r.Status === 'Visited' && r.Date)
+          .sort((a,b) => b.Date.localeCompare(a.Date))
+          .slice(0, 10);
+        if (visits.length === 0) {
+          tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;padding:16px 0;color:var(--text-muted);font-size:.82rem;">لا توجد زيارات</td></tr>';
+        } else {
+          tbody.innerHTML = visits.map((v,i) => `
+            <tr style="border-top:${i>0?'1px solid var(--border)':'none'};">
+              <td style="padding:7px 0;font-weight:700;color:var(--text-primary);font-size:.8rem;">${v.PatientName||'-'}</td>
+              <td style="padding:7px 4px;color:var(--text-muted);font-size:.75rem;">${v.VisitType||'-'}</td>
+              <td style="padding:7px 0;color:var(--primary);font-size:.75rem;font-weight:600;white-space:nowrap;">${formatDateAr(v.Date)}</td>
+            </tr>`).join('');
+        }
+      }
+    }
+
+    // تحديث الويدجتس عند تحميل البيانات
+    const _origRenderStats = typeof renderStats === 'function' ? renderStats : null;
+    window.addEventListener('recordsUpdated', () => { renderHomeWidgets(); renderHomeCalendar(); });
+
 
   </script>
 
