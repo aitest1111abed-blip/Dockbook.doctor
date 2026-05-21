@@ -1370,9 +1370,26 @@
         <div style="display:flex;flex-direction:column;gap:12px;">
 
           <!-- ① الترحيب -->
-          <div style="padding:2px 0 4px 0;">
-            <h1 id="homeGreeting" style="font-size:clamp(1.3rem,3vw,1.8rem);font-weight:900;color:var(--text-primary);margin:0;line-height:1.2;letter-spacing:-0.5px;">صباح الخير دكتور 👋</h1>
-            <p id="homeDateLabel" style="font-size:.85rem;color:var(--text-muted);margin-top:4px;font-weight:500;">-</p>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:2px 0 4px 0;flex-wrap:wrap;">
+            <div>
+              <h1 id="homeGreeting" style="font-size:clamp(1.3rem,3vw,1.8rem);font-weight:900;color:var(--text-primary);margin:0;line-height:1.2;letter-spacing:-0.5px;">صباح الخير دكتور 👋</h1>
+              <p id="homeDateLabel" style="font-size:.85rem;color:var(--text-muted);margin-top:4px;font-weight:500;">-</p>
+            </div>
+            <!-- خانة البحث العالمي -->
+            <div id="globalSearchWrap" style="position:relative;min-width:260px;max-width:380px;flex:1;">
+              <div style="position:relative;display:flex;align-items:center;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;right:14px;pointer-events:none;z-index:1;flex-shrink:0;">
+                  <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+                </svg>
+                <input id="globalSearchInput" type="text" placeholder="ابحث عن مريض، موعد، ..." autocomplete="off"
+                  style="width:100%;padding:10px 42px 10px 14px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-primary);font-family:inherit;font-size:.85rem;font-weight:500;outline:none;transition:border-color .2s,box-shadow .2s;box-sizing:border-box;"
+                  onfocus="this.style.borderColor='var(--primary)';this.style.boxShadow='0 0 0 3px var(--primary-faint)'"
+                  onblur="this.style.borderColor='var(--border)';this.style.boxShadow='none'"
+                >
+              </div>
+              <!-- نتائج البحث -->
+              <div id="globalSearchResults" style="display:none;position:absolute;top:calc(100% + 6px);right:0;left:0;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,.13);z-index:9999;max-height:320px;overflow-y:auto;"></div>
+            </div>
           </div>
 
           <!-- layout ثنائي: يسار=بطاقات+رسوم | يمين=روزنامة+تفاصيل -->
@@ -1473,7 +1490,7 @@
                   <span style="font-size:.72rem;color:var(--text-muted);font-weight:600;">عدد المواعيد لكل يوم من الأسبوع</span>
                 </div>
                 <div id="homeWeekdayBarsWrap" style="display:block;width:100%;height:160px;position:relative;"></div>
-                <div id="homeWeekdayBarsLabels" style="display:flex;gap:6px;margin-top:6px;"></div>
+                <div id="homeWeekdayBarsLabels" style="display:flex;gap:6px;margin-top:6px;direction:ltr;"></div>
               </div>
 
               <!-- توزيع الزيارات + أحدث الزيارات -->
@@ -1804,7 +1821,7 @@
               </div>
             </div>
             <div id="weekdayBarsWrap" style="display:block;width:100%;height:120px;"></div>
-            <div id="weekdayBarsLabels" style="display:flex;gap:6px;margin-top:6px;"></div>
+            <div id="weekdayBarsLabels" style="display:flex;gap:6px;margin-top:6px;direction:ltr;"></div>
           </div>
 
           <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -2542,6 +2559,7 @@
       _unsubAppt = window._fb.onSnapshot(window._fb.col('appointments'),
         function(snap) {
           allRecords = snap.docs.map(function(d) { return Object.assign({ id: d.id }, d.data()); });
+          window._allRecords = allRecords;
           purgeExpiredImages();
           renderCalendar();
           if (selectedDayStr) renderAgendaForDay(selectedDayStr);
@@ -2755,12 +2773,50 @@
         '<stop offset="0%" stop-color="#818cf8"/>' +
         '<stop offset="100%" stop-color="#6366f1"/>' +
         '</linearGradient>' +
+        '<clipPath id="wClip"><rect id="wClipRect" x="0" y="0" width="0" height="' + H + '"/></clipPath>' +
         '</defs>' +
         gridLines + vLines +
-        '<path d="' + areaPath + '" fill="url(#wAreaG)"/>' +
-        '<path d="' + linePath + '" fill="none" stroke="url(#wLineG)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
-        dots +
+        '<path d="' + areaPath + '" fill="url(#wAreaG)" clip-path="url(#wClip)" style="opacity:0;"/>' +
+        '<path id="wLine" d="' + linePath + '" fill="none" stroke="url(#wLineG)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<g id="wDots" style="opacity:0;">' + dots + '</g>' +
         '</svg>';
+
+      // أنيميشن رسم الخط تدريجياً
+      requestAnimationFrame(function() {
+        const lineEl = document.getElementById('wLine');
+        const clipRect = document.getElementById('wClipRect');
+        const areaEl = wrap.querySelector('path[clip-path]');
+        const dotsEl = document.getElementById('wDots');
+        if (!lineEl) return;
+        const len = lineEl.getTotalLength ? lineEl.getTotalLength() : 1200;
+        lineEl.style.strokeDasharray = len;
+        lineEl.style.strokeDashoffset = len;
+        lineEl.style.transition = 'stroke-dashoffset 1.1s cubic-bezier(0.4,0,0.2,1)';
+        // أنيميشن الـ clip للمنطقة المظللة
+        if (clipRect) {
+          clipRect.setAttribute('width', '0');
+        }
+        requestAnimationFrame(function() {
+          lineEl.style.strokeDashoffset = '0';
+          if (clipRect) {
+            clipRect.style.transition = 'width 1.1s cubic-bezier(0.4,0,0.2,1)';
+            clipRect.setAttribute('width', W);
+            // CSS transition لا يعمل على SVG attributes مباشرة — نستخدم JS
+            let start = null;
+            const dur = 1100;
+            function animClip(ts) {
+              if (!start) start = ts;
+              const p = Math.min((ts - start) / dur, 1);
+              const ease = p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
+              clipRect.setAttribute('width', ease * W);
+              if (areaEl) areaEl.style.opacity = ease * 0.95;
+              if (p < 1) requestAnimationFrame(animClip);
+              else if (dotsEl) { dotsEl.style.transition = 'opacity 0.3s'; dotsEl.style.opacity = '1'; }
+            }
+            requestAnimationFrame(animClip);
+          }
+        });
+      });
 
       // Tooltip
       const svg = document.getElementById('wChart');
@@ -2789,9 +2845,9 @@
         });
       }
 
-      labels.style.cssText = 'display:flex;gap:0;margin-top:4px;';
-      labels.innerHTML = dayNames.map(d =>
-        '<div style="flex:1;text-align:center;font-size:.65rem;color:var(--text-muted);font-weight:600;">' + d.substring(0,3) + '</div>'
+      labels.style.cssText = 'display:flex;gap:0;margin-top:4px;direction:ltr;';
+      labels.innerHTML = dayNames.map((d, i) =>
+        '<div style="flex:1;text-align:center;font-size:.65rem;color:' + (i===maxIdx?'#6366f1':'var(--text-muted)') + ';font-weight:' + (i===maxIdx?'800':'600') + ';">' + d + '</div>'
       ).join('');
     }
 
@@ -4048,6 +4104,108 @@
 
     }); // end DOMContentLoaded
     document.getElementById('patientBookSearch')?.addEventListener('input', renderPatientBook);
+
+    // ==================== البحث العالمي ====================
+    (function() {
+      const inp = document.getElementById('globalSearchInput');
+      const res = document.getElementById('globalSearchResults');
+      if (!inp || !res) return;
+
+      function escH(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+      function highlight(text, q) {
+        if (!q) return escH(text);
+        const idx = (text||'').toLowerCase().indexOf(q.toLowerCase());
+        if (idx < 0) return escH(text);
+        return escH(text.slice(0, idx)) + '<mark style="background:#d1fae5;color:#065f46;border-radius:3px;padding:0 2px;">' + escH(text.slice(idx, idx+q.length)) + '</mark>' + escH(text.slice(idx+q.length));
+      }
+
+      function doSearch(q) {
+        if (!q || q.trim().length < 1) { res.style.display = 'none'; return; }
+        q = q.trim();
+        const allData = window._allRecords || [];
+        const results = [];
+
+        // بحث في المرضى
+        const patients = {};
+        allData.forEach(r => {
+          const name = r.PatientName || r.patientName || '';
+          const phone = r.Phone || r.phone || '';
+          if (!patients[phone||name]) {
+            if (name.toLowerCase().includes(q.toLowerCase()) || phone.includes(q)) {
+              patients[phone||name] = { name, phone, type: 'patient' };
+            }
+          }
+        });
+        Object.values(patients).slice(0,4).forEach(p => results.push(p));
+
+        // بحث في المواعيد
+        allData.filter(r => {
+          const name = (r.PatientName||r.patientName||'').toLowerCase();
+          const type = (r.VisitType||r.visitType||'').toLowerCase();
+          const date = (r.Date||r.date||'');
+          return name.includes(q.toLowerCase()) || type.includes(q.toLowerCase()) || date.includes(q);
+        }).slice(0,5).forEach(r => results.push({
+          name: r.PatientName||r.patientName||'—',
+          date: r.Date||r.date||'',
+          type: r.VisitType||r.visitType||'',
+          status: r.Status||r.status||'',
+          resultType: 'appointment'
+        }));
+
+        if (results.length === 0) {
+          res.innerHTML = '<div style="padding:20px;text-align:center;color:var(--text-muted);font-size:.83rem;">لا توجد نتائج</div>';
+          res.style.display = 'block';
+          return;
+        }
+
+        res.innerHTML = results.map(r => {
+          if (r.type === 'patient') {
+            return `<div class="gsearch-item" onclick="setActiveSection('patients');document.getElementById('patientBookSearch').value='${escH(r.name)}';renderPatientBook();document.getElementById('globalSearchResults').style.display='none';document.getElementById('globalSearchInput').value='';"
+              style="display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border);"
+              onmouseover="this.style.background='var(--primary-faint)'" onmouseout="this.style.background=''">
+              <div style="width:34px;height:34px;border-radius:50%;background:var(--primary-faint);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <div style="font-size:.84rem;font-weight:700;color:var(--text-primary);">${highlight(r.name, q)}</div>
+                <div style="font-size:.73rem;color:var(--text-muted);margin-top:2px;">مريض ${r.phone ? '· ' + escH(r.phone) : ''}</div>
+              </div>
+            </div>`;
+          } else {
+            const statusColor = r.status==='Visited'?'#10b981':r.status==='Accepted'?'#3b82f6':r.status==='Cancelled'?'#ef4444':'#6b7280';
+            return `<div class="gsearch-item" onclick="setActiveSection('calendar');document.getElementById('globalSearchResults').style.display='none';document.getElementById('globalSearchInput').value='';"
+              style="display:flex;align-items:center;gap:12px;padding:11px 16px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border);"
+              onmouseover="this.style.background='var(--primary-faint)'" onmouseout="this.style.background=''">
+              <div style="width:34px;height:34px;border-radius:50%;background:#ede9fe;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#7c3aed" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:.84rem;font-weight:700;color:var(--text-primary);">${highlight(r.name, q)}</div>
+                <div style="font-size:.73rem;color:var(--text-muted);margin-top:2px;">${escH(r.date)} ${r.type ? '· '+escH(r.type) : ''}</div>
+              </div>
+              <span style="font-size:.7rem;font-weight:700;color:${statusColor};background:${statusColor}18;padding:2px 8px;border-radius:20px;flex-shrink:0;">${r.status==='Visited'?'تمت الزيارة':r.status==='Accepted'?'مقبول':r.status==='Cancelled'?'ملغي':escH(r.status)}</span>
+            </div>`;
+          }
+        }).join('');
+
+        res.style.display = 'block';
+      }
+
+      inp.addEventListener('input', function() { doSearch(this.value); });
+      inp.addEventListener('focus', function() { if (this.value.trim()) doSearch(this.value); });
+      document.addEventListener('click', function(e) {
+        if (!inp.contains(e.target) && !res.contains(e.target)) res.style.display = 'none';
+      });
+      inp.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') { res.style.display = 'none'; inp.blur(); }
+      });
+
+      // تخزين السجلات عالمياً
+      window.addEventListener('recordsUpdated', function() {
+        if (window._allRecords) return;
+      });
+    })();
 
     document.getElementById('dayDetailsModal')?.addEventListener('click', function(e) {
       if (e.target === this) closeDayDetailsModal();
@@ -5524,15 +5682,47 @@
         const maxIdx = weekdayCounts.indexOf(Math.max(...weekdayCounts));
         const dots = pts.map((p,i)=>!p.v?'':`<circle cx="${p.x}" cy="${p.y}" r="${i===maxIdx?5:3.5}" fill="${i===maxIdx?'#6366f1':'white'}" stroke="#6366f1" stroke-width="2" style="cursor:pointer;" data-v="${p.v}" data-i="${i}"/>`).join('');
         wWrap.innerHTML = '<div id="hwTip" style="position:absolute;background:rgba(15,23,42,0.9);color:white;padding:5px 11px;border-radius:8px;font-size:.76rem;font-weight:700;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;z-index:10;"></div>'
-          +'<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:100%;overflow:visible;">'
+          +'<svg id="hwChart" viewBox="0 0 '+W+' '+H+'" style="width:100%;height:100%;overflow:visible;">'
           +'<defs><linearGradient id="hwAreaG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.2"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0"/></linearGradient>'
-          +'<linearGradient id="hwLineG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient></defs>'
-          +gridLines+'<path d="'+areaPath+'" fill="url(#hwAreaG)"/>'
-          +'<path d="'+linePath+'" fill="none" stroke="url(#hwLineG)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'
-          +dots+'</svg>';
+          +'<linearGradient id="hwLineG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient>'
+          +'<clipPath id="hwClip"><rect id="hwClipRect" x="0" y="0" width="0" height="'+H+'"/></clipPath>'
+          +'</defs>'
+          +gridLines+'<path d="'+areaPath+'" fill="url(#hwAreaG)" clip-path="url(#hwClip)" style="opacity:0;"/>'
+          +'<path id="hwLine" d="'+linePath+'" fill="none" stroke="url(#hwLineG)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'
+          +'<g id="hwDots" style="opacity:0;">'+dots+'</g>'
+          +'</svg>';
+
+        // أنيميشن رسم الخط تدريجياً
+        requestAnimationFrame(function() {
+          const lineEl = document.getElementById('hwLine');
+          const clipRect = document.getElementById('hwClipRect');
+          const areaEl = wWrap.querySelector('path[clip-path]');
+          const dotsEl = document.getElementById('hwDots');
+          if (!lineEl) return;
+          const len = lineEl.getTotalLength ? lineEl.getTotalLength() : 1200;
+          lineEl.style.strokeDasharray = len;
+          lineEl.style.strokeDashoffset = len;
+          lineEl.style.transition = 'stroke-dashoffset 1.1s cubic-bezier(0.4,0,0.2,1)';
+          requestAnimationFrame(function() {
+            lineEl.style.strokeDashoffset = '0';
+            let start = null;
+            const dur = 1100;
+            function animClip(ts) {
+              if (!start) start = ts;
+              const p = Math.min((ts - start) / dur, 1);
+              const ease = p < 0.5 ? 2*p*p : -1+(4-2*p)*p;
+              if (clipRect) clipRect.setAttribute('width', ease * W);
+              if (areaEl) areaEl.style.opacity = ease * 0.95;
+              if (p < 1) requestAnimationFrame(animClip);
+              else if (dotsEl) { dotsEl.style.transition = 'opacity 0.35s'; dotsEl.style.opacity = '1'; }
+            }
+            requestAnimationFrame(animClip);
+          });
+        });
         // Tooltip
         wWrap.querySelectorAll('circle').forEach(c=>{
-          c.addEventListener('mouseenter',e=>{const tip=wWrap.querySelector('#hwTip');tip.textContent=dayNames[+c.dataset.i]+': '+c.dataset.v+' موعد';tip.style.opacity='1';tip.style.left=(e.offsetX-40)+'px';tip.style.top=(e.offsetY-34)+'px';});
+          c.addEventListener('mouseenter',e=>{const tip=wWrap.querySelector('#hwTip');tip.textContent=dayNames[+c.dataset.i]+': '+c.dataset.v+' موعد';tip.style.opacity='1';});
+          c.addEventListener('mousemove',e=>{const tip=wWrap.querySelector('#hwTip');if(!tip)return;const r=wWrap.getBoundingClientRect();tip.style.left=Math.max(0,e.clientX-r.left-tip.offsetWidth/2)+'px';tip.style.top=(e.clientY-r.top-44)+'px';});
           c.addEventListener('mouseleave',()=>{const tip=wWrap.querySelector('#hwTip');if(tip)tip.style.opacity='0';});
         });
         wLabels.innerHTML = dayNames.map((n,i)=>`<div style="flex:1;text-align:center;font-size:.65rem;color:${i===maxIdx?'#6366f1':'var(--text-muted)'};font-weight:${i===maxIdx?'800':'600'};">${n}</div>`).join('');
