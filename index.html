@@ -88,12 +88,11 @@
       right: 0;
       display: none;
       flex-direction: column;
-      gap: 2px;
+      gap: 0;
       background: #0f766e;
       padding: 0;
       z-index: 30;
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow: hidden;
     }
     @media (min-width: 768px) {
       .sidebar { display: flex; }
@@ -106,9 +105,8 @@
       flex-direction: column;
       align-items: center;
       gap: 8px;
-      padding: 28px 16px 20px;
+      padding: 28px 16px 18px;
       border-bottom: 1px solid rgba(255,255,255,0.12);
-      margin-bottom: 8px;
     }
     .sidebar-doctor-avatar {
       width: 64px;
@@ -132,25 +130,36 @@
       text-align: center;
       line-height: 1.3;
     }
-    .sidebar-doctor-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(255,255,255,0.15);
-      color: rgba(255,255,255,0.9);
-      font-size: 0.66rem;
-      font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 20px;
-      border: 1px solid rgba(255,255,255,0.2);
+    .sidebar-doctor-date {
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: rgba(255,255,255,0.65);
+      text-align: center;
+    }
+
+    /* nav items fill remaining space */
+    .sidebar-nav-items {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 10px 8px;
+      gap: 4px;
+      overflow-y: auto;
+    }
+
+    /* settings pinned to bottom */
+    .sidebar-bottom {
+      padding: 8px 8px 16px;
+      border-top: 1px solid rgba(255,255,255,0.12);
     }
 
     .sidebar-item {
       display: flex;
       align-items: center;
       gap: 12px;
-      padding: 12px 16px;
-      border-radius: 0;
+      padding: 0 14px;
+      height: 52px;
+      border-radius: 10px;
       background: transparent;
       border: none;
       cursor: pointer;
@@ -158,8 +167,6 @@
       color: rgba(255,255,255,0.75);
       font-weight: 600;
       font-size: 0.88rem;
-      margin: 0 8px;
-      border-radius: 10px;
     }
     .sidebar-item:hover {
       background: rgba(255,255,255,0.12);
@@ -174,7 +181,8 @@
       box-shadow: none;
     }
     .sidebar-item.active .sidebar-sub { color: rgba(255,255,255,0.7); }
-    .sidebar-sub { font-size: 0.72rem; font-weight: 400; color: rgba(255,255,255,0.55); }
+    .sidebar-sub { font-size: 0.68rem; font-weight: 400; color: rgba(255,255,255,0.5); }
+    .sidebar-item-label { font-size: 0.86rem; font-weight: 700; line-height: 1.2; }
     .sidebar-icon {
       width: 34px;
       height: 34px;
@@ -1218,23 +1226,6 @@
   <div class="orb orb-2"></div>
   <div class="orb orb-3"></div>
 
-  <header class="sticky top-0 z-20" style="background:var(--surface);border-bottom:2px solid var(--border);box-shadow:var(--shadow-sm);padding:0 20px;height:64px;display:flex;align-items:center;">
-    <div style="max-width:1280px;width:100%;margin:0 auto;display:flex;align-items:center;justify-content:space-between;">
-      <div class="flex items-center gap-3 header-link" id="headerLogo" onclick="goToToday()">
-        <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-3));display:flex;align-items:center;justify-content:center;color:white;font-size:.95rem;box-shadow:0 0 0 3px var(--primary-light);">
-          <i class="fas fa-user-md"></i>
-        </div>
-        <div>
-          <h1 class="font-bold text-base" style="color:var(--text-primary);line-height:1.2;">لوحة الطبيب</h1>
-          <div id="doctorHeaderDate" class="nurse-header-sub">اليوم ، التاريخ</div>
-        </div>
-      </div>
-      <button class="settings-btn" onclick="openSettingsModal()" title="الإعدادات">
-        <i class="fas fa-cog"></i>
-      </button>
-    </div>
-  </header>
-
   <main style="max-width:1100px;margin:0 auto;padding:20px 16px;display:flex;flex-direction:column;gap:20px;">
     <aside class="sidebar md:flex">
 
@@ -1244,33 +1235,41 @@
           <i class="fas fa-user-md"></i>
         </div>
         <div class="sidebar-doctor-name" id="sidebarDoctorName">لوحة الطبيب</div>
-        <div class="sidebar-doctor-badge">
-          <i class="fas fa-circle" style="font-size:0.42rem;color:#16a34a;"></i> متصل الآن
-        </div>
+        <div class="sidebar-doctor-date" id="sidebarDoctorDate">اليوم، التاريخ</div>
       </div>
 
       <!-- التبويبات الأصلية -->
-      <div class="sidebar-item active" id="sidebarHome">
-        <div class="sidebar-icon"><i class="fas fa-house"></i></div>
-        <div><h3 class="font-bold">الصفحة الرئيسية</h3><div class="sidebar-sub">لمحة عن يومك</div></div>
+      <div class="sidebar-nav-items">
+        <div class="sidebar-item active" id="sidebarHome">
+          <div class="sidebar-icon"><i class="fas fa-house"></i></div>
+          <div><div class="sidebar-item-label">الصفحة الرئيسية</div><div class="sidebar-sub">لمحة عن يومك</div></div>
+        </div>
+        <div class="sidebar-item" id="sidebarCalendar">
+          <div class="sidebar-icon"><i class="fas fa-calendar-alt"></i></div>
+          <div><div class="sidebar-item-label">المواعيد المؤكدة</div><div class="sidebar-sub">الروزنامة اليومية</div></div>
+        </div>
+        <div class="sidebar-item" id="sidebarPatients">
+          <div class="sidebar-icon"><i class="fas fa-address-book"></i></div>
+          <div><div class="sidebar-item-label">دفتر المرضى</div><div class="sidebar-sub">سجل المرضى والزيارات</div></div>
+        </div>
+        <div class="sidebar-item" id="sidebarStats">
+          <div class="sidebar-icon"><i class="fas fa-chart-pie"></i></div>
+          <div><div class="sidebar-item-label">الإحصائيات</div><div class="sidebar-sub">تحليلات متقدمة</div></div>
+        </div>
       </div>
-      <div class="sidebar-item" id="sidebarCalendar">
-        <div class="sidebar-icon"><i class="fas fa-calendar-alt"></i></div>
-        <div><h3 class="font-bold">المواعيد المؤكدة</h3><div class="sidebar-sub">الروزنامة اليومية</div></div>
-      </div>
-      <div class="sidebar-item" id="sidebarPatients">
-        <div class="sidebar-icon"><i class="fas fa-address-book"></i></div>
-        <div><h3 class="font-bold">دفتر المرضى</h3><div class="sidebar-sub">سجل المرضى والزيارات</div></div>
-      </div>
-      <div class="sidebar-item" id="sidebarStats">
-        <div class="sidebar-icon"><i class="fas fa-chart-pie"></i></div>
-        <div><h3 class="font-bold">الإحصائيات</h3><div class="sidebar-sub">تحليلات متقدمة</div></div>
+
+      <!-- زر الإعدادات أسفل الشريط -->
+      <div class="sidebar-bottom">
+        <div class="sidebar-item" id="sidebarSettingsBtn" onclick="openSettingsModal()">
+          <div class="sidebar-icon"><i class="fas fa-cog"></i></div>
+          <div><div class="sidebar-item-label">الإعدادات</div><div class="sidebar-sub">ضبط التطبيق</div></div>
+        </div>
       </div>
 
     </aside>
 
     <div class="content-area">
-      <div id="toast" class="toast hidden fixed top-20 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md">
+      <div id="toast" class="toast hidden fixed top-4 left-1/2 -translate-x-1/2 z-50 w-11/12 max-w-md">
         <div id="toastContent" style="padding:12px 16px;border-radius:16px;box-shadow:var(--shadow-lg);font-weight:700;font-size:.875rem;display:flex;align-items:center;gap:12px;background:var(--primary);color:white"></div>
       </div>
 
@@ -3987,7 +3986,8 @@
     document.addEventListener('DOMContentLoaded', () => {
       // loadData() تُستدعى من onAuth بعد التحقق من تسجيل الدخول
       setActiveSection('home');
-      document.getElementById('doctorHeaderDate').textContent = today.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+      const sidebarDate = document.getElementById('sidebarDoctorDate');
+      if (sidebarDate) sidebarDate.textContent = today.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
     });
 
     // ==================== الصفحة الرئيسية ====================
@@ -4280,15 +4280,6 @@
     function applySettings() {
       const title = settings.title || 'لوحة الطبيب';
       document.title = title;
-      const h1 = document.querySelector('header h1');
-      if (h1) h1.textContent = title;
-      const logoIcon = document.querySelector('#headerLogo .fas');
-      const logoContainer = document.querySelector('#headerLogo > div');
-      if (settings.logo && logoContainer) {
-        logoContainer.innerHTML = `<img src="${settings.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`;
-      } else if (logoContainer && logoIcon === null) {
-        logoContainer.innerHTML = `<i class="fas fa-user-md"></i>`;
-      }
       // مزامنة بطاقة الطبيب في الشريط الجانبي
       const sidebarName = document.getElementById('sidebarDoctorName');
       if (sidebarName) sidebarName.textContent = title;
