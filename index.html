@@ -265,6 +265,11 @@
       .patient-card { padding: 12px; }
       .btn-primary, .btn-secondary { padding: 8px 12px; font-size: 0.8rem; }
       .glass-card { padding: 16px; }
+      #homeSummaryGrid { grid-template-columns: repeat(4, 1fr) !important; gap: 6px !important; }
+      #homeSummaryGrid .home-mini-card { padding: 10px 8px !important; }
+      #homeSummaryGrid .home-mini-card [style*="font-size:1.9rem"] { font-size: 1.3rem !important; }
+      #homeSummaryGrid .home-mini-card [style*="width:52px"] { width: 38px !important; height: 38px !important; }
+      #homeSummaryGrid .home-mini-card [style*="margin-top:16px"] { margin-top: 8px !important; padding-top: 7px !important; }
     }
 
     .content-area { display: flex; flex-direction: column; gap: 16px; }
@@ -1377,7 +1382,7 @@
             <div id="homeLeftCol" style="display:flex;flex-direction:column;gap:12px;">
 
           <!-- ② ٤ بطاقات ملخص اليوم — MediCare Style -->
-          <div class="grid grid-cols-2 gap-3" id="homeSummaryGrid">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="homeSummaryGrid" style="grid-template-columns: repeat(4, 1fr);">
 
             <!-- مواعيد اليوم -->
             <div class="home-mini-card glass-card" style="padding:20px 18px;">
@@ -5489,7 +5494,11 @@
       // --- توزيع الأيام (نفس renderWeekdayBars لكن بـ IDs مختلفة) ---
       const weekdayCounts = Array(7).fill(0);
       allRecords.filter(r => ['Accepted','Visited'].includes(r.Status)).forEach(r => {
-        if (r.Date) { const d = new Date(r.Date); weekdayCounts[d.getDay()]++; }
+        if (r.Date) {
+          const parts = r.Date.substring(0,10).split('-').map(Number);
+          const d = new Date(parts[0], parts[1]-1, parts[2]);
+          weekdayCounts[d.getDay()]++;
+        }
       });
 
       const wWrap   = document.getElementById('homeWeekdayBarsWrap');
