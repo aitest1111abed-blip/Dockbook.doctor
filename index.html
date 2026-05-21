@@ -268,6 +268,70 @@
     }
 
     .content-area { display: flex; flex-direction: column; gap: 16px; }
+
+    /* ===== الإجراءات السريعة العائمة ===== */
+    #homeFloatingActions {
+      position: fixed;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      z-index: 200;
+    }
+    .home-fab {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      transition: all .2s cubic-bezier(.4,0,.2,1);
+      position: relative;
+      font-family: inherit;
+    }
+    .home-fab:hover { transform: scale(1.12); box-shadow: 0 6px 24px rgba(0,0,0,0.2); }
+    .home-fab:hover .home-fab-tooltip { opacity:1; pointer-events:auto; transform: translateY(-50%) translateX(-8px); }
+    .home-fab-tooltip {
+      position: absolute;
+      right: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%) translateX(0px);
+      background: var(--text-primary);
+      color: white;
+      font-size: .72rem;
+      font-weight: 700;
+      padding: 5px 11px;
+      border-radius: 8px;
+      white-space: nowrap;
+      opacity: 0;
+      pointer-events: none;
+      transition: all .2s;
+    }
+    .home-fab-tooltip::after {
+      content:'';
+      position:absolute;
+      right:-6px;
+      top:50%;
+      transform:translateY(-50%);
+      border:4px solid transparent;
+      border-left-color: var(--text-primary);
+    }
+    @media (max-width: 768px) {
+      #homeFloatingActions { left: 10px; }
+      .home-fab { width: 46px; height: 46px; }
+    }
+
+    /* ===== الروزنامة في الصفحة الرئيسية ===== */
+    @media (min-width: 1024px) {
+      #homeCalendarGrid {
+        grid-template-columns: 360px 1fr !important;
+      }
+    }
     .compact-calendar-container { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--border-radius); padding: 18px; box-shadow: var(--shadow-sm); }
     .compact-calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .compact-nav-btn { width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; font-size: 0.85rem; }
@@ -1395,29 +1459,60 @@
             </div>
           </div>
 
-          <!-- ④ الإجراءات السريعة — بعد ما شاف المواعيد يتصرف -->
-          <div class="glass-card">
-            <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0 0 12px 0;display:flex;align-items:center;gap:8px;">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-              إجراءات سريعة
-            </h3>
-            <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-              <button onclick="openDocManualFormOverlay()" class="home-quick-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--primary);color:white;cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:800;transition:all .15s;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                إضافة موعد
-              </button>
-              <button onclick="sendNurseAlert('next')" class="home-quick-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:800;transition:all .15s;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
-                أدخل المريض
-              </button>
-              <button onclick="sendNurseAlert('enter')" class="home-quick-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:800;transition:all .15s;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                استدعاء الممرضة
-              </button>
-              <button onclick="setActiveSection('calendar')" class="home-quick-btn" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:12px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-primary);cursor:pointer;font-family:inherit;font-size:.82rem;font-weight:800;transition:all .15s;">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                تفاصيل اليوم
-              </button>
+          <!-- ④ الروزنامة الرئيسية مع لوحة اليوم الجانبية -->
+          <div id="homeCalendarSection" style="display:grid;grid-template-columns:1fr;gap:16px;">
+            <!-- الروزنامة -->
+            <div style="display:grid;grid-template-columns:1fr;gap:16px;" id="homeCalendarGrid">
+              <div class="compact-calendar-container" style="flex:0 0 auto;">
+                <div class="compact-calendar-header">
+                  <button id="homePrevMonthBtn" class="compact-nav-btn"><i class="fas fa-chevron-right"></i></button>
+                  <div class="text-center">
+                    <h3 id="homeCurrentMonth" class="text-base font-bold mb-1" style="color:var(--text-primary)">-</h3>
+                    <div class="density-legend">
+                      <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-low"></div><span>خفيف</span></div>
+                      <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-medium"></div><span>متوسط</span></div>
+                      <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-high"></div><span>مزدحم</span></div>
+                    </div>
+                  </div>
+                  <button id="homeNextMonthBtn" class="compact-nav-btn"><i class="fas fa-chevron-left"></i></button>
+                </div>
+                <div class="compact-calendar-grid mb-2">
+                  <div class="compact-calendar-day-name">الجمعة</div><div class="compact-calendar-day-name">السبت</div><div class="compact-calendar-day-name">الأحد</div>
+                  <div class="compact-calendar-day-name">الإثنين</div><div class="compact-calendar-day-name">الثلاثاء</div><div class="compact-calendar-day-name">الأربعاء</div><div class="compact-calendar-day-name">الخميس</div>
+                </div>
+                <div id="homeCalGrid" class="compact-calendar-grid"></div>
+              </div>
+
+              <!-- لوحة اليوم — تظهر عند اختيار يوم -->
+              <div id="homeDayPanel" class="glass-card" style="display:none;align-self:start;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px;">
+                  <div>
+                    <h3 id="homePanelTitle" style="font-weight:700;font-size:.9rem;color:var(--text-primary);">-</h3>
+                    <p id="homePanelCount" style="font-size:.72rem;color:var(--text-muted);margin-top:2px;">عدد المواعيد: 0</p>
+                  </div>
+                  <button onclick="document.getElementById('homeDayPanel').style.display='none'" style="width:30px;height:30px;border-radius:8px;border:1.5px solid var(--border);background:var(--surface);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr;gap:16px;">
+                  <div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                      <i class="fas fa-sun" style="color:var(--amber);font-size:.9rem;"></i>
+                      <span style="font-weight:700;font-size:.88rem;">الصباح</span>
+                      <span id="homePanelMorningCount" style="background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">0</span>
+                    </div>
+                    <div id="homePanelMorning"></div>
+                  </div>
+                  <div>
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+                      <i class="fas fa-moon" style="color:#6366f1;font-size:.9rem;"></i>
+                      <span style="font-weight:700;font-size:.88rem;">المساء</span>
+                      <span id="homePanelEveningCount" style="background:var(--primary-light);color:var(--primary);padding:2px 10px;border-radius:20px;font-size:.72rem;font-weight:700;">0</span>
+                    </div>
+                    <div id="homePanelEvening"></div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -1533,7 +1628,8 @@
       </section>
 
       <section id="calendarSection" class="hidden">
-        <div class="grid grid-cols-1 lg:grid-cols-[380px_1fr] gap-5">
+        <div style="max-width:960px;margin:0 auto;width:100%;">
+        <div class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
           <div>
             <div class="compact-calendar-container">
               <div class="compact-calendar-header">
@@ -1585,6 +1681,7 @@
               </div>
             </div>
           </div>
+        </div>
         </div>
       </section>
 
@@ -5265,7 +5362,168 @@
       window.open(url, '_blank');
       closeSendToContact();
     };
+
+    // ==================== الروزنامة في الصفحة الرئيسية ====================
+    let homeCalDate = new Date(currentDate);
+
+    function renderHomeCalendar() {
+      const grid = document.getElementById('homeCalGrid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      const year = homeCalDate.getFullYear(), month = homeCalDate.getMonth();
+      document.getElementById('homeCurrentMonth').textContent = `${monthsAr[month]} ${year}`;
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      let startOffset = (firstDay + 3) % 7;
+      for (let i = startOffset - 1; i >= 0; i--) {
+        const d = document.createElement('div');
+        d.className = 'compact-calendar-day other-month';
+        d.textContent = '';
+        grid.appendChild(d);
+      }
+      for (let d = 1; d <= daysInMonth; d++) {
+        const dateObj = new Date(year, month, d); dateObj.setHours(0,0,0,0);
+        const dateStr = toLocalISODate(dateObj);
+        const dayDiv = document.createElement('div');
+        dayDiv.className = 'compact-calendar-day';
+        dayDiv.textContent = d;
+        if (dateObj < today) dayDiv.classList.add('past-day');
+        if (dateObj.getTime() === today.getTime()) dayDiv.classList.add('today');
+        if (selectedDayStr === dateStr) dayDiv.classList.add('selected');
+        const dayRecords = allRecords.filter(r =>
+          ['Accepted', 'Visited', 'NoShow'].includes(r.Status) && r.Date === dateStr
+        );
+        if (dayRecords.length > 0) {
+          const dot = document.createElement('div');
+          dot.className = `compact-appointment-dot ${dayRecords.length <= 2 ? 'compact-dot-low' : dayRecords.length <= 4 ? 'compact-dot-medium' : 'compact-dot-high'}`;
+          dayDiv.appendChild(dot);
+        }
+        dayDiv.addEventListener('click', () => selectHomeDay(dateStr));
+        grid.appendChild(dayDiv);
+      }
+    }
+
+    function selectHomeDay(dateStr) {
+      selectedDayStr = dateStr;
+      renderHomeCalendar();
+      renderCalendar(); // sync with calendar section
+      renderHomeDayPanel(dateStr);
+      const panel = document.getElementById('homeDayPanel');
+      if (panel) panel.style.display = 'block';
+    }
+
+    function renderHomeDayPanel(dateStr) {
+      const isPast = parseLocalISODate(dateStr) < today;
+      document.getElementById('homePanelTitle').textContent = `${daysAr[parseLocalISODate(dateStr).getDay()]} — ${formatDateAr(dateStr)}`;
+
+      const emptyMsg = (slot) => `<div style="text-align:center;padding:16px 0;color:var(--text-muted);font-size:.85rem;font-weight:500;">لا توجد مواعيد ${slot}</div>`;
+
+      let morning, evening;
+      if (isPast) {
+        const allDay = allRecords.filter(r =>
+          ['Accepted','Visited','NoShow','Cancelled','Rejected'].includes(r.Status) && r.Date === dateStr
+        );
+        morning = allDay.filter(r => (r.Slot || 'Morning') === 'Morning');
+        evening = allDay.filter(r => r.Slot === 'Evening');
+        const vis = allDay.filter(r=>r.Status==='Visited').length;
+        const ns = allDay.filter(r=>r.Status==='NoShow').length;
+        const canc = allDay.filter(r=>['Cancelled','Rejected'].includes(r.Status)).length;
+        document.getElementById('homePanelCount').textContent = `زيارات: ${vis}${ns?' · لم يحضر: '+ns:''}${canc?' · ملغاة: '+canc:''}`;
+      } else {
+        const accepted = allRecords.filter(r => r.Status === 'Accepted' && r.Date === dateStr);
+        morning = accepted.filter(r => (r.Slot || 'Morning') === 'Morning');
+        evening = accepted.filter(r => r.Slot === 'Evening');
+        document.getElementById('homePanelCount').textContent = `عدد المواعيد المؤكدة: ${accepted.length}`;
+      }
+
+      document.getElementById('homePanelMorningCount').textContent = morning.length;
+      document.getElementById('homePanelEveningCount').textContent = evening.length;
+
+      const cardHtml = (r) => {
+        if (isPast) {
+          let bg='var(--primary-light)',col='var(--primary)',icon='fa-calendar-check',lbl='مؤكد';
+          if(r.Status==='Visited'){bg='#dcfce7';col='#16a34a';icon='fa-check-circle';lbl='تمت الزيارة';}
+          else if(r.Status==='NoShow'){bg='#fee2e2';col='#dc2626';icon='fa-user-times';lbl='لم يحضر';}
+          else if(['Cancelled','Rejected'].includes(r.Status)){bg='#fef3c7';col='#d97706';icon='fa-ban';lbl='ملغاة';}
+          return `<div style="background:var(--primary-faint);border:1.5px solid var(--border);border-radius:12px;padding:10px;margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:start;">
+              <div><p style="font-weight:700;font-size:.88rem;color:var(--text-primary);">${r.PatientName}</p><p style="font-size:.75rem;color:var(--primary);margin-top:2px;">${r.Phone}</p></div>
+              <span style="font-size:.7rem;padding:3px 10px;border-radius:20px;font-weight:700;background:${bg};color:${col};white-space:nowrap;"><i class="fas ${icon}" style="margin-left:3px;font-size:.65rem;"></i>${lbl}</span>
+            </div>
+            <div style="font-size:.7rem;color:var(--text-muted);margin-top:4px;">${r.VisitType||''} · ${r.Slot==='Evening'?'مساءً':'صباحاً'}</div>
+          </div>`;
+        } else {
+          return `<div style="background:var(--primary-faint);border:1.5px solid var(--border);border-radius:12px;padding:10px;margin-bottom:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:start;">
+              <div><p style="font-weight:700;font-size:.88rem;color:var(--text-primary);">${r.PatientName}</p><p style="font-size:.75rem;color:var(--primary);margin-top:2px;">${r.Phone}</p></div>
+              <div style="display:flex;gap:4px;">
+                <a href="tel:${normalizePhone(r.Phone)}" style="width:32px;height:32px;border-radius:8px;background:#2563eb;color:white;display:flex;align-items:center;justify-content:center;font-size:.75rem;"><i class="fas fa-phone"></i></a>
+                <button onclick="openAppointmentDetailsModal('${r.id}')" style="width:32px;height:32px;border-radius:8px;background:var(--primary-light);color:var(--primary);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.75rem;"><i class="fas fa-eye"></i></button>
+              </div>
+            </div>
+            <div style="font-size:.7rem;color:var(--text-muted);margin-top:4px;">${r.VisitType||''} · ${r.Slot==='Evening'?'مساءً':'صباحاً'}</div>
+          </div>`;
+        }
+      };
+
+      document.getElementById('homePanelMorning').innerHTML = morning.length ? morning.map(cardHtml).join('') : emptyMsg('صباحية');
+      document.getElementById('homePanelEvening').innerHTML = evening.length ? evening.map(cardHtml).join('') : emptyMsg('مسائية');
+    }
+
+    // تهيئة الروزنامة الرئيسية عند فتح الصفحة الرئيسية
+    document.getElementById('homePrevMonthBtn')?.addEventListener('click', () => {
+      homeCalDate.setMonth(homeCalDate.getMonth() - 1);
+      renderHomeCalendar();
+    });
+    document.getElementById('homeNextMonthBtn')?.addEventListener('click', () => {
+      homeCalDate.setMonth(homeCalDate.getMonth() + 1);
+      renderHomeCalendar();
+    });
+
+    // إظهار/إخفاء الإجراءات السريعة العائمة حسب القسم
+    const origSetActiveSection = typeof setActiveSection === 'function' ? setActiveSection : null;
+    function updateFloatingActions(section) {
+      const fab = document.getElementById('homeFloatingActions');
+      if (fab) fab.style.display = (section === 'home') ? 'flex' : 'none';
+    }
+    // Hook into section changes
+    const _origSetActive = window.setActiveSection;
+    window.setActiveSection = function(section) {
+      if (_origSetActive) _origSetActive(section);
+      updateFloatingActions(section);
+      if (section === 'home') {
+        homeCalDate = new Date(currentDate);
+        renderHomeCalendar();
+      }
+    };
+
+    // Initial render if home is default
+    setTimeout(() => {
+      renderHomeCalendar();
+      updateFloatingActions(currentSection || 'home');
+    }, 300);
+
   </script>
+
+  <!-- ④ الإجراءات السريعة العائمة — دوائر على يمين الشاشة بالمنتصف -->
+  <div id="homeFloatingActions" style="display:flex;">
+    <button onclick="openDocManualFormOverlay()" class="home-fab" style="background:var(--primary);color:white;" title="إضافة موعد">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      <span class="home-fab-tooltip">إضافة موعد</span>
+    </button>
+    <button onclick="sendNurseAlert('next')" class="home-fab" style="background:var(--surface);color:var(--primary);border:1.5px solid var(--border);" title="أدخل المريض">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
+      <span class="home-fab-tooltip">أدخل المريض</span>
+    </button>
+    <button onclick="sendNurseAlert('enter')" class="home-fab" style="background:#fff7ed;color:#d97706;border:1.5px solid #fde68a;" title="استدعاء الممرضة">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#d97706" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <span class="home-fab-tooltip">استدعاء الممرضة</span>
+    </button>
+    <button onclick="setActiveSection('calendar')" class="home-fab" style="background:var(--surface);color:var(--primary);border:1.5px solid var(--border);" title="تفاصيل اليوم">
+      <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <span class="home-fab-tooltip">تفاصيل اليوم</span>
+    </button>
+  </div>
 
 </body>
 </html>
