@@ -272,7 +272,7 @@
       #homeSummaryGrid .home-mini-card [style*="margin-top:16px"] { margin-top: 8px !important; padding-top: 7px !important; }
     }
 
-    .content-area { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 16px; }
+    .content-area { display: flex; flex-direction: column; gap: 16px; }
 
     /* ===== الإجراءات السريعة العائمة ===== */
     #homeFloatingActions {
@@ -361,12 +361,8 @@
       padding: 4px 0;
     }
     .compact-calendar-container { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--border-radius); padding: 18px; box-shadow: var(--shadow-sm); }
-    #calendarSection #calendarWidget { flex-shrink: 0 !important; width: 100% !important; max-width: 380px !important; align-self: start !important; }
-    #calendarSection #dayAgenda { flex: 1 1 0% !important; min-width: 280px !important; align-self: start !important; width: auto !important; }
-    #calendarSection > div { display: flex !important; flex-wrap: wrap !important; gap: 16px !important; align-items: flex-start !important; }
     @media (max-width: 720px) {
-      #calendarSection #calendarWidget { max-width: 100% !important; }
-      #calendarSection #dayAgenda { min-width: 0 !important; width: 100% !important; }
+      #calendarSection > div { grid-template-columns: 1fr !important; }
     }
     .compact-calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .compact-nav-btn { width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; font-size: 0.85rem; }
@@ -1639,12 +1635,13 @@
       </section>
 
       <section id="calendarSection" class="hidden">
-        <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
-            <div class="compact-calendar-container" id="calendarWidget">
+        <div style="display:grid; grid-template-columns:380px 1fr; gap:20px; align-items:start;">
+          <div>
+            <div class="compact-calendar-container">
               <div class="compact-calendar-header">
                 <button id="prevMonthBtn" class="compact-nav-btn"><i class="fas fa-chevron-right"></i></button>
-                <div style="text-align:center;">
-                  <h3 id="currentMonth" style="font-weight:700; font-size:.95rem; color:var(--text-primary); margin:0 0 4px;">-</h3>
+                <div class="text-center">
+                  <h3 id="currentMonth" class="text-base font-bold mb-1" style="color:var(--text-primary)">-</h3>
                   <div class="density-legend">
                     <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-low"></div><span>خفيف</span></div>
                     <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full compact-dot-medium"></div><span>متوسط</span></div>
@@ -1653,12 +1650,13 @@
                 </div>
                 <button id="nextMonthBtn" class="compact-nav-btn"><i class="fas fa-chevron-left"></i></button>
               </div>
-              <div class="compact-calendar-grid" style="margin-bottom:8px;">
+              <div class="compact-calendar-grid mb-2">
                 <div class="compact-calendar-day-name">الجمعة</div><div class="compact-calendar-day-name">السبت</div><div class="compact-calendar-day-name">الأحد</div>
                 <div class="compact-calendar-day-name">الإثنين</div><div class="compact-calendar-day-name">الثلاثاء</div><div class="compact-calendar-day-name">الأربعاء</div><div class="compact-calendar-day-name">الخميس</div>
               </div>
               <div id="calendarGrid" class="compact-calendar-grid"></div>
             </div>
+          </div>
           <div id="dayAgenda" class="glass-card" style="flex:1; min-width:280px; align-self:start;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
               <div>
@@ -1917,19 +1915,6 @@
         <div>
           <label class="form-label" style="margin-bottom:6px;">اسم اللوحة</label>
           <input type="text" id="settingsTitleInput" class="form-input" placeholder="أدخل الاسم" value="لوحة الطبيب" oninput="document.getElementById('profileDisplayName').textContent=this.value||'لوحة الطبيب'">
-        </div>
-
-        <!-- Language Toggle -->
-        <div>
-          <label class="form-label" id="langSettingLabel" style="margin-bottom:10px;">اللغة / Language</label>
-          <div style="display:flex; gap:10px;">
-            <button id="langBtnAr" onclick="setLang('ar')" style="flex:1; padding:10px; border-radius:12px; border:2px solid var(--primary); background:var(--primary); color:white; font-family:inherit; font-size:.88rem; font-weight:700; cursor:pointer; transition:all .18s; display:flex; align-items:center; justify-content:center; gap:7px;">
-              <span style="font-size:1.1rem;">🇸🇦</span> العربية
-            </button>
-            <button id="langBtnEn" onclick="setLang('en')" style="flex:1; padding:10px; border-radius:12px; border:2px solid var(--border); background:var(--bg); color:var(--text-muted); font-family:inherit; font-size:.88rem; font-weight:700; cursor:pointer; transition:all .18s; display:flex; align-items:center; justify-content:center; gap:7px;">
-              <span style="font-size:1.1rem;">🇬🇧</span> English
-            </button>
-          </div>
         </div>
       </div>
 
@@ -4608,9 +4593,6 @@
       }
       // تحديث التحية فوراً بالاسم الجديد
       if (typeof renderHomeSection === 'function') renderHomeSection();
-      // تطبيق اللغة المحفوظة
-      if (typeof applyLang === 'function') applyLang(settings.lang || 'ar');
-      if (typeof updateLangButtons === 'function') updateLangButtons(settings.lang || 'ar');
     }
 
     function saveSettingsToLocal(s) {
@@ -4674,147 +4656,6 @@
     // إغلاق مودال الإعدادات بالضغط خارجه
     document.getElementById('settingsModal')?.addEventListener('click', function(e) {
       if (e.target === this) closeSettingsModal();
-    });
-
-    // ============================================================
-    //  LANGUAGE TOGGLE — AR / EN
-    // ============================================================
-    const TRANSLATIONS = {
-      ar: {
-        dir: 'rtl', lang: 'ar',
-        // Sidebar
-        sidebarHome:      ['الصفحة الرئيسية', 'لمحة عن يومك'],
-        sidebarCal:       ['المواعيد المؤكدة', 'الروزنامة اليومية'],
-        sidebarPatients:  ['دفتر المرضى', 'سجل المرضى والزيارات'],
-        sidebarStats:     ['الإحصائيات', 'تحليلات متقدمة'],
-        sidebarSettings:  ['الإعدادات', 'ضبط التطبيق'],
-        // Bottom nav
-        navHome: 'الرئيسية', navStats: 'إحصائيات', navPatients: 'المرضى', navCal: 'المواعيد',
-        // Settings modal
-        settingsTitle: 'الإعدادات', settingsSave: 'حفظ التغييرات', settingsCancel: 'إلغاء',
-        settingsNameLabel: 'اسم اللوحة', settingsNamePlaceholder: 'أدخل الاسم',
-        settingsLogout: 'تسجيل الخروج',
-        // Agenda
-        agendaMorning: 'الصباح', agendaEvening: 'المساء',
-        agendaCountPrefix: 'عدد المواعيد المؤكدة: ',
-      },
-      en: {
-        dir: 'ltr', lang: 'en',
-        sidebarHome:      ['Home', 'Your day at a glance'],
-        sidebarCal:       ['Appointments', 'Daily calendar'],
-        sidebarPatients:  ['Patient Book', 'Patient records'],
-        sidebarStats:     ['Statistics', 'Advanced analytics'],
-        sidebarSettings:  ['Settings', 'App preferences'],
-        navHome: 'Home', navStats: 'Stats', navPatients: 'Patients', navCal: 'Calendar',
-        settingsTitle: 'Settings', settingsSave: 'Save Changes', settingsCancel: 'Cancel',
-        settingsNameLabel: 'Dashboard Name', settingsNamePlaceholder: 'Enter name',
-        settingsLogout: 'Sign Out',
-        agendaMorning: 'Morning', agendaEvening: 'Evening',
-        agendaCountPrefix: 'Confirmed appointments: ',
-      }
-    };
-
-    window.setLang = function(lang) {
-      settings.lang = lang;
-      saveSettingsToLocal(settings);
-      applyLang(lang);
-      updateLangButtons(lang);
-    };
-
-    function updateLangButtons(lang) {
-      const btnAr = document.getElementById('langBtnAr');
-      const btnEn = document.getElementById('langBtnEn');
-      if (!btnAr || !btnEn) return;
-      if (lang === 'ar') {
-        btnAr.style.cssText = btnAr.style.cssText.replace(/border:[^;]+;background:[^;]+;color:[^;]+/,'');
-        btnAr.style.border = '2px solid var(--primary)'; btnAr.style.background = 'var(--primary)'; btnAr.style.color = 'white';
-        btnEn.style.border = '2px solid var(--border)'; btnEn.style.background = 'var(--bg)'; btnEn.style.color = 'var(--text-muted)';
-      } else {
-        btnEn.style.border = '2px solid var(--primary)'; btnEn.style.background = 'var(--primary)'; btnEn.style.color = 'white';
-        btnAr.style.border = '2px solid var(--border)'; btnAr.style.background = 'var(--bg)'; btnAr.style.color = 'var(--text-muted)';
-      }
-    }
-
-    function applyLang(lang) {
-      const t = TRANSLATIONS[lang] || TRANSLATIONS['ar'];
-      const html = document.documentElement;
-      html.setAttribute('lang', t.lang);
-      html.setAttribute('dir', t.dir);
-
-      // Sidebar labels
-      const setLabel = (id, label, sub) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-        const lbl = el.querySelector('.sidebar-item-label');
-        const sub_ = el.querySelector('.sidebar-sub');
-        if (lbl) lbl.textContent = label;
-        if (sub_ && sub) sub_.textContent = sub;
-      };
-      // find sidebar items by their onclick or id
-      const sidebarHome = document.querySelector('[onclick*="home"]') || document.querySelector('#sidebarHome');
-      const sidebarCal  = document.querySelector('[onclick*="calendar"]');
-      const sidebarPat  = document.querySelector('[onclick*="patientBook"]');
-      const sidebarStat = document.querySelector('[onclick*="stats"]');
-      const sidebarSet  = document.getElementById('sidebarSettingsBtn');
-
-      [[sidebarHome, t.sidebarHome],[sidebarCal, t.sidebarCal],[sidebarPat, t.sidebarPatients],
-       [sidebarStat, t.sidebarStats],[sidebarSet, t.sidebarSettings]].forEach(([el, texts]) => {
-        if (!el) return;
-        const lbl = el.querySelector('.sidebar-item-label');
-        const sub = el.querySelector('.sidebar-sub');
-        if (lbl) lbl.textContent = texts[0];
-        if (sub) sub.textContent = texts[1];
-      });
-
-      // Bottom nav
-      const navMap = {mobileHome: t.navHome, mobileStats: t.navStats, mobilePatients: t.navPatients, mobileCalendar: t.navCal};
-      Object.entries(navMap).forEach(([id, txt]) => {
-        const el = document.getElementById(id);
-        if (el) { const sp = el.querySelector('span'); if (sp) sp.textContent = txt; }
-      });
-
-      // Settings modal
-      const smTitle = document.querySelector('#settingsModal h3');
-      if (smTitle) smTitle.textContent = t.settingsTitle;
-      const saveBtn = document.querySelector('[onclick="saveSettings()"]');
-      if (saveBtn) saveBtn.textContent = t.settingsSave;
-      const cancelBtn = document.querySelector('[onclick="closeSettingsModal()"].btn-secondary');
-      if (cancelBtn) cancelBtn.textContent = t.settingsCancel;
-      const nameLabel = document.querySelector('#settingsModal .form-label');
-      if (nameLabel) nameLabel.textContent = t.settingsNameLabel;
-      const nameInput = document.getElementById('settingsTitleInput');
-      if (nameInput) nameInput.placeholder = t.settingsNamePlaceholder;
-      const logoutBtn = document.querySelector('[onclick="docbookSignOut()"]');
-      if (logoutBtn) { const sp = logoutBtn.querySelector('span'); if (!sp) { logoutBtn.childNodes.forEach(n => { if(n.nodeType===3) n.textContent=' '+t.settingsLogout; }); } }
-
-      // Agenda morning/evening labels
-      document.querySelectorAll('#calendarSection .fa-sun').forEach(ic => {
-        const sp = ic.nextElementSibling; if (sp && sp.tagName==='SPAN') sp.textContent = t.agendaMorning;
-      });
-      document.querySelectorAll('#calendarSection .fa-moon').forEach(ic => {
-        const sp = ic.nextElementSibling; if (sp && sp.tagName==='SPAN') sp.textContent = t.agendaEvening;
-      });
-
-      // agendaCount prefix
-      const agendaCount = document.getElementById('agendaCount');
-      if (agendaCount) {
-        const num = agendaCount.textContent.replace(/[^\d]/g,'');
-        agendaCount.textContent = t.agendaCountPrefix + (num || '0');
-      }
-    }
-
-    // Apply saved lang on open settings
-    const _origOpenSettings = window.openSettingsModal;
-    window.openSettingsModal = function() {
-      _origOpenSettings();
-      updateLangButtons(settings.lang || 'ar');
-    };
-
-    // Init lang on load
-    document.addEventListener('DOMContentLoaded', function() {
-      const savedLang = settings.lang || 'ar';
-      applyLang(savedLang);
-      updateLangButtons(savedLang);
     });
 
   </script>
