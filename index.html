@@ -259,10 +259,6 @@
       color: var(--primary);
     }
 
-    @media (max-width: 720px) {
-      #calendarWidget { max-width: 100%; }
-      #dayAgenda { min-width: 0; width: 100%; }
-    }
     @media (max-width: 640px) {
       .compact-calendar-grid { gap: 2px; }
       .compact-calendar-day { font-size: 0.7rem; padding: 6px 1px; }
@@ -365,6 +361,13 @@
       padding: 4px 0;
     }
     .compact-calendar-container { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--border-radius); padding: 18px; box-shadow: var(--shadow-sm); }
+    #calendarSection #calendarWidget { flex-shrink: 0; width: 100%; max-width: 380px; align-self: start; }
+    #calendarSection #dayAgenda { flex: 1; min-width: 280px; align-self: start; }
+    #calendarSection > div { display: flex; flex-wrap: wrap; gap: 16px; align-items: flex-start; }
+    @media (max-width: 720px) {
+      #calendarSection #calendarWidget { max-width: 100%; }
+      #calendarSection #dayAgenda { min-width: 0; width: 100%; }
+    }
     .compact-calendar-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 14px; }
     .compact-nav-btn { width: 34px; height: 34px; border-radius: 9px; border: 1.5px solid var(--border); background: var(--surface); color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all .15s; font-size: 0.85rem; }
     .compact-nav-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
