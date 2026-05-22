@@ -259,6 +259,10 @@
       color: var(--primary);
     }
 
+    @media (max-width: 720px) {
+      #calendarWidget { max-width: 100%; }
+      #dayAgenda { min-width: 0; width: 100%; }
+    }
     @media (max-width: 640px) {
       .compact-calendar-grid { gap: 2px; }
       .compact-calendar-day { font-size: 0.7rem; padding: 6px 1px; }
@@ -1632,10 +1636,8 @@
       </section>
 
       <section id="calendarSection" class="hidden">
-        <div style="max-width:960px;margin:0 auto;width:100%;">
-        <div class="grid grid-cols-1 lg:grid-cols-[360px_1fr] gap-5">
-          <div>
-            <div class="compact-calendar-container">
+        <div style="display:flex; flex-wrap:wrap; gap:16px; align-items:flex-start;">
+            <div class="compact-calendar-container" id="calendarWidget" style="flex-shrink:0; width:100%; max-width:380px; align-self:start;">
               <div class="compact-calendar-header">
                 <button id="prevMonthBtn" class="compact-nav-btn"><i class="fas fa-chevron-right"></i></button>
                 <div class="text-center">
@@ -1654,7 +1656,6 @@
               </div>
               <div id="calendarGrid" class="compact-calendar-grid"></div>
             </div>
-          </div>
           <div id="dayAgenda" class="glass-card" style="flex:1; min-width:280px; align-self:start;">
             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
               <div>
@@ -1685,7 +1686,6 @@
               </div>
             </div>
           </div>
-        </div>
         </div>
       </section>
 
