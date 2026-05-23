@@ -1337,19 +1337,19 @@
       <div class="sidebar-nav-items">
         <div class="sidebar-item active" id="sidebarHome">
           <div class="sidebar-icon"><i class="fas fa-house"></i></div>
-          <div><div class="sidebar-item-label" data-i18n="nav.home">الصفحة الرئيسية</div><div class="sidebar-sub" data-i18n="nav.home.sub">لمحة عن يومك</div></div>
+          <div><div class="sidebar-item-label">الصفحة الرئيسية</div><div class="sidebar-sub">لمحة عن يومك</div></div>
         </div>
         <div class="sidebar-item" id="sidebarCalendar">
           <div class="sidebar-icon"><i class="fas fa-calendar-alt"></i></div>
-          <div><div class="sidebar-item-label" data-i18n="nav.calendar">المواعيد المؤكدة</div><div class="sidebar-sub" data-i18n="nav.calendar.sub">الروزنامة اليومية</div></div>
+          <div><div class="sidebar-item-label">المواعيد المؤكدة</div><div class="sidebar-sub">الروزنامة اليومية</div></div>
         </div>
         <div class="sidebar-item" id="sidebarPatients">
           <div class="sidebar-icon"><i class="fas fa-address-book"></i></div>
-          <div><div class="sidebar-item-label" data-i18n="nav.patients">دفتر المرضى</div><div class="sidebar-sub" data-i18n="nav.patients.sub">سجل المرضى والزيارات</div></div>
+          <div><div class="sidebar-item-label">دفتر المرضى</div><div class="sidebar-sub">سجل المرضى والزيارات</div></div>
         </div>
         <div class="sidebar-item" id="sidebarStats">
           <div class="sidebar-icon"><i class="fas fa-chart-pie"></i></div>
-          <div><div class="sidebar-item-label" data-i18n="nav.stats">الإحصائيات</div><div class="sidebar-sub" data-i18n="nav.stats.sub">تحليلات متقدمة</div></div>
+          <div><div class="sidebar-item-label">الإحصائيات</div><div class="sidebar-sub">تحليلات متقدمة</div></div>
         </div>
       </div>
 
@@ -1357,7 +1357,7 @@
       <div class="sidebar-bottom">
         <div class="sidebar-item" id="sidebarSettingsBtn" onclick="openSettingsModal()">
           <div class="sidebar-icon"><i class="fas fa-cog"></i></div>
-          <div><div class="sidebar-item-label" data-i18n="nav.settings">الإعدادات</div><div class="sidebar-sub" data-i18n="nav.settings.sub">ضبط التطبيق</div></div>
+          <div><div class="sidebar-item-label">الإعدادات</div><div class="sidebar-sub">ضبط التطبيق</div></div>
         </div>
       </div>
 
@@ -1881,7 +1881,7 @@
 
       <!-- Header -->
       <div style="padding:18px 20px; border-bottom:1.5px solid var(--border); display:flex; justify-content:space-between; align-items:center; background:var(--surface);">
-        <h3 style="font-weight:800; font-size:.95rem; color:var(--text);" data-i18n="settings.title">الإعدادات</h3>
+        <h3 style="font-weight:800; font-size:.95rem; color:var(--text);">الإعدادات</h3>
         <button onclick="closeSettingsModal()" style="width:32px;height:32px;border-radius:8px;border:none;background:var(--bg);color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;"><i class="fas fa-times"></i></button>
       </div>
 
@@ -1913,20 +1913,8 @@
       <!-- Fields -->
       <div style="padding:20px; display:flex; flex-direction:column; gap:16px; background:var(--surface); flex:1; overflow-y:auto;">
         <div>
-          <label class="form-label" style="margin-bottom:6px;" data-i18n="settings.nameLabel">اسم اللوحة</label>
-          <input type="text" id="settingsTitleInput" class="form-input" data-i18n-placeholder="settings.namePlaceholder" placeholder="أدخل الاسم" value="لوحة الطبيب" oninput="document.getElementById('profileDisplayName').textContent=this.value||'لوحة الطبيب'">
-        </div>
-        <!-- Language Toggle -->
-        <div>
-          <label class="form-label" style="margin-bottom:10px;" data-i18n="settings.langLabel">اللغة / Language</label>
-          <div style="display:flex; gap:10px;">
-            <button id="langBtnAr" onclick="setLang('ar')" style="flex:1;padding:10px;border-radius:12px;border:2px solid var(--primary);background:var(--primary);color:white;font-family:inherit;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:7px;">
-              🇸🇦 العربية
-            </button>
-            <button id="langBtnEn" onclick="setLang('en')" style="flex:1;padding:10px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text-muted);font-family:inherit;font-size:.88rem;font-weight:700;cursor:pointer;transition:all .18s;display:flex;align-items:center;justify-content:center;gap:7px;">
-              🇬🇧 English
-            </button>
-          </div>
+          <label class="form-label" style="margin-bottom:6px;">اسم اللوحة</label>
+          <input type="text" id="settingsTitleInput" class="form-input" placeholder="أدخل الاسم" value="لوحة الطبيب" oninput="document.getElementById('profileDisplayName').textContent=this.value||'لوحة الطبيب'">
         </div>
       </div>
 
@@ -1934,8 +1922,8 @@
       <div style="padding:16px 20px; border-top:1.5px solid var(--border); background:var(--surface); display:flex; flex-direction:column; gap:10px;">
         <!-- Save / Cancel -->
         <div style="display:flex; gap:10px;">
-          <button onclick="closeSettingsModal()" class="btn-secondary" style="flex:1; justify-content:center;" data-i18n="settings.cancel">إلغاء</button>
-          <button onclick="saveSettings()" class="btn-primary" style="flex:1; justify-content:center;" data-i18n="settings.save">حفظ التغييرات</button>
+          <button onclick="closeSettingsModal()" class="btn-secondary" style="flex:1; justify-content:center;">إلغاء</button>
+          <button onclick="saveSettings()" class="btn-primary" style="flex:1; justify-content:center;">حفظ التغييرات</button>
         </div>
         <!-- Logout -->
         <button onclick="docbookSignOut()" style="width:100%;display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border-radius:12px;border:none;background:linear-gradient(135deg,#fee2e2,#fecaca);color:#dc2626;cursor:pointer;font-family:inherit;font-size:.88rem;font-weight:800;transition:all .18s;box-shadow:0 2px 8px rgba(220,38,38,.12);" onmouseover="this.style.background='linear-gradient(135deg,#fecaca,#fca5a5)'" onmouseout="this.style.background='linear-gradient(135deg,#fee2e2,#fecaca)'">
@@ -1948,10 +1936,10 @@
   </div>
 
   <nav class="bottom-nav" style="height:64px; padding:0;">
-    <div class="bottom-nav-item active" id="mobileHome"><i class="fas fa-house"></i><span data-i18n="nav.home.short">الرئيسية</span></div>
-    <div class="bottom-nav-item" id="mobileStats"><i class="fas fa-chart-pie"></i><span data-i18n="nav.stats.short">إحصائيات</span></div>
-    <div class="bottom-nav-item" id="mobilePatients"><i class="fas fa-address-book"></i><span data-i18n="nav.patients.short">المرضى</span></div>
-    <div class="bottom-nav-item" id="mobileCalendar"><i class="fas fa-calendar-alt"></i><span data-i18n="nav.calendar.short">المواعيد</span></div>
+    <div class="bottom-nav-item active" id="mobileHome"><i class="fas fa-house"></i><span>الرئيسية</span></div>
+    <div class="bottom-nav-item" id="mobileStats"><i class="fas fa-chart-pie"></i><span>إحصائيات</span></div>
+    <div class="bottom-nav-item" id="mobilePatients"><i class="fas fa-address-book"></i><span>المرضى</span></div>
+    <div class="bottom-nav-item" id="mobileCalendar"><i class="fas fa-calendar-alt"></i><span>المواعيد</span></div>
     <!-- FAB على اليسار -->
     <div class="mob-doc-fab-container">
       <!-- Pills تظهر فوق الزر -->
@@ -4591,8 +4579,10 @@
     function applySettings() {
       const title = settings.title || 'لوحة الطبيب';
       document.title = title;
+      // مزامنة بطاقة الطبيب في الشريط الجانبي
       const sidebarName = document.getElementById('sidebarDoctorName');
       if (sidebarName) sidebarName.textContent = title;
+      // مزامنة profileDisplayName حتى تظهر التحية بالاسم الصحيح
       const profileName = document.getElementById('profileDisplayName');
       if (profileName) profileName.textContent = title;
       const sidebarAvatar = document.getElementById('sidebarDoctorAvatar');
@@ -4601,11 +4591,8 @@
           ? `<img src="${settings.logo}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;">`
           : `<i class="fas fa-user-md"></i>`;
       }
-      // تطبيق اللغة المحفوظة
-      if (settings.lang && settings.lang !== currentLang) {
-        currentLang = settings.lang;
-      }
-      applyLang();
+      // تحديث التحية فوراً بالاسم الجديد
+      if (typeof renderHomeSection === 'function') renderHomeSection();
     }
 
     function saveSettingsToLocal(s) {
@@ -4670,374 +4657,6 @@
     document.getElementById('settingsModal')?.addEventListener('click', function(e) {
       if (e.target === this) closeSettingsModal();
     });
-
-    // ============================================================
-    //  LANGUAGE SYSTEM — AR / EN
-    // ============================================================
-    var I18N = {
-      ar: {
-        dir: 'rtl', lang: 'ar',
-        'nav.home':            'الصفحة الرئيسية',
-        'nav.home.sub':        'لمحة عن يومك',
-        'nav.home.short':      'الرئيسية',
-        'nav.calendar':        'المواعيد المؤكدة',
-        'nav.calendar.sub':    'الروزنامة اليومية',
-        'nav.calendar.short':  'المواعيد',
-        'nav.patients':        'دفتر المرضى',
-        'nav.patients.sub':    'سجل المرضى والزيارات',
-        'nav.patients.short':  'المرضى',
-        'nav.stats':           'الإحصائيات',
-        'nav.stats.sub':       'تحليلات متقدمة',
-        'nav.stats.short':     'إحصائيات',
-        'nav.settings':        'الإعدادات',
-        'nav.settings.sub':    'ضبط التطبيق',
-        'settings.title':      'الإعدادات',
-        'settings.nameLabel':  'اسم اللوحة',
-        'settings.namePlaceholder': 'أدخل الاسم',
-        'settings.langLabel':  'اللغة / Language',
-        'settings.cancel':     'إلغاء',
-        'settings.save':       'حفظ التغييرات',
-        'settings.logout':     'تسجيل الخروج',
-        'greeting.morning':    'صباح الخير',
-        'greeting.afternoon':  'مساء الخير',
-        'greeting.evening':    'مساء النور',
-        'greeting.night':      'تصبح على خير',
-        'greeting.doctor':     'دكتور',
-        'home.date':           'إليك ملخص عيادتك ليوم ',
-        'home.stat.total':     'إجمالي اليوم',
-        'home.stat.remaining': 'متبقية',
-        'home.stat.visited':   'زاروا اليوم',
-        'home.stat.noshow':    'غياب اليوم',
-        'home.appointments':   'مواعيد اليوم',
-        'home.tip':            'راجع المواعيد قبل نهاية الدوام',
-        'calendar.morning':    'الصباح',
-        'calendar.evening':    'المساء',
-        'calendar.count':      'عدد المواعيد المؤكدة: ',
-        'calendar.density.low':'خفيف',
-        'calendar.density.med':'متوسط',
-        'calendar.density.hi': 'مزدحم',
-        'calendar.apptcount':  'عدد المواعيد: ',
-        'patients.title':      'دفتر المرضى',
-        'patients.sub':        'سجل المرضى والزيارات',
-        'patients.search':     'ابحث عن مريض...',
-        'patients.name':       'الاسم',
-        'patients.phone':      'رقم الهاتف',
-        'patients.age':        'العمر',
-        'patients.dob':        'تاريخ الميلاد',
-        'patients.address':    'العنوان',
-        'patients.notes':      'ملاحظات',
-        'patients.visits':     'سجل الزيارات',
-        'patients.contact':    'التواصل',
-        'patients.info':       'معلومات المريض',
-        'patients.visittype':  'النوع',
-        'patients.date':       'التاريخ',
-        'patients.period':     'الفترة',
-        'patients.slot.morning':'صباحي / مسائي',
-        'patients.total':      'إجمالي الزيارات',
-        'stats.title':         'إحصائيات',
-        'stats.total':         'إجمالي الزيارات',
-        'stats.active':        'المرضى النشطين',
-        'stats.monthly':       'زيارات هذا الشهر',
-        'stats.avgdaily':      'متوسط الزيارات اليومي',
-        'stats.repeat':        'نسبة التكرار',
-        'stats.busyday':       'أكثر يوم ازدحاماً',
-        'stats.appointments':  'تحليلات المواعيد',
-        'stats.distribution':  'توزيع الأيام',
-        'stats.perday':        'عدد المواعيد لكل يوم من الأسبوع',
-        'stats.cancelled':     'المواعيد الملغاة',
-        'stats.last30':        'آخر 30 زيارة',
-        'stats.last10':        'آخر 10',
-        'stats.recent':        'أحدث الزيارات',
-        'stats.thismonth':     'هذا الشهر',
-        'stats.lastmonth':     'من الشهر الماضي',
-        'stats.daily':         'يومياً',
-        'stats.weekly':        'أسبوعي',
-        'stats.monthly2':      'شهري',
-        'stats.yearly':        'يومي',
-        'appt.details':        'تفاصيل الموعد',
-        'appt.daydetails':     'تفاصيل اليوم',
-        'appt.noshow':         'لم يحضر',
-        'appt.visited':        'حضروا بالفعل',
-        'appt.notvisited':     'لم تُزر بعد',
-        'appt.absent':         'لم يحضروا',
-        'appt.cancel':         'لم تُغلق بعض المواعيد بعد',
-        'appt.morning':        'صباحاً',
-        'appt.evening':        'مساءً',
-        'fab.enter':           'أدخل المريض',
-        'fab.nurse':           'استدعاء الممرضة',
-        'fab.custom':          'تنبيه مخصص',
-        'loading':             'جاري جلب البيانات...',
-        'ok':                  'حسناً',
-        'cancel':              'إلغاء',
-        'add':                 '+ إضافة',
-        'detail':              'تفاصيل',
-        'edit':                'تعديل',
-        'delete':              'حذف',
-        'search':              'بحث',
-        'save':                'حفظ',
-        'months': ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'],
-        'days.short': ['ج','س','أح','إث','ث','أر','خ'],
-        'days.full': ['الجمعة','السبت','الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس'],
-        'login.email':    'البريد الإلكتروني',
-        'login.password': 'كلمة المرور',
-        'login.btn':      'تسجيل الدخول',
-        'login.subtitle': 'لوحة الطبيب',
-      },
-      en: {
-        dir: 'ltr', lang: 'en',
-        'nav.home':            'Home',
-        'nav.home.sub':        'Your day at a glance',
-        'nav.home.short':      'Home',
-        'nav.calendar':        'Appointments',
-        'nav.calendar.sub':    'Daily calendar',
-        'nav.calendar.short':  'Calendar',
-        'nav.patients':        'Patient Book',
-        'nav.patients.sub':    'Patient records & visits',
-        'nav.patients.short':  'Patients',
-        'nav.stats':           'Statistics',
-        'nav.stats.sub':       'Advanced analytics',
-        'nav.stats.short':     'Stats',
-        'nav.settings':        'Settings',
-        'nav.settings.sub':    'App preferences',
-        'settings.title':      'Settings',
-        'settings.nameLabel':  'Dashboard Name',
-        'settings.namePlaceholder': 'Enter name',
-        'settings.langLabel':  'Language / اللغة',
-        'settings.cancel':     'Cancel',
-        'settings.save':       'Save Changes',
-        'settings.logout':     'Sign Out',
-        'greeting.morning':    'Good morning',
-        'greeting.afternoon':  'Good afternoon',
-        'greeting.evening':    'Good evening',
-        'greeting.night':      'Good night',
-        'greeting.doctor':     'Dr.',
-        'home.date':           'Here is your clinic summary for ',
-        'home.stat.total':     "Today's Total",
-        'home.stat.remaining': 'Remaining',
-        'home.stat.visited':   'Visited',
-        'home.stat.noshow':    'No-shows',
-        'home.appointments':   "Today's Appointments",
-        'home.tip':            'Review appointments before end of shift',
-        'calendar.morning':    'Morning',
-        'calendar.evening':    'Evening',
-        'calendar.count':      'Confirmed appointments: ',
-        'calendar.density.low':'Light',
-        'calendar.density.med':'Moderate',
-        'calendar.density.hi': 'Busy',
-        'calendar.apptcount':  'Appointments: ',
-        'patients.title':      'Patient Book',
-        'patients.sub':        'Patient records & visits',
-        'patients.search':     'Search for a patient...',
-        'patients.name':       'Name',
-        'patients.phone':      'Phone',
-        'patients.age':        'Age',
-        'patients.dob':        'Date of Birth',
-        'patients.address':    'Address',
-        'patients.notes':      'Notes',
-        'patients.visits':     'Visit History',
-        'patients.contact':    'Contact',
-        'patients.info':       'Patient Info',
-        'patients.visittype':  'Type',
-        'patients.date':       'Date',
-        'patients.period':     'Period',
-        'patients.slot.morning':'Morning / Evening',
-        'patients.total':      'Total Visits',
-        'stats.title':         'Statistics',
-        'stats.total':         'Total Visits',
-        'stats.active':        'Active Patients',
-        'stats.monthly':       'This Month\'s Visits',
-        'stats.avgdaily':      'Avg. Daily Visits',
-        'stats.repeat':        'Repeat Rate',
-        'stats.busyday':       'Busiest Day',
-        'stats.appointments':  'Appointment Analytics',
-        'stats.distribution':  'Day Distribution',
-        'stats.perday':        'Appointments per day of week',
-        'stats.cancelled':     'Cancelled Appointments',
-        'stats.last30':        'Last 30 visits',
-        'stats.last10':        'Last 10',
-        'stats.recent':        'Recent Visits',
-        'stats.thismonth':     'This month',
-        'stats.lastmonth':     'From last month',
-        'stats.daily':         'Daily',
-        'stats.weekly':        'Weekly',
-        'stats.monthly2':      'Monthly',
-        'stats.yearly':        'Daily',
-        'appt.details':        'Appointment Details',
-        'appt.daydetails':     'Day Details',
-        'appt.noshow':         'Did not attend',
-        'appt.visited':        'Already visited',
-        'appt.notvisited':     'Not visited yet',
-        'appt.absent':         'Did not show',
-        'appt.cancel':         'Some appointments not closed',
-        'appt.morning':        'AM',
-        'appt.evening':        'PM',
-        'fab.enter':           'Admit Patient',
-        'fab.nurse':           'Call Nurse',
-        'fab.custom':          'Custom Alert',
-        'loading':             'Loading data...',
-        'ok':                  'OK',
-        'cancel':              'Cancel',
-        'add':                 '+ Add',
-        'detail':              'Details',
-        'edit':                'Edit',
-        'delete':              'Delete',
-        'search':              'Search',
-        'save':                'Save',
-        'months': ['January','February','March','April','May','June','July','August','September','October','November','December'],
-        'days.short': ['F','Sa','Su','M','T','W','Th'],
-        'days.full': ['Friday','Saturday','Sunday','Monday','Tuesday','Wednesday','Thursday'],
-        'login.email':    'Email',
-        'login.password': 'Password',
-        'login.btn':      'Sign In',
-        'login.subtitle': 'Doctor Dashboard',
-      }
-    };
-
-    var currentLang = 'ar';
-
-    function t(key) {
-      return (I18N[currentLang] && I18N[currentLang][key]) || (I18N['ar'][key]) || key;
-    }
-
-    function setLang(lang) {
-      currentLang = lang;
-      settings.lang = lang;
-      saveSettingsToLocal(settings);
-      applyLang();
-    }
-
-    function applyLang() {
-      var lang = currentLang;
-      var tr = I18N[lang];
-      if (!tr) return;
-
-      // HTML dir & lang
-      document.documentElement.setAttribute('dir', tr.dir);
-      document.documentElement.setAttribute('lang', tr.lang);
-
-      // جميع العناصر data-i18n
-      document.querySelectorAll('[data-i18n]').forEach(function(el) {
-        var key = el.getAttribute('data-i18n');
-        if (tr[key] !== undefined) el.textContent = tr[key];
-      });
-
-      // placeholders
-      document.querySelectorAll('[data-i18n-placeholder]').forEach(function(el) {
-        var key = el.getAttribute('data-i18n-placeholder');
-        if (tr[key] !== undefined) el.placeholder = tr[key];
-      });
-
-      // تحديث زري اللغة
-      var btnAr = document.getElementById('langBtnAr');
-      var btnEn = document.getElementById('langBtnEn');
-      if (btnAr && btnEn) {
-        if (lang === 'ar') {
-          btnAr.style.border = '2px solid var(--primary)'; btnAr.style.background = 'var(--primary)'; btnAr.style.color = 'white';
-          btnEn.style.border = '2px solid var(--border)'; btnEn.style.background = 'var(--bg)'; btnEn.style.color = 'var(--text-muted)';
-        } else {
-          btnEn.style.border = '2px solid var(--primary)'; btnEn.style.background = 'var(--primary)'; btnEn.style.color = 'white';
-          btnAr.style.border = '2px solid var(--border)'; btnAr.style.background = 'var(--bg)'; btnAr.style.color = 'var(--text-muted)';
-        }
-      }
-
-      // FAB pills
-      var fabEnter = document.querySelector('.doc-fab-pill .next-p + .doc-fab-pill-label') ||
-                     document.querySelector('.doc-fab-pill:first-child .doc-fab-pill-label');
-      document.querySelectorAll('.doc-fab-pill-label').forEach(function(el, i) {
-        if (i === 0) el.textContent = tr['fab.enter'];
-        if (i === 1) el.textContent = tr['fab.nurse'];
-      });
-      var customLabel = document.getElementById('customAlertLabel');
-      if (customLabel) customLabel.textContent = tr['fab.custom'];
-
-      // Loading
-      var loader = document.querySelector('#loader span');
-      if (loader) loader.textContent = tr['loading'];
-
-      // تحديث أسماء الشهور في الروزنامة
-      if (typeof monthsAr !== 'undefined') monthsAr = tr['months'];
-      if (typeof renderCalendar === 'function') renderCalendar();
-
-      // أسماء الأيام في الروزنامة
-      var dayNames = document.querySelectorAll('.compact-calendar-day-name');
-      var fullDays = tr['days.full'];
-      var shortDays = tr['days.short'];
-      if (dayNames.length > 0 && fullDays) {
-        dayNames.forEach(function(el, i) { if (fullDays[i]) el.textContent = fullDays[i]; });
-      }
-
-      // legend
-      document.querySelectorAll('.density-legend .flex span').forEach(function(el, i) {
-        var keys = ['calendar.density.low','calendar.density.med','calendar.density.hi'];
-        if (keys[i]) el.textContent = tr[keys[i]];
-      });
-
-      // Agenda morning/evening
-      document.querySelectorAll('#calendarSection .fa-sun').forEach(function(ic) {
-        var sp = ic.parentElement ? ic.parentElement.querySelector('span') : null;
-        if (sp) sp.textContent = tr['calendar.morning'];
-      });
-      document.querySelectorAll('#calendarSection .fa-moon').forEach(function(ic) {
-        var sp = ic.parentElement ? ic.parentElement.querySelector('span') : null;
-        if (sp) sp.textContent = tr['calendar.evening'];
-      });
-
-      // Agenda count
-      var agendaCount = document.getElementById('agendaCount');
-      if (agendaCount) {
-        var num = agendaCount.textContent.replace(/[^\d]/g,'');
-        agendaCount.textContent = tr['calendar.count'] + (num || '0');
-      }
-
-      // Home section - تحديث التحية والإحصائيات
-      if (typeof renderHomeSection === 'function') renderHomeSection();
-
-      // إعادة رسم قسم المرضى لو مفتوح
-      if (typeof renderPatientSection === 'function' && currentSection === 'patientBook') renderPatientSection();
-
-      // إعادة الأجندة
-      if (typeof renderAgendaForDay === 'function' && typeof selectedDayStr !== 'undefined') renderAgendaForDay(selectedDayStr);
-    }
-
-    // تعديل renderHomeSection لدعم اللغتين
-    var _origRenderHome = renderHomeSection;
-    renderHomeSection = function() {
-      var now = new Date();
-      var h = now.getHours();
-      var greet, svgIcon;
-      var sunSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;flex-shrink:0;"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg>';
-      var moonSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="#6366f1" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;flex-shrink:0;"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>';
-      var partCloudSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;flex-shrink:0;"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="2" y1="12" x2="5" y2="12"/><path d="M17 14a3 3 0 1 1 0 6H8a4 4 0 1 1 .87-7.9A4.5 4.5 0 0 1 17 14z" stroke="#94a3b8" fill="rgba(148,163,184,0.18)"/></svg>';
-      if (h >= 5 && h < 12)       { greet = t('greeting.morning');  svgIcon = sunSVG; }
-      else if (h >= 12 && h < 17) { greet = t('greeting.afternoon'); svgIcon = partCloudSVG; }
-      else if (h >= 17 && h < 21) { greet = t('greeting.evening');  svgIcon = moonSVG; }
-      else                         { greet = t('greeting.night');    svgIcon = moonSVG; }
-      var nameEl = document.getElementById('profileDisplayName');
-      var name = (nameEl && nameEl.textContent && nameEl.textContent.trim()) ? nameEl.textContent.trim() : '';
-      var displayName = name.replace(/^لوحة\s*/, '').replace(/^Doctor\s*/i,'').replace(/^د\.?\s*/i,'').replace(/^Dr\.?\s*/i,'').trim();
-      var titlePrefix = displayName ? (t('greeting.doctor') + ' ' + displayName) : t('greeting.doctor');
-      var g = document.getElementById('homeGreeting');
-      if (g) g.innerHTML = '<span style="display:inline-flex;align-items:center;gap:4px;">' + svgIcon + greet + '، ' + titlePrefix + '</span>';
-      var d = document.getElementById('homeDateLabel');
-      if (d) {
-        var dateStr = currentLang === 'en'
-          ? now.toLocaleDateString('en-US', { weekday:'long', year:'numeric', month:'long', day:'numeric' })
-          : now.toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
-        d.textContent = t('home.date') + dateStr;
-      }
-      try {
-        var records = (typeof allRecords !== 'undefined' && allRecords) ? allRecords : [];
-        var todays = records.filter(function(r){ return r.Date === todayStr; });
-        var accepted = todays.filter(function(r){ return r.Status === 'Accepted'; });
-        var visited  = todays.filter(function(r){ return r.Status === 'Visited'; });
-        var noShow   = todays.filter(function(r){ return r.Status === 'NoShow'; });
-        var totalToday = accepted.length + visited.length + noShow.length;
-        setText('homeStatTotal', totalToday);
-        setText('homeStatRemaining', accepted.length);
-        setText('homeStatVisited', visited.length);
-        setText('homeStatNoShow', noShow.length);
-      } catch(e) {}
-    };
 
   </script>
 
@@ -5424,13 +5043,6 @@
       });
     });
   };
-
-  // تهيئة اللغة المحفوظة عند أول تحميل
-  document.addEventListener('DOMContentLoaded', function() {
-    var savedLang = (typeof settings !== 'undefined' && settings.lang) ? settings.lang : 'ar';
-    currentLang = savedLang;
-    applyLang();
-  });
   </script>
 
 
