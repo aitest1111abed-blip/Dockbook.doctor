@@ -2749,34 +2749,26 @@
       const max    = Math.max(...weekdayCounts, 1);
       const maxIdx = weekdayCounts.indexOf(Math.max(...weekdayCounts));
 
-      // viewBox بدون padding أفقي — النقاط تبدأ وتنتهي عند الحافة تماماً
+      // padding متوازن من الجهتين لضمان ظهور النقاط الطرفية
       const W = 700, H = 120;
-      const padY = 16, padXl = 26, padXr = 6;
+      const padY = 16, padXl = 52, padXr = 52;
       const chartW = W - padXl - padXr;
       const chartH = H - padY - 10;
 
-      // كل يوم عند موضع x محسوب بالنسبة المئوية
       const pts = weekdayCounts.map((v, i) => ({
         x: padXl + (i / 6) * chartW,
         y: padY + chartH - (v / max) * chartH,
         v
       }));
 
-      // خط Catmull-Rom ناعم
-      function smooth(p) {
+      // خط مسنن (polyline مستقيمة)
+      function jagged(p) {
         if (p.length < 2) return '';
-        let d = 'M' + p[0].x.toFixed(1) + ',' + p[0].y.toFixed(1);
-        for (let i = 0; i < p.length - 1; i++) {
-          const cpx = ((p[i].x + p[i+1].x) / 2).toFixed(1);
-          d += ' C' + cpx + ',' + p[i].y.toFixed(1) +
-               ' '  + cpx + ',' + p[i+1].y.toFixed(1) +
-               ' '  + p[i+1].x.toFixed(1) + ',' + p[i+1].y.toFixed(1);
-        }
-        return d;
+        return 'M' + p.map(pt => pt.x.toFixed(1) + ',' + pt.y.toFixed(1)).join(' L');
       }
 
       const base     = padY + chartH;
-      const linePath = smooth(pts);
+      const linePath = jagged(pts);
       const areaPath = linePath +
         ' L' + pts[6].x.toFixed(1) + ',' + base +
         ' L' + pts[0].x.toFixed(1) + ',' + base + ' Z';
@@ -2828,7 +2820,7 @@
         '</defs>' +
         gridLines + vLines +
         '<path id="wArea" d="' + areaPath + '" fill="url(#wAreaG)" clip-path="url(#wClip)" style="opacity:0;"/>' +
-        '<path id="wLine" d="' + linePath + '" fill="none" stroke="url(#wLineG)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<path id="wLine" d="' + linePath + '" fill="none" stroke="url(#wLineG)" stroke-width="2.5" stroke-linejoin="miter" stroke-linecap="square"/>' +
         '<g id="wDots" style="opacity:0;">' + dots + '</g>' +
         '</svg>';
 
@@ -5736,28 +5728,27 @@
       if (wWrap && wLabels) {
         const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
         const max = Math.max(...weekdayCounts, 1);
-        const W = 560, H = 130, padX = 32, padY = 22;
-        const chartW = W - padX*2, chartH = H - padY*2;
-        const pts = weekdayCounts.map((v,i) => ({ x: padX+(i/6)*chartW, y: padY+chartH-(v/max)*chartH, v }));
-        function smooth(p) {
+        const W = 560, H = 130, padXh = 48, padY = 22;
+        const chartW = W - padXh*2, chartH = H - padY*2;
+        const pts = weekdayCounts.map((v,i) => ({ x: padXh+(i/6)*chartW, y: padY+chartH-(v/max)*chartH, v }));
+        // خط مسنن بدلاً من المنحني
+        function jaggedLine(p) {
           if (p.length<2) return '';
-          let d='M'+p[0].x+','+p[0].y;
-          for(let i=0;i<p.length-1;i++){const cx1=p[i].x+(p[i+1].x-p[i].x)*.5,cx2=p[i+1].x-(p[i+1].x-p[i].x)*.5;d+=' C'+cx1+','+p[i].y+' '+cx2+','+p[i+1].y+' '+p[i+1].x+','+p[i+1].y;}
-          return d;
+          return 'M'+p.map(pt=>pt.x.toFixed(1)+','+pt.y.toFixed(1)).join(' L');
         }
-        const linePath = smooth(pts);
-        const areaPath = linePath+' L'+pts[6].x+','+(padY+chartH)+' L'+pts[0].x+','+(padY+chartH)+' Z';
-        const gridLines = [0,.25,.5,.75,1].map(r=>{const y=padY+chartH-r*chartH,v=Math.round(r*max);return '<line x1="'+padX+'" y1="'+y+'" x2="'+(W-padX)+'" y2="'+y+'" stroke="rgba(148,163,184,0.18)" stroke-width="1"/>'+(v>0?'<text x="'+(padX-5)+'" y="'+(y+4)+'" text-anchor="end" font-size="8.5" fill="rgba(148,163,184,0.85)">'+v+'</text>':'');}).join('');
+        const linePath = jaggedLine(pts);
+        const areaPath = linePath+' L'+pts[6].x.toFixed(1)+','+(padY+chartH)+' L'+pts[0].x.toFixed(1)+','+(padY+chartH)+' Z';
+        const gridLines = [0,.25,.5,.75,1].map(r=>{const y=(padY+chartH-r*chartH).toFixed(1),v=Math.round(r*max);return '<line x1="'+padXh+'" y1="'+y+'" x2="'+(W-padXh)+'" y2="'+y+'" stroke="rgba(148,163,184,0.18)" stroke-width="1"/>'+(v>0?'<text x="'+(padXh-5)+'" y="'+(parseFloat(y)+4)+'" text-anchor="end" font-size="8.5" fill="rgba(148,163,184,0.85)">'+v+'</text>':'');}).join('');
         const maxIdx = weekdayCounts.indexOf(Math.max(...weekdayCounts));
-        const dots = pts.map((p,i)=>!p.v?'':`<circle cx="${p.x}" cy="${p.y}" r="${i===maxIdx?5:3.5}" fill="${i===maxIdx?'#6366f1':'white'}" stroke="#6366f1" stroke-width="2" style="cursor:pointer;" data-v="${p.v}" data-i="${i}"/>`).join('');
+        const dots = pts.map((p,i)=>`<circle class="hwdot" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${i===maxIdx?5:3.5}" fill="${i===maxIdx?'#6366f1':'white'}" stroke="#6366f1" stroke-width="2" style="cursor:pointer;" data-v="${p.v}" data-i="${i}"/>`).join('');
         wWrap.innerHTML = '<div id="hwTip" style="position:absolute;background:rgba(15,23,42,0.9);color:white;padding:5px 11px;border-radius:8px;font-size:.76rem;font-weight:700;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;z-index:10;"></div>'
-          +'<svg id="hwChart" viewBox="0 0 '+W+' '+H+'" style="width:100%;height:100%;overflow:visible;">'
+          +'<svg id="hwChart" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none" style="width:100%;height:100%;display:block;overflow:visible;">'
           +'<defs><linearGradient id="hwAreaG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#6366f1" stop-opacity="0.2"/><stop offset="100%" stop-color="#6366f1" stop-opacity="0"/></linearGradient>'
           +'<linearGradient id="hwLineG" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#818cf8"/><stop offset="100%" stop-color="#6366f1"/></linearGradient>'
           +'<clipPath id="hwClip"><rect id="hwClipRect" x="0" y="0" width="0" height="'+H+'"/></clipPath>'
           +'</defs>'
           +gridLines+'<path d="'+areaPath+'" fill="url(#hwAreaG)" clip-path="url(#hwClip)" style="opacity:0;"/>'
-          +'<path id="hwLine" d="'+linePath+'" fill="none" stroke="url(#hwLineG)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>'
+          +'<path id="hwLine" d="'+linePath+'" fill="none" stroke="url(#hwLineG)" stroke-width="2.5" stroke-linejoin="miter" stroke-linecap="square"/>'
           +'<g id="hwDots" style="opacity:0;">'+dots+'</g>'
           +'</svg>';
 
@@ -5794,7 +5785,13 @@
           c.addEventListener('mousemove',e=>{const tip=wWrap.querySelector('#hwTip');if(!tip)return;const r=wWrap.getBoundingClientRect();tip.style.left=Math.max(0,e.clientX-r.left-tip.offsetWidth/2)+'px';tip.style.top=(e.clientY-r.top-44)+'px';});
           c.addEventListener('mouseleave',()=>{const tip=wWrap.querySelector('#hwTip');if(tip)tip.style.opacity='0';});
         });
-        wLabels.innerHTML = dayNames.map((n,i)=>`<div style="flex:1;text-align:center;font-size:.65rem;color:${i===maxIdx?'#6366f1':'var(--text-muted)'};font-weight:${i===maxIdx?'800':'600'};">${n}</div>`).join('');
+        // Labels محاذاة دقيقة تحت كل نقطة
+        wLabels.style.cssText = 'position:relative;width:100%;height:18px;margin-top:3px;direction:ltr;display:block;';
+        wLabels.innerHTML = pts.map((p,i)=>{
+          const leftPct=((p.x/W)*100).toFixed(2);
+          const isMax=i===maxIdx;
+          return `<span style="position:absolute;left:${leftPct}%;transform:translateX(-50%);font-size:.63rem;font-weight:${isMax?'800':'600'};color:${isMax?'#6366f1':'var(--text-muted)'};white-space:nowrap;">${dayNames[i]}</span>`;
+        }).join('');
       }
 
       // --- دونات توزيع الزيارات ---
