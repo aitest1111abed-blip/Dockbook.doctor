@@ -3227,7 +3227,7 @@
         
         // عرض نقاط المواعيد لجميع الأيام (الماضية والمستقبلية)
         const dayRecords = allRecords.filter(r => 
-          ['Accepted', 'Visited', 'NoShow'].includes(r.Status) && r.Date === dateStr
+          ['Accepted', 'Visited', 'NoShow'].includes(r.Status) && normalizeDate(r.Date) === dateStr
         );
         const acceptedCount = dayRecords.length;
         
@@ -3356,7 +3356,7 @@
 
       } else {
         // اليوم الحالي أو المستقبل: عرض المواعيد المؤكدة والمكتملة (تمت الزيارة)
-        const accepted = allRecords.filter(r => r.Status === 'Accepted' && r.Date === dateStr);
+        const accepted = allRecords.filter(r => r.Status === 'Accepted' && normalizeDate(r.Date) === dateStr);
         const visited  = allRecords.filter(r => r.Status === 'Visited'  && r.Date === dateStr);
         const noShow   = allRecords.filter(r => r.Status === 'NoShow'   && r.Date === dateStr);
         
@@ -5650,7 +5650,7 @@
         if (dateObj.getTime() === today.getTime()) dayDiv.classList.add('today');
         if (selectedDayStr === dateStr) dayDiv.classList.add('selected');
         const dayRecords = allRecords.filter(r =>
-          ['Accepted', 'Visited', 'NoShow'].includes(r.Status) && r.Date === dateStr
+          ['Accepted', 'Visited', 'NoShow'].includes(r.Status) && normalizeDate(r.Date) === dateStr
         );
         if (dayRecords.length > 0) {
           const dot = document.createElement('div');
@@ -5686,7 +5686,7 @@
       let morning, evening;
       if (isPast) {
         const allDay = allRecords.filter(r =>
-          ['Accepted','Visited','NoShow','Cancelled','Rejected'].includes(r.Status) && r.Date === dateStr
+          ['Accepted','Visited','NoShow','Cancelled','Rejected'].includes(r.Status) && normalizeDate(r.Date) === dateStr
         );
         morning = allDay.filter(r => (r.Slot || 'Morning') === 'Morning');
         evening = allDay.filter(r => r.Slot === 'Evening');
@@ -5695,7 +5695,7 @@
         const canc = allDay.filter(r=>['Cancelled','Rejected'].includes(r.Status)).length;
         document.getElementById('homePanelCount').textContent = `زيارات: ${vis}${ns?' · لم يحضر: '+ns:''}${canc?' · ملغاة: '+canc:''}`;
       } else {
-        const accepted = allRecords.filter(r => r.Status === 'Accepted' && r.Date === dateStr);
+        const accepted = allRecords.filter(r => r.Status === 'Accepted' && normalizeDate(r.Date) === dateStr);
         morning = accepted.filter(r => (r.Slot || 'Morning') === 'Morning');
         evening = accepted.filter(r => r.Slot === 'Evening');
         document.getElementById('homePanelCount').textContent = `عدد المواعيد المؤكدة: ${accepted.length}`;
