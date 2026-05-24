@@ -2699,9 +2699,9 @@
       const activeDays = Object.keys(dayMap).length;
       const avgDaily = activeDays ? (accepted.length / activeDays).toFixed(1) : '0';
 
-      // أكثر يوم ازدحاماً (يوم الأسبوع)
+      // أكثر يوم ازدحاماً (يوم الأسبوع) - تعديل: حساب كافة المواعيد المقبولة بغض النظر عن حالة الحضور
       const weekdayCounts = Array(7).fill(0);
-      allRecords.filter(r => ['Accepted','Visited','NoShow'].includes(r.Status)).forEach(r => {
+      allRecords.filter(r => r.Status === 'Accepted' || r.Status === 'Visited' || r.Status === 'NoShow').forEach(r => {
         if (!r.Date) return;
         const parts = r.Date.substring(0,10).split('-').map(Number);
         const d = new Date(parts[0], parts[1]-1, parts[2]);
@@ -4314,9 +4314,12 @@
       try {
         var records = (typeof allRecords !== 'undefined' && allRecords) ? allRecords : [];
         var todays = records.filter(function(r){ return r.Date === todayStr; });
+        // تعديل: حساب كافة المواعيد المقبولة بغض النظر عن حالة الحضور
         var accepted = todays.filter(function(r){ return r.Status === 'Accepted'; });
         var visited  = todays.filter(function(r){ return r.Status === 'Visited'; });
         var noShow   = todays.filter(function(r){ return r.Status === 'NoShow'; });
+        
+        // إجمالي المواعيد المقبولة لليوم
         var totalToday = accepted.length + visited.length + noShow.length;
 
         setText('homeStatTotal', totalToday);
@@ -5718,7 +5721,8 @@
 
       // --- توزيع الأيام (نفس renderWeekdayBars لكن بـ IDs مختلفة) ---
       const weekdayCounts = Array(7).fill(0);
-      allRecords.filter(r => ['Accepted','Visited','NoShow'].includes(r.Status)).forEach(r => {
+      // تعديل: حساب كافة المواعيد المقبولة بغض النظر عن حالة الحضور
+      allRecords.filter(r => r.Status === 'Accepted' || r.Status === 'Visited' || r.Status === 'NoShow').forEach(r => {
         if (r.Date) {
           const parts = r.Date.substring(0,10).split('-').map(Number);
           const d = new Date(parts[0], parts[1]-1, parts[2]);
