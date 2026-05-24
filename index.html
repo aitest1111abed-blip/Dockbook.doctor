@@ -1354,83 +1354,74 @@
             <!-- العمود الأيسر -->
             <div id="homeLeftCol" style="display:flex;flex-direction:column;gap:12px;">
 
-          <!-- ② ٤ بطاقات ملخص اليوم — MediCare Style -->
+          <!-- ② ٤ بطاقات ملخص اليوم -->
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3" id="homeSummaryGrid" style="grid-template-columns: repeat(4, 1fr);">
 
             <!-- مواعيد اليوم -->
-            <div class="home-mini-card glass-card" style="padding:20px 18px;">
-              <div style="display:flex;align-items:center;gap:14px;">
-                <div style="width:52px;height:52px;border-radius:16px;background:#e0f2f1;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="4" width="18" height="18" rx="3"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><polyline points="9 16 11 18 15 14"/>
+            <div class="home-mini-card glass-card" style="padding:18px 16px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+                <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#ccfbf1,#99f6e4);flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(13,148,136,0.18);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="4" width="18" height="18" rx="3" ry="3"/>
+                    <line x1="16" y1="2" x2="16" y2="6"/>
+                    <line x1="8" y1="2" x2="8" y2="6"/>
+                    <line x1="3" y1="10" x2="21" y2="10"/>
+                    <path d="M9 16l1.5 1.5L15 13" stroke-width="2.2"/>
                   </svg>
                 </div>
-                <div>
-                  <div id="homeStatTotal" style="font-size:1.9rem;font-weight:900;color:var(--text-primary);line-height:1;letter-spacing:-1px;">0</div>
-                  <div style="font-size:.78rem;color:var(--text-muted);font-weight:600;margin-top:3px;">مواعيد اليوم</div>
-                </div>
+                <span style="font-size:.68rem;font-weight:700;color:#0d9488;background:#e6fffa;padding:3px 8px;border-radius:20px;border:1px solid #99f6e4;">اليوم</span>
               </div>
-              <div style="margin-top:16px;padding-top:13px;border-top:1.5px solid var(--border);display:flex;align-items:center;gap:5px;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-                <span style="font-size:.72rem;color:#0d9488;font-weight:700;">إجمالي اليوم</span>
-              </div>
+              <div id="homeStatTotal" style="font-size:2rem;font-weight:900;color:var(--text-primary);line-height:1;letter-spacing:-1.5px;">0</div>
+              <div style="font-size:.76rem;color:var(--text-muted);font-weight:600;margin-top:5px;">مواعيد اليوم</div>
             </div>
 
             <!-- المتبقية -->
-            <div class="home-mini-card glass-card" style="padding:20px 18px;">
-              <div style="display:flex;align-items:center;gap:14px;">
-                <div style="width:52px;height:52px;border-radius:16px;background:#dbeafe;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+            <div class="home-mini-card glass-card" style="padding:18px 16px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+                <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#dbeafe,#bfdbfe);flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(37,99,235,0.15);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="9"/>
+                    <polyline points="12 7 12 12 15.5 14"/>
+                    <circle cx="12" cy="12" r="1" fill="#2563eb" stroke="none"/>
                   </svg>
                 </div>
-                <div>
-                  <div id="homeStatRemaining" style="font-size:1.9rem;font-weight:900;color:#2563eb;line-height:1;letter-spacing:-1px;">0</div>
-                  <div style="font-size:.78rem;color:var(--text-muted);font-weight:600;margin-top:3px;">متبقية</div>
-                </div>
+                <span style="font-size:.68rem;font-weight:700;color:#2563eb;background:#eff6ff;padding:3px 8px;border-radius:20px;border:1px solid #bfdbfe;">قيد الانتظار</span>
               </div>
-              <div style="margin-top:16px;padding-top:13px;border-top:1.5px solid var(--border);display:flex;align-items:center;gap:5px;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-                <span style="font-size:.72rem;color:#2563eb;font-weight:700;">لم تُزر بعد</span>
-              </div>
+              <div id="homeStatRemaining" style="font-size:2rem;font-weight:900;color:#2563eb;line-height:1;letter-spacing:-1.5px;">0</div>
+              <div style="font-size:.76rem;color:var(--text-muted);font-weight:600;margin-top:5px;">متبقية</div>
             </div>
 
-            <!-- الحضور -->
-            <div class="home-mini-card glass-card" style="padding:20px 18px;">
-              <div style="display:flex;align-items:center;gap:14px;">
-                <div style="width:52px;height:52px;border-radius:16px;background:#dcfce7;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/>
+            <!-- زاروا اليوم -->
+            <div class="home-mini-card glass-card" style="padding:18px 16px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+                <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(22,163,74,0.15);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
+                    <circle cx="10" cy="7" r="4"/>
+                    <polyline points="15 10 17 12 21 8" stroke-width="2.2"/>
                   </svg>
                 </div>
-                <div>
-                  <div id="homeStatVisited" style="font-size:1.9rem;font-weight:900;color:#16a34a;line-height:1;letter-spacing:-1px;">0</div>
-                  <div style="font-size:.78rem;color:var(--text-muted);font-weight:600;margin-top:3px;">زاروا اليوم</div>
-                </div>
+                <span style="font-size:.68rem;font-weight:700;color:#16a34a;background:#f0fdf4;padding:3px 8px;border-radius:20px;border:1px solid #bbf7d0;">حضروا</span>
               </div>
-              <div style="margin-top:16px;padding-top:13px;border-top:1.5px solid var(--border);display:flex;align-items:center;gap:5px;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
-                <span style="font-size:.72rem;color:#16a34a;font-weight:700;">حضروا بالفعل</span>
-              </div>
+              <div id="homeStatVisited" style="font-size:2rem;font-weight:900;color:#16a34a;line-height:1;letter-spacing:-1.5px;">0</div>
+              <div style="font-size:.76rem;color:var(--text-muted);font-weight:600;margin-top:5px;">زاروا اليوم</div>
             </div>
 
-            <!-- الغياب -->
-            <div class="home-mini-card glass-card" style="padding:20px 18px;">
-              <div style="display:flex;align-items:center;gap:14px;">
-                <div style="width:52px;height:52px;border-radius:16px;background:#fee2e2;flex-shrink:0;display:flex;align-items:center;justify-content:center;">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/><line x1="17" y1="11" x2="22" y2="16"/><line x1="22" y1="11" x2="17" y2="16"/>
+            <!-- لم يحضروا -->
+            <div class="home-mini-card glass-card" style="padding:18px 16px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+                <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#fee2e2,#fecaca);flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(220,38,38,0.13);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
+                    <circle cx="10" cy="7" r="4"/>
+                    <line x1="18" y1="9" x2="22" y2="13"/>
+                    <line x1="22" y1="9" x2="18" y2="13"/>
                   </svg>
                 </div>
-                <div>
-                  <div id="homeStatNoShow" style="font-size:1.9rem;font-weight:900;color:#dc2626;line-height:1;letter-spacing:-1px;">0</div>
-                  <div style="font-size:.78rem;color:var(--text-muted);font-weight:600;margin-top:3px;">لم يحضروا</div>
-                </div>
+                <span style="font-size:.68rem;font-weight:700;color:#dc2626;background:#fff1f2;padding:3px 8px;border-radius:20px;border:1px solid #fecaca;">غياب</span>
               </div>
-              <div style="margin-top:16px;padding-top:13px;border-top:1.5px solid var(--border);display:flex;align-items:center;gap:5px;">
-                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#dc2626" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-                <span style="font-size:.72rem;color:#dc2626;font-weight:700;">غياب اليوم</span>
-              </div>
+              <div id="homeStatNoShow" style="font-size:2rem;font-weight:900;color:#dc2626;line-height:1;letter-spacing:-1.5px;">0</div>
+              <div style="font-size:.76rem;color:var(--text-muted);font-weight:600;margin-top:5px;">لم يحضروا</div>
             </div>
 
           </div>
@@ -2669,7 +2660,7 @@
 
       // أكثر يوم ازدحاماً (يوم الأسبوع)
       const weekdayCounts = Array(7).fill(0);
-      allRecords.filter(r => ['Accepted','Visited','NoShow'].includes(r.Status)).forEach(r => {
+      allRecords.filter(r => ['Accepted','Visited'].includes(r.Status)).forEach(r => {
         if (!r.Date) return;
         const parts = r.Date.substring(0,10).split('-').map(Number);
         const d = new Date(parts[0], parts[1]-1, parts[2]);
@@ -2800,14 +2791,28 @@
         '</svg>';
 
       // Labels تحت كل نقطة
+      const todayDayIdx = new Date().getDay(); // 0=الأحد .. 6=السبت
       labels.style.cssText = 'position:relative;width:100%;height:20px;margin-top:4px;direction:ltr;display:block;';
       labels.innerHTML = pts.map((p, i) => {
         const leftPct = ((p.x / W) * 100).toFixed(2);
         const isMax   = i === maxIdx;
+        const isToday = i === todayDayIdx;
+        let color, weight, bg;
+        if (isToday && isMax) {
+          color = '#f59e0b'; weight = '900';
+          bg = 'background:rgba(245,158,11,0.15);padding:1px 6px;border-radius:6px;border:1px solid rgba(245,158,11,0.4);';
+        } else if (isToday) {
+          color = '#f59e0b'; weight = '800';
+          bg = 'background:rgba(245,158,11,0.12);padding:1px 6px;border-radius:6px;';
+        } else if (isMax) {
+          color = '#6366f1'; weight = '800';
+          bg = 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;';
+        } else {
+          color = 'var(--text-muted)'; weight = '600'; bg = '';
+        }
         return '<span style="position:absolute;left:' + leftPct + '%;transform:translateX(-50%);' +
-          'font-size:.68rem;font-weight:' + (isMax ? '800' : '600') + ';' +
-          'color:' + (isMax ? '#6366f1' : 'var(--text-muted)') + ';white-space:nowrap;' +
-          (isMax ? 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;' : '') + '">' +
+          'font-size:.68rem;font-weight:' + weight + ';' +
+          'color:' + color + ';white-space:nowrap;' + bg + '">' +
           dayNames[i] + '</span>';
       }).join('');
 
@@ -5579,10 +5584,10 @@
         dayDiv.addEventListener('click', () => selectHomeDay(dateStr));
         grid.appendChild(dayDiv);
       }
-      // عرض تفاصيل اليوم الحالي تلقائياً عند أول تحميل
+      // عرض تفاصيل اليوم المحدد دائماً عند رسم الروزنامة
       const panel = document.getElementById('homeDayPanel');
-      if (panel && panel.style.display !== 'block') {
-        renderHomeDayPanel(todayStr);
+      if (panel) {
+        renderHomeDayPanel(selectedDayStr || todayStr);
         panel.style.display = 'block';
       }
     }
@@ -5686,7 +5691,7 @@
 
       // --- توزيع الأيام (نفس renderWeekdayBars لكن بـ IDs مختلفة) ---
       const weekdayCounts = Array(7).fill(0);
-      allRecords.filter(r => ['Accepted','Visited','NoShow'].includes(r.Status)).forEach(r => {
+      allRecords.filter(r => ['Accepted','Visited'].includes(r.Status)).forEach(r => {
         if (r.Date) {
           const parts = r.Date.substring(0,10).split('-').map(Number);
           const d = new Date(parts[0], parts[1]-1, parts[2]);
@@ -5847,14 +5852,28 @@
           });
         });
 
+        const hwTodayIdx = new Date().getDay(); // 0=الأحد .. 6=السبت
         wLabels.style.cssText = 'position:relative;width:100%;height:20px;margin-top:4px;direction:ltr;display:block;';
         wLabels.innerHTML = pts.map((p, i) => {
           const leftPct = ((p.x / W) * 100).toFixed(2);
           const isMax   = i === maxIdx;
+          const isToday = i === hwTodayIdx;
+          let color, weight, bg;
+          if (isToday && isMax) {
+            color = '#f59e0b'; weight = '900';
+            bg = 'background:rgba(245,158,11,0.15);padding:1px 6px;border-radius:6px;border:1px solid rgba(245,158,11,0.4);';
+          } else if (isToday) {
+            color = '#f59e0b'; weight = '800';
+            bg = 'background:rgba(245,158,11,0.12);padding:1px 6px;border-radius:6px;';
+          } else if (isMax) {
+            color = '#6366f1'; weight = '800';
+            bg = 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;';
+          } else {
+            color = 'var(--text-muted)'; weight = '600'; bg = '';
+          }
           return '<span style="position:absolute;left:' + leftPct + '%;transform:translateX(-50%);' +
-            'font-size:.68rem;font-weight:' + (isMax ? '800' : '600') + ';' +
-            'color:' + (isMax ? '#6366f1' : 'var(--text-muted)') + ';white-space:nowrap;' +
-            (isMax ? 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;' : '') + '">' +
+            'font-size:.68rem;font-weight:' + weight + ';' +
+            'color:' + color + ';white-space:nowrap;' + bg + '">' +
             dayNames[i] + '</span>';
         }).join('');
       }
