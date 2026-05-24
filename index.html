@@ -1462,8 +1462,8 @@
                   </h3>
                   <span style="font-size:.72rem;color:var(--text-muted);font-weight:600;">عدد المواعيد لكل يوم من الأسبوع</span>
                 </div>
-                <div id="homeWeekdayBarsWrap" style="display:block;width:100%;height:160px;position:relative;"></div>
-                <div id="homeWeekdayBarsLabels" style="display:flex;gap:6px;margin-top:6px;direction:ltr;"></div>
+                <div id="homeWeekdayBarsWrap" style="display:flex;align-items:flex-end;width:100%;height:160px;"></div>
+                <div id="homeWeekdayBarsLabels" style="display:none;"></div>
               </div>
 
               <!-- توزيع الزيارات + أحدث الزيارات -->
@@ -2758,16 +2758,11 @@
       const activeDays = Object.keys(dayMap).length;
       const avgDaily = activeDays ? (activeRecords.length / activeDays).toFixed(1) : '0';
 
-      // أكثر يوم ازدحاماً (يوم الأسبوع) — مع إزالة التكرار (مريض واحد في اليوم = موعد واحد)
+      // أكثر يوم ازدحاماً (يوم الأسبوع) — كل موعد مقبول أو تمت زيارته يُحسب
       const weekdayCounts = Array(7).fill(0);
-      const _wdSeen = new Set();
       allRecords
-        .filter(r => ['Accepted','Visited','NoShow'].includes(r.Status) && r.Date && r.Phone)
-        .sort(r => r.Status === 'Visited' ? 0 : r.Status === 'NoShow' ? 1 : 2)
+        .filter(r => ['Accepted','Visited'].includes(r.Status) && r.Date)
         .forEach(r => {
-          const key = r.Date.substring(0,10) + '|' + (r.Phone||'').replace(/\D/g,'');
-          if (_wdSeen.has(key)) return;
-          _wdSeen.add(key);
           const parts = r.Date.substring(0,10).split('-').map(Number);
           const d = new Date(parts[0], parts[1]-1, parts[2]);
           weekdayCounts[d.getDay()]++;
@@ -2782,213 +2777,54 @@
       return allRecords.filter(r => r.Status === 'Cancelled' || r.Status === 'Rejected').length;
     }
 
-    function renderWeekdayBars(weekdayCounts) {
-      const wrap   = document.getElementById('weekdayBarsWrap');
-      const labels = document.getElementById('weekdayBarsLabels');
-      if (!wrap || !labels) return;
+    // ===== renderWeekdayBars — أعمدة bars واضحة =====
+    function renderWeekdayBars(counts, wrapId, labelsId) {
+      wrapId   = wrapId   || 'weekdayBarsWrap';
+      labelsId = labelsId || 'weekdayBarsLabels';
+      const wrap   = document.getElementById(wrapId);
+      const labels = document.getElementById(labelsId);
+      if (!wrap) return;
 
-      const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-      const max    = Math.max(...weekdayCounts, 1);
-      const maxIdx = weekdayCounts.indexOf(Math.max(...weekdayCounts));
+      const DAY_NAMES = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+      const todayIdx  = new Date().getDay();
+      const max       = Math.max(...counts, 1);
+      const maxIdx    = counts.indexOf(Math.max(...counts));
 
-      const W = 700, H = 150;
-      const padY = 28, padXl = 52, padXr = 52;
-      const chartW = W - padXl - padXr;
-      const chartH = H - padY - 24;
-      const base   = padY + chartH;
+      const BAR_COLOR   = '#6366f1';
+      const BAR_TODAY   = '#f59e0b';
+      const BAR_MAX     = '#4f46e5';
+      const BAR_EMPTY   = 'rgba(148,163,184,0.18)';
 
-      const pts = weekdayCounts.map((v, i) => ({
-        x: padXl + (i / 6) * chartW,
-        y: padY + chartH - (v / max) * chartH,
-        v
-      }));
+      // بناء HTML مباشرة كـ flexbox
+      wrap.style.cssText = 'display:flex;align-items:flex-end;gap:6px;width:100%;height:160px;padding:8px 4px 0;box-sizing:border-box;';
+      wrap.innerHTML = counts.map(function(v, i) {
+        const pct     = max > 0 ? (v / max) : 0;
+        const isEmpty = v === 0;
+        const isMax   = i === maxIdx && v > 0;
+        const isToday = i === todayIdx;
+        const barColor = isEmpty ? BAR_EMPTY : isToday ? BAR_TODAY : isMax ? BAR_MAX : BAR_COLOR;
+        const heightPct = isEmpty ? 6 : Math.max(pct * 100, 8);
 
-      // ── Smooth Cubic Bezier ──
-      function smoothPath(p) {
-        if (p.length < 2) return '';
-        let d = 'M' + p[0].x.toFixed(1) + ',' + p[0].y.toFixed(1);
-        for (let i = 0; i < p.length - 1; i++) {
-          const cp = (p[i + 1].x - p[i].x) * 0.42;
-          d += ' C' + (p[i].x + cp).toFixed(1) + ',' + p[i].y.toFixed(1) +
-               ' ' + (p[i + 1].x - cp).toFixed(1) + ',' + p[i + 1].y.toFixed(1) +
-               ' ' + p[i + 1].x.toFixed(1) + ',' + p[i + 1].y.toFixed(1);
-        }
-        return d;
-      }
-
-      const linePath = smoothPath(pts);
-      const areaPath = linePath +
-        ' L' + pts[6].x.toFixed(1) + ',' + base +
-        ' L' + pts[0].x.toFixed(1) + ',' + base + ' Z';
-
-      // خطوط شبكة أفقية
-      const gridLines = [0, 0.5, 1].map(r => {
-        const y = (padY + chartH - r * chartH).toFixed(1);
-        const v = Math.round(r * max);
-        return '<line x1="' + padXl + '" y1="' + y + '" x2="' + (W - padXr) + '" y2="' + y +
-               '" stroke="rgba(148,163,184,0.12)" stroke-width="1"/>' +
-               (v > 0 ? '<text x="' + (padXl - 6) + '" y="' + (parseFloat(y) + 4) +
-               '" text-anchor="end" font-size="9" fill="rgba(148,163,184,0.7)">' + v + '</text>' : '');
+        return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;">' +
+          // الرقم فوق العمود
+          '<span style="font-size:.72rem;font-weight:' + (isMax ? '900' : '700') + ';color:' +
+            (isEmpty ? 'transparent' : isToday ? BAR_TODAY : isMax ? BAR_MAX : 'var(--text-muted)') +
+          ';line-height:1;">' + (isEmpty ? '0' : v) + '</span>' +
+          // العمود نفسه
+          '<div style="width:100%;border-radius:6px 6px 3px 3px;background:' + barColor +
+            ';height:' + heightPct + '%;transition:height .4s cubic-bezier(.34,1.56,.64,1);' +
+            (isMax ? 'box-shadow:0 4px 14px rgba(79,70,229,0.35);' : '') +
+            (isToday ? 'box-shadow:0 4px 14px rgba(245,158,11,0.35);' : '') +
+          '" title="' + DAY_NAMES[i] + ': ' + v + ' موعد"></div>' +
+          // اسم اليوم
+          '<span style="font-size:.65rem;font-weight:' + (isToday||isMax ? '800' : '600') + ';color:' +
+            (isToday ? BAR_TODAY : isMax ? BAR_MAX : 'var(--text-muted)') +
+          ';white-space:nowrap;margin-top:4px;">' + DAY_NAMES[i] + '</span>' +
+        '</div>';
       }).join('');
 
-      // أعمدة شفافة للـ hover (hit area)
-      const colW = chartW / 7;
-      const hitAreas = pts.map((p, i) =>
-        '<rect class="whit" x="' + (p.x - colW / 2).toFixed(1) + '" y="' + padY +
-        '" width="' + colW.toFixed(1) + '" height="' + chartH +
-        '" fill="transparent" data-v="' + p.v + '" data-i="' + i + '" style="cursor:pointer;"/>'
-      ).join('');
-
-      // خطوط رأسية دقيقة عند hover
-      const vLines = pts.map((p, i) =>
-        '<line class="cvl" x1="' + p.x.toFixed(1) + '" y1="' + padY +
-        '" x2="' + p.x.toFixed(1) + '" y2="' + base +
-        '" stroke="rgba(99,102,241,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
-      ).join('');
-
-      // نقاط مع glow للأعلى
-      const dots = pts.map((p, i) => {
-        const isMax = i === maxIdx;
-        const r = isMax ? 6 : 4.5;
-        const glow = isMax ? '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#6366f1" opacity="0.15"/>' : '';
-        return glow + '<circle class="cdot"' +
-          ' cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '"' +
-          ' r="' + r + '"' +
-          ' fill="' + (isMax ? '#6366f1' : 'white') + '"' +
-          ' stroke="' + (isMax ? '#4f46e5' : '#6366f1') + '" stroke-width="2.5"' +
-          ' data-v="' + p.v + '" data-i="' + i + '"' +
-          ' style="cursor:pointer;filter:' + (isMax ? 'drop-shadow(0 2px 6px rgba(99,102,241,0.5))' : 'none') + ';"/>';
-      }).join('');
-
-      // أرقام فوق كل نقطة مباشرة
-      const valueLabels = pts.map((p, i) => {
-        if (p.v === 0) return '';
-        const isMax = i === maxIdx;
-        const yPos  = (p.y - 13).toFixed(1);
-        return '<text x="' + p.x.toFixed(1) + '" y="' + yPos +
-          '" text-anchor="middle" font-size="' + (isMax ? '12' : '10.5') + '"' +
-          ' font-weight="' + (isMax ? '800' : '700') + '"' +
-          ' fill="' + (isMax ? '#6366f1' : 'rgba(100,116,139,0.9)') + '">' +
-          p.v + '</text>';
-      }).join('');
-
-      wrap.style.cssText = 'display:block;width:100%;height:165px;position:relative;';
-      wrap.innerHTML =
-        '<div id="wTip" style="position:absolute;background:rgba(15,23,42,0.92);color:white;padding:6px 13px;border-radius:10px;font-size:.76rem;font-weight:700;pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;z-index:10;box-shadow:0 4px 16px rgba(0,0,0,.25);"></div>' +
-        '<svg id="wChart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="width:100%;height:100%;display:block;overflow:visible;">' +
-        '<defs>' +
-          '<linearGradient id="wAreaG" x1="0" y1="0" x2="0" y2="1">' +
-            '<stop offset="0%" stop-color="#6366f1" stop-opacity="0.18"/>' +
-            '<stop offset="60%" stop-color="#6366f1" stop-opacity="0.06"/>' +
-            '<stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>' +
-          '</linearGradient>' +
-          '<linearGradient id="wLineG" x1="0" y1="0" x2="1" y2="0">' +
-            '<stop offset="0%" stop-color="#a5b4fc"/>' +
-            '<stop offset="50%" stop-color="#6366f1"/>' +
-            '<stop offset="100%" stop-color="#4f46e5"/>' +
-          '</linearGradient>' +
-          '<clipPath id="wClip"><rect id="wClipRect" x="0" y="0" width="0" height="' + H + '"/></clipPath>' +
-        '</defs>' +
-        gridLines + vLines + hitAreas +
-        '<path id="wArea" d="' + areaPath + '" fill="url(#wAreaG)" clip-path="url(#wClip)" style="opacity:0;"/>' +
-        '<path id="wLine" d="' + linePath + '" fill="none" stroke="url(#wLineG)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>' +
-        '<g id="wDots" style="opacity:0;">' + dots + '</g>' +
-        '<g id="wVals" style="opacity:0;">' + valueLabels + '</g>' +
-        '</svg>';
-
-      // Labels تحت كل نقطة
-      const todayDayIdx = new Date().getDay(); // 0=الأحد .. 6=السبت
-      labels.style.cssText = 'position:relative;width:100%;height:20px;margin-top:4px;direction:ltr;display:block;';
-      labels.innerHTML = pts.map((p, i) => {
-        const leftPct = ((p.x / W) * 100).toFixed(2);
-        const isMax   = i === maxIdx;
-        const isToday = i === todayDayIdx;
-        let color, weight, bg;
-        if (isToday && isMax) {
-          color = '#f59e0b'; weight = '900';
-          bg = 'background:rgba(245,158,11,0.15);padding:1px 6px;border-radius:6px;border:1px solid rgba(245,158,11,0.4);';
-        } else if (isToday) {
-          color = '#f59e0b'; weight = '800';
-          bg = 'background:rgba(245,158,11,0.12);padding:1px 6px;border-radius:6px;';
-        } else if (isMax) {
-          color = '#6366f1'; weight = '800';
-          bg = 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;';
-        } else {
-          color = 'var(--text-muted)'; weight = '600'; bg = '';
-        }
-        return '<span style="position:absolute;left:' + leftPct + '%;transform:translateX(-50%);' +
-          'font-size:.68rem;font-weight:' + weight + ';' +
-          'color:' + color + ';white-space:nowrap;' + bg + '">' +
-          dayNames[i] + '</span>';
-      }).join('');
-
-      // ===== أنيميشن =====
-      requestAnimationFrame(function() {
-        const lineEl   = document.getElementById('wLine');
-        const clipRect = document.getElementById('wClipRect');
-        const areaEl   = document.getElementById('wArea');
-        const dotsEl   = document.getElementById('wDots');
-        const valsEl   = document.getElementById('wVals');
-        if (!lineEl) return;
-
-        const len = lineEl.getTotalLength ? lineEl.getTotalLength() : 900;
-        lineEl.style.strokeDasharray  = len;
-        lineEl.style.strokeDashoffset = len;
-
-        const dur = 1100;
-        let start = null;
-        function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
-
-        requestAnimationFrame(function animate(ts) {
-          if (!start) start = ts;
-          const t = Math.min((ts - start) / dur, 1);
-          const e = easeOut(t);
-
-          lineEl.style.strokeDashoffset = (len * (1 - e)).toFixed(1);
-          if (clipRect) clipRect.setAttribute('width', (e * W).toFixed(1));
-          if (areaEl)   areaEl.style.opacity = (e * 1).toFixed(3);
-
-          if (t < 1) {
-            requestAnimationFrame(animate);
-          } else {
-            if (dotsEl) { dotsEl.style.transition = 'opacity 0.3s ease'; dotsEl.style.opacity = '1'; }
-            if (valsEl) { setTimeout(function(){ valsEl.style.transition = 'opacity 0.4s ease'; valsEl.style.opacity = '1'; }, 150); }
-          }
-        });
-      });
-
-      // ===== Hover على hit areas =====
-      const svg = document.getElementById('wChart');
-      const tip = document.getElementById('wTip');
-      if (!svg || !tip) return;
-
-      svg.querySelectorAll('.whit').forEach(function(hit) {
-        const i  = parseInt(hit.getAttribute('data-i'));
-        const v  = parseInt(hit.getAttribute('data-v'));
-        const vl = svg.querySelectorAll('.cvl')[i];
-        const dot = svg.querySelectorAll('.cdot')[i];
-        const isMax = i === maxIdx;
-        const r0 = isMax ? 6 : 4.5;
-
-        hit.addEventListener('mouseenter', function() {
-          tip.textContent = dayNames[i] + ': ' + v + ' موعد';
-          tip.style.opacity = '1';
-          if (dot) dot.setAttribute('r', r0 + 2);
-          if (vl)  vl.setAttribute('opacity', '1');
-        });
-        hit.addEventListener('mousemove', function(e) {
-          const rect = wrap.getBoundingClientRect();
-          const tx = e.clientX - rect.left - tip.offsetWidth / 2;
-          const ty = e.clientY - rect.top - 50;
-          tip.style.left = Math.max(0, Math.min(tx, rect.width - tip.offsetWidth)) + 'px';
-          tip.style.top  = ty + 'px';
-        });
-        hit.addEventListener('mouseleave', function() {
-          tip.style.opacity = '0';
-          if (dot) dot.setAttribute('r', r0);
-          if (vl)  vl.setAttribute('opacity', '0');
-        });
-      });
+      // أخفِ labels القديم إذا وُجد
+      if (labels) labels.style.display = 'none';
     }
 
 
@@ -5874,201 +5710,18 @@
     function renderHomeWidgets() {
       if (!allRecords || allRecords.length === 0) return;
 
-      // --- توزيع الأيام (نفس renderWeekdayBars لكن بـ IDs مختلفة) --- مع إزالة التكرار ---
+      // --- توزيع الأيام ---
       const weekdayCounts = Array(7).fill(0);
-      const _wdHomeSeen = new Set();
       allRecords
-        .filter(r => ['Accepted','Visited','NoShow'].includes(r.Status) && r.Date && r.Phone)
-        .sort(r => r.Status === 'Visited' ? 0 : r.Status === 'NoShow' ? 1 : 2)
+        .filter(r => ['Accepted','Visited'].includes(r.Status) && r.Date)
         .forEach(r => {
-          const key = r.Date.substring(0,10) + '|' + (r.Phone||'').replace(/\D/g,'');
-          if (_wdHomeSeen.has(key)) return;
-          _wdHomeSeen.add(key);
           const parts = r.Date.substring(0,10).split('-').map(Number);
           const d = new Date(parts[0], parts[1]-1, parts[2]);
           weekdayCounts[d.getDay()]++;
         });
+      renderWeekdayBars(weekdayCounts, 'homeWeekdayBarsWrap', 'homeWeekdayBarsLabels');
 
-      const wWrap   = document.getElementById('homeWeekdayBarsWrap');
-      const wLabels = document.getElementById('homeWeekdayBarsLabels');
-      if (wWrap && wLabels) {
-        const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-        const max    = Math.max(...weekdayCounts, 1);
-        const maxIdx = weekdayCounts.indexOf(Math.max(...weekdayCounts));
-        const W = 560, H = 150, padXh = 48, padY = 28;
-        const chartW = W - padXh * 2, chartH = H - padY - 24;
-        const base   = padY + chartH;
-
-        const pts = weekdayCounts.map((v, i) => ({
-          x: padXh + (i / 6) * chartW,
-          y: padY + chartH - (v / max) * chartH,
-          v
-        }));
-
-        function hwSmooth(p) {
-          if (p.length < 2) return '';
-          let d = 'M' + p[0].x.toFixed(1) + ',' + p[0].y.toFixed(1);
-          for (let i = 0; i < p.length - 1; i++) {
-            const cp = (p[i + 1].x - p[i].x) * 0.42;
-            d += ' C' + (p[i].x + cp).toFixed(1) + ',' + p[i].y.toFixed(1) +
-                 ' ' + (p[i + 1].x - cp).toFixed(1) + ',' + p[i + 1].y.toFixed(1) +
-                 ' ' + p[i + 1].x.toFixed(1) + ',' + p[i + 1].y.toFixed(1);
-          }
-          return d;
-        }
-
-        const linePath = hwSmooth(pts);
-        const areaPath = linePath + ' L' + pts[6].x.toFixed(1) + ',' + base + ' L' + pts[0].x.toFixed(1) + ',' + base + ' Z';
-
-        const gridLines = [0, 0.5, 1].map(r => {
-          const y = (padY + chartH - r * chartH).toFixed(1), v = Math.round(r * max);
-          return '<line x1="' + padXh + '" y1="' + y + '" x2="' + (W - padXh) + '" y2="' + y + '" stroke="rgba(148,163,184,0.12)" stroke-width="1"/>' +
-                 (v > 0 ? '<text x="' + (padXh - 6) + '" y="' + (parseFloat(y) + 4) + '" text-anchor="end" font-size="9" fill="rgba(148,163,184,0.7)">' + v + '</text>' : '');
-        }).join('');
-
-        const colW = chartW / 7;
-        const hitAreas = pts.map((p, i) =>
-          '<rect class="hwhit" x="' + (p.x - colW / 2).toFixed(1) + '" y="' + padY +
-          '" width="' + colW.toFixed(1) + '" height="' + chartH +
-          '" fill="transparent" data-v="' + p.v + '" data-i="' + i + '" style="cursor:pointer;"/>'
-        ).join('');
-
-        const vLines = pts.map((p, i) =>
-          '<line class="hwvl" x1="' + p.x.toFixed(1) + '" y1="' + padY +
-          '" x2="' + p.x.toFixed(1) + '" y2="' + base +
-          '" stroke="rgba(99,102,241,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
-        ).join('');
-
-        const dots = pts.map((p, i) => {
-          const isMax = i === maxIdx;
-          const r = isMax ? 6 : 4.5;
-          const glow = isMax ? '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#6366f1" opacity="0.15"/>' : '';
-          return glow + '<circle class="hwdot"' +
-            ' cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '"' +
-            ' r="' + r + '"' +
-            ' fill="' + (isMax ? '#6366f1' : 'white') + '"' +
-            ' stroke="' + (isMax ? '#4f46e5' : '#6366f1') + '" stroke-width="2.5"' +
-            ' data-v="' + p.v + '" data-i="' + i + '"' +
-            ' style="cursor:pointer;filter:' + (isMax ? 'drop-shadow(0 2px 6px rgba(99,102,241,0.5))' : 'none') + ';"/>';
-        }).join('');
-
-        const valueLabels = pts.map((p, i) => {
-          if (p.v === 0) return '';
-          const isMax = i === maxIdx;
-          return '<text x="' + p.x.toFixed(1) + '" y="' + (p.y - 13).toFixed(1) +
-            '" text-anchor="middle" font-size="' + (isMax ? '12' : '10.5') + '"' +
-            ' font-weight="' + (isMax ? '800' : '700') + '"' +
-            ' fill="' + (isMax ? '#6366f1' : 'rgba(100,116,139,0.9)') + '">' + p.v + '</text>';
-        }).join('');
-
-        wWrap.style.cssText = 'display:block;width:100%;height:165px;position:relative;';
-        wWrap.innerHTML =
-          '<div id="hwTip" style="position:absolute;background:rgba(15,23,42,0.92);color:white;padding:6px 13px;border-radius:10px;font-size:.76rem;font-weight:700;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;z-index:10;box-shadow:0 4px 16px rgba(0,0,0,.25);"></div>' +
-          '<svg id="hwChart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="width:100%;height:100%;display:block;overflow:visible;">' +
-          '<defs>' +
-            '<linearGradient id="hwAreaG" x1="0" y1="0" x2="0" y2="1">' +
-              '<stop offset="0%" stop-color="#6366f1" stop-opacity="0.18"/>' +
-              '<stop offset="60%" stop-color="#6366f1" stop-opacity="0.06"/>' +
-              '<stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>' +
-            '</linearGradient>' +
-            '<linearGradient id="hwLineG" x1="0" y1="0" x2="1" y2="0">' +
-              '<stop offset="0%" stop-color="#a5b4fc"/>' +
-              '<stop offset="50%" stop-color="#6366f1"/>' +
-              '<stop offset="100%" stop-color="#4f46e5"/>' +
-            '</linearGradient>' +
-            '<clipPath id="hwClip"><rect id="hwClipRect" x="0" y="0" width="0" height="' + H + '"/></clipPath>' +
-          '</defs>' +
-          gridLines + vLines + hitAreas +
-          '<path d="' + areaPath + '" fill="url(#hwAreaG)" clip-path="url(#hwClip)" style="opacity:0;" id="hwArea"/>' +
-          '<path id="hwLine" d="' + linePath + '" fill="none" stroke="url(#hwLineG)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>' +
-          '<g id="hwDots" style="opacity:0;">' + dots + '</g>' +
-          '<g id="hwVals" style="opacity:0;">' + valueLabels + '</g>' +
-          '</svg>';
-
-        requestAnimationFrame(function() {
-          const lineEl   = document.getElementById('hwLine');
-          const clipRect = document.getElementById('hwClipRect');
-          const areaEl   = document.getElementById('hwArea');
-          const dotsEl   = document.getElementById('hwDots');
-          const valsEl   = document.getElementById('hwVals');
-          if (!lineEl) return;
-          const len = lineEl.getTotalLength ? lineEl.getTotalLength() : 1200;
-          lineEl.style.strokeDasharray  = len;
-          lineEl.style.strokeDashoffset = len;
-          let start = null;
-          const dur = 1100;
-          function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
-          requestAnimationFrame(function animate(ts) {
-            if (!start) start = ts;
-            const t = Math.min((ts - start) / dur, 1);
-            const e = easeOut(t);
-            lineEl.style.strokeDashoffset = (len * (1 - e)).toFixed(1);
-            if (clipRect) clipRect.setAttribute('width', (e * W).toFixed(1));
-            if (areaEl)   areaEl.style.opacity = e.toFixed(3);
-            if (t < 1) { requestAnimationFrame(animate); }
-            else {
-              if (dotsEl) { dotsEl.style.transition = 'opacity 0.3s ease'; dotsEl.style.opacity = '1'; }
-              if (valsEl) { setTimeout(function(){ valsEl.style.transition = 'opacity 0.4s ease'; valsEl.style.opacity = '1'; }, 150); }
-            }
-          });
-        });
-
-        wWrap.querySelectorAll('.hwhit').forEach(function(hit) {
-          const i   = parseInt(hit.getAttribute('data-i'));
-          const v   = parseInt(hit.getAttribute('data-v'));
-          const vl  = wWrap.querySelectorAll('.hwvl')[i];
-          const dot = wWrap.querySelectorAll('.hwdot')[i];
-          const isMax = i === maxIdx;
-          const r0  = isMax ? 6 : 4.5;
-          hit.addEventListener('mouseenter', function() {
-            const tip = document.getElementById('hwTip');
-            tip.textContent = dayNames[i] + ': ' + v + ' موعد';
-            tip.style.opacity = '1';
-            if (dot) dot.setAttribute('r', r0 + 2);
-            if (vl)  vl.setAttribute('opacity', '1');
-          });
-          hit.addEventListener('mousemove', function(e) {
-            const tip = document.getElementById('hwTip');
-            if (!tip) return;
-            const rect = wWrap.getBoundingClientRect();
-            tip.style.left = Math.max(0, e.clientX - rect.left - tip.offsetWidth / 2) + 'px';
-            tip.style.top  = (e.clientY - rect.top - 50) + 'px';
-          });
-          hit.addEventListener('mouseleave', function() {
-            const tip = document.getElementById('hwTip');
-            if (tip) tip.style.opacity = '0';
-            if (dot) dot.setAttribute('r', r0);
-            if (vl)  vl.setAttribute('opacity', '0');
-          });
-        });
-
-        const hwTodayIdx = new Date().getDay(); // 0=الأحد .. 6=السبت
-        wLabels.style.cssText = 'position:relative;width:100%;height:20px;margin-top:4px;direction:ltr;display:block;';
-        wLabels.innerHTML = pts.map((p, i) => {
-          const leftPct = ((p.x / W) * 100).toFixed(2);
-          const isMax   = i === maxIdx;
-          const isToday = i === hwTodayIdx;
-          let color, weight, bg;
-          if (isToday && isMax) {
-            color = '#f59e0b'; weight = '900';
-            bg = 'background:rgba(245,158,11,0.15);padding:1px 6px;border-radius:6px;border:1px solid rgba(245,158,11,0.4);';
-          } else if (isToday) {
-            color = '#f59e0b'; weight = '800';
-            bg = 'background:rgba(245,158,11,0.12);padding:1px 6px;border-radius:6px;';
-          } else if (isMax) {
-            color = '#6366f1'; weight = '800';
-            bg = 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;';
-          } else {
-            color = 'var(--text-muted)'; weight = '600'; bg = '';
-          }
-          return '<span style="position:absolute;left:' + leftPct + '%;transform:translateX(-50%);' +
-            'font-size:.68rem;font-weight:' + weight + ';' +
-            'color:' + color + ';white-space:nowrap;' + bg + '">' +
-            dayNames[i] + '</span>';
-        }).join('');
-      }
-
-      // --- دونات توزيع الزيارات ---
+            // --- دونات توزيع الزيارات ---
       const visited = allRecords.filter(r => r.Status === 'Visited');
       const morningC = visited.filter(r => (r.Slot||'Morning')==='Morning').length;
       const eveningC = visited.filter(r => r.Slot==='Evening').length;
