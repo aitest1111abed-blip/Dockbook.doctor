@@ -2699,12 +2699,14 @@
       const activeDays = Object.keys(dayMap).length;
       const avgDaily = activeDays ? (accepted.length / activeDays).toFixed(1) : '0';
 
-      // توزيع الأيام: جميع المواعيد المؤكدة في الروزنامة بغض النظر عن الحالة (ماعدا Pending غير المقبولة)
+      // توزيع الأيام: جميع المواعيد المؤكدة في الروزنامة بغض النظر عن الحالة (ماعدا Pending)
       const weekdayCounts = Array(7).fill(0);
       allRecords.forEach(r => {
         if (!r.Date) return;
-        if (r.Status === 'Pending') return; // استبعاد الطلبات التي لم تُقبل بعد
-        const parts = r.Date.substring(0,10).split('-').map(Number);
+        if (r.Status === 'Pending') return;
+        const dateStr = normalizeDate(r.Date);
+        if (!dateStr) return;
+        const parts = dateStr.split('-').map(Number);
         const d = new Date(parts[0], parts[1]-1, parts[2]);
         weekdayCounts[d.getDay()]++;
       });
@@ -5756,15 +5758,15 @@
     function renderHomeWidgets() {
       if (!allRecords || allRecords.length === 0) return;
 
-      // --- توزيع الأيام (نفس renderWeekdayBars لكن بـ IDs مختلفة) ---
+      // --- توزيع الأيام ---
       const weekdayCounts = Array(7).fill(0);
-      // جميع المواعيد المؤكدة في الروزنامة بغض النظر عن الحالة (ماعدا Pending غير المقبولة)
       allRecords.forEach(r => {
-        if (r.Date && r.Status !== 'Pending') {
-          const parts = r.Date.substring(0,10).split('-').map(Number);
-          const d = new Date(parts[0], parts[1]-1, parts[2]);
-          weekdayCounts[d.getDay()]++;
-        }
+        if (!r.Date || r.Status === 'Pending') return;
+        const dateStr = normalizeDate(r.Date);
+        if (!dateStr) return;
+        const parts = dateStr.split('-').map(Number);
+        const d = new Date(parts[0], parts[1]-1, parts[2]);
+        weekdayCounts[d.getDay()]++;
       });
 
       const wWrap   = document.getElementById('homeWeekdayBarsWrap');
