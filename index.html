@@ -2699,10 +2699,11 @@
       const activeDays = Object.keys(dayMap).length;
       const avgDaily = activeDays ? (accepted.length / activeDays).toFixed(1) : '0';
 
-      // أكثر يوم ازدحاماً (يوم الأسبوع) - تعديل نهائي: حساب كافة المواعيد الموجودة في الروزنامة بغض النظر عن الحالة
+      // توزيع الأيام: جميع المواعيد المؤكدة في الروزنامة بغض النظر عن الحالة (ماعدا Pending غير المقبولة)
       const weekdayCounts = Array(7).fill(0);
       allRecords.forEach(r => {
         if (!r.Date) return;
+        if (r.Status === 'Pending') return; // استبعاد الطلبات التي لم تُقبل بعد
         const parts = r.Date.substring(0,10).split('-').map(Number);
         const d = new Date(parts[0], parts[1]-1, parts[2]);
         weekdayCounts[d.getDay()]++;
@@ -5757,9 +5758,9 @@
 
       // --- توزيع الأيام (نفس renderWeekdayBars لكن بـ IDs مختلفة) ---
       const weekdayCounts = Array(7).fill(0);
-      // تعديل نهائي: حساب كافة المواعيد الموجودة في الروزنامة بغض النظر عن الحالة (مقبول، ملغى، انتظار، إلخ)
+      // جميع المواعيد المؤكدة في الروزنامة بغض النظر عن الحالة (ماعدا Pending غير المقبولة)
       allRecords.forEach(r => {
-        if (r.Date) {
+        if (r.Date && r.Status !== 'Pending') {
           const parts = r.Date.substring(0,10).split('-').map(Number);
           const d = new Date(parts[0], parts[1]-1, parts[2]);
           weekdayCounts[d.getDay()]++;
