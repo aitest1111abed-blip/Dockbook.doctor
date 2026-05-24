@@ -1472,7 +1472,7 @@
               <div class="glass-card">
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
                   <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;">
-                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#0d9488" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
                     توزيع الأيام
                   </h3>
                   <span style="font-size:.72rem;color:var(--text-muted);font-weight:600;">عدد المواعيد لكل يوم من الأسبوع</span>
@@ -1595,7 +1595,7 @@
                   </div>
                   <div>
                     <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;">
-                      <i class="fas fa-moon" style="color:#6366f1;font-size:.8rem;"></i>
+                      <i class="fas fa-moon" style="color:#0d9488;font-size:.8rem;"></i>
                       <span style="font-weight:700;font-size:.8rem;">المساء</span>
                       <span id="homePanelEveningCount" style="background:var(--primary-light);color:var(--primary);padding:1px 8px;border-radius:20px;font-size:.68rem;font-weight:700;">0</span>
                     </div>
@@ -1638,7 +1638,7 @@
             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
               <div>
                 <h3 id="agendaTitle" style="font-weight:700; font-size:.9rem; color:var(--text-primary);">-</h3>
-                <p id="agendaCount" style="font-size:.72rem; color:var(--text-muted); margin-top:2px;">عدد المواعيد المؤكدة: 0</p>
+                <p id="agendaCount" style="font-size:.72rem; color:var(--text-muted); margin-top:2px;">عدد المواعيد (مؤكدة / تمت): 0</p>
               </div>
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <button id="showDayDetailsBtn" type="button" class="btn-show-details" title="عرض تفاصيل اليوم"><i class="fas fa-eye"></i></button>
@@ -1656,7 +1656,7 @@
               </div>
               <div>
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:10px;">
-                  <i class="fas fa-moon" style="color:#6366f1; font-size:.9rem;"></i>
+                  <i class="fas fa-moon" style="color:#0d9488; font-size:.9rem;"></i>
                   <span style="font-weight:700; font-size:.88rem;">المساء</span>
                   <span id="agendaEveningCount" style="background:var(--primary-light); color:var(--primary); padding:2px 10px; border-radius:20px; font-size:.72rem; font-weight:700;">0</span>
                 </div>
@@ -2788,21 +2788,21 @@
       const vLines = pts.map((p, i) =>
         '<line class="cvl" x1="' + p.x.toFixed(1) + '" y1="' + padY +
         '" x2="' + p.x.toFixed(1) + '" y2="' + base +
-        '" stroke="rgba(99,102,241,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
+        '" stroke="rgba(13,148,136,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
       ).join('');
 
       // نقاط مع glow للأعلى
       const dots = pts.map((p, i) => {
         const isMax = i === maxIdx;
         const r = isMax ? 6 : 4.5;
-        const glow = isMax ? '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#6366f1" opacity="0.15"/>' : '';
+        const glow = isMax ? '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#0d9488" opacity="0.15"/>' : '';
         return glow + '<circle class="cdot"' +
           ' cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '"' +
           ' r="' + r + '"' +
-          ' fill="' + (isMax ? '#6366f1' : 'white') + '"' +
-          ' stroke="' + (isMax ? '#4f46e5' : '#6366f1') + '" stroke-width="2.5"' +
+          ' fill="' + (isMax ? '#0d9488' : 'white') + '"' +
+          ' stroke="' + (isMax ? '#0f766e' : '#0d9488') + '" stroke-width="2.5"' +
           ' data-v="' + p.v + '" data-i="' + i + '"' +
-          ' style="cursor:pointer;filter:' + (isMax ? 'drop-shadow(0 2px 6px rgba(99,102,241,0.5))' : 'none') + ';"/>';
+          ' style="cursor:pointer;filter:' + (isMax ? 'drop-shadow(0 2px 6px rgba(13,148,136,0.5))' : 'none') + ';"/>';
       }).join('');
 
       // أرقام فوق كل نقطة مباشرة
@@ -2813,7 +2813,7 @@
         return '<text x="' + p.x.toFixed(1) + '" y="' + yPos +
           '" text-anchor="middle" font-size="' + (isMax ? '12' : '10.5') + '"' +
           ' font-weight="' + (isMax ? '800' : '700') + '"' +
-          ' fill="' + (isMax ? '#6366f1' : 'rgba(100,116,139,0.9)') + '">' +
+          ' fill="' + (isMax ? '#0d9488' : 'rgba(100,116,139,0.9)') + '">' +
           p.v + '</text>';
       }).join('');
 
@@ -2823,14 +2823,14 @@
         '<svg id="wChart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="width:100%;height:100%;display:block;overflow:visible;">' +
         '<defs>' +
           '<linearGradient id="wAreaG" x1="0" y1="0" x2="0" y2="1">' +
-            '<stop offset="0%" stop-color="#6366f1" stop-opacity="0.18"/>' +
-            '<stop offset="60%" stop-color="#6366f1" stop-opacity="0.06"/>' +
-            '<stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>' +
+            '<stop offset="0%" stop-color="#0d9488" stop-opacity="0.18"/>' +
+            '<stop offset="60%" stop-color="#0d9488" stop-opacity="0.06"/>' +
+            '<stop offset="100%" stop-color="#0d9488" stop-opacity="0"/>' +
           '</linearGradient>' +
           '<linearGradient id="wLineG" x1="0" y1="0" x2="1" y2="0">' +
             '<stop offset="0%" stop-color="#a5b4fc"/>' +
-            '<stop offset="50%" stop-color="#6366f1"/>' +
-            '<stop offset="100%" stop-color="#4f46e5"/>' +
+            '<stop offset="50%" stop-color="#0d9488"/>' +
+            '<stop offset="100%" stop-color="#0f766e"/>' +
           '</linearGradient>' +
           '<clipPath id="wClip"><rect id="wClipRect" x="0" y="0" width="0" height="' + H + '"/></clipPath>' +
         '</defs>' +
@@ -2848,7 +2848,7 @@
         const isMax   = i === maxIdx;
         return '<span style="position:absolute;left:' + leftPct + '%;transform:translateX(-50%);' +
           'font-size:.68rem;font-weight:' + (isMax ? '800' : '600') + ';' +
-          'color:' + (isMax ? '#6366f1' : 'var(--text-muted)') + ';white-space:nowrap;' +
+          'color:' + (isMax ? '#0d9488' : 'var(--text-muted)') + ';white-space:nowrap;' +
           (isMax ? 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;' : '') + '">' +
           dayNames[i] + '</span>';
       }).join('');
@@ -3356,7 +3356,7 @@
 
       } else {
         // اليوم الحالي أو المستقبل: عرض المواعيد المؤكدة والمكتملة (تمت الزيارة)
-        const accepted = allRecords.filter(r => r.Status === 'Accepted' && normalizeDate(r.Date) === dateStr);
+        const accepted = allRecords.filter(r => ['Accepted','Visited','NoShow'].includes(r.Status) && normalizeDate(r.Date) === dateStr);
         const visited  = allRecords.filter(r => r.Status === 'Visited'  && r.Date === dateStr);
         const noShow   = allRecords.filter(r => r.Status === 'NoShow'   && r.Date === dateStr);
         
@@ -4092,7 +4092,7 @@
         mEl.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;background:var(--primary);color:white;font-weight:700;font-size:.85rem;box-shadow:0 2px 6px rgba(13,148,136,.3);';
         eEl.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;color:var(--text-muted);font-weight:600;font-size:.85rem;';
       } else {
-        eEl.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;background:#4f46e5;color:white;font-weight:700;font-size:.85rem;box-shadow:0 2px 6px rgba(79,70,229,.3);';
+        eEl.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;background:#0f766e;color:white;font-weight:700;font-size:.85rem;box-shadow:0 2px 6px rgba(79,70,229,.3);';
         mEl.style.cssText = 'flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:10px 12px;border-radius:7px;cursor:pointer;transition:all .18s;color:var(--text-muted);font-weight:600;font-size:.85rem;';
       }
       docOUpdateSummary(); // حدّث التأكيد فوراً
@@ -4341,7 +4341,7 @@
       var h = now.getHours();
       var greet, svgIcon;
       var sunSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;flex-shrink:0;"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="17.66" y1="17.66" x2="19.78" y2="19.78"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.22" y1="19.78" x2="6.34" y2="17.66"/><line x1="17.66" y1="6.34" x2="19.78" y2="4.22"/></svg>';
-      var moonSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="#6366f1" stroke="#6366f1" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;flex-shrink:0;"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>';
+      var moonSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="26" height="26" viewBox="0 0 24 24" fill="#0d9488" stroke="#0d9488" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;flex-shrink:0;"><path d="M21 12.79A9 9 0 1 1 11.21 3a7 7 0 0 0 9.79 9.79z"/></svg>';
       var partCloudSVG = '<svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#f59e0b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline-block;vertical-align:middle;margin-right:6px;flex-shrink:0;"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="4.22" y1="4.22" x2="6.34" y2="6.34"/><line x1="2" y1="12" x2="5" y2="12"/><path d="M17 14a3 3 0 1 1 0 6H8a4 4 0 1 1 .87-7.9A4.5 4.5 0 0 1 17 14z" stroke="#94a3b8" fill="rgba(148,163,184,0.18)"/></svg>';
       if (h >= 5 && h < 12)       { greet = 'صباح الخير';  svgIcon = sunSVG; }
       else if (h >= 12 && h < 17) { greet = 'مساء الخير';  svgIcon = partCloudSVG; }
@@ -5650,7 +5650,7 @@
         if (dateObj.getTime() === today.getTime()) dayDiv.classList.add('today');
         if (selectedDayStr === dateStr) dayDiv.classList.add('selected');
         const dayRecords = allRecords.filter(r =>
-          ['Accepted', 'Visited', 'NoShow'].includes(r.Status) && normalizeDate(r.Date) === dateStr
+          ['Accepted', 'Visited', 'NoShow', 'Cancelled', 'Rejected'].includes(r.Status) && normalizeDate(r.Date) === dateStr
         );
         if (dayRecords.length > 0) {
           const dot = document.createElement('div');
@@ -5695,10 +5695,10 @@
         const canc = allDay.filter(r=>['Cancelled','Rejected'].includes(r.Status)).length;
         document.getElementById('homePanelCount').textContent = `زيارات: ${vis}${ns?' · لم يحضر: '+ns:''}${canc?' · ملغاة: '+canc:''}`;
       } else {
-        const accepted = allRecords.filter(r => r.Status === 'Accepted' && normalizeDate(r.Date) === dateStr);
+        const accepted = allRecords.filter(r => ['Accepted','Visited','NoShow'].includes(r.Status) && normalizeDate(r.Date) === dateStr);
         morning = accepted.filter(r => (r.Slot || 'Morning') === 'Morning');
         evening = accepted.filter(r => r.Slot === 'Evening');
-        document.getElementById('homePanelCount').textContent = `عدد المواعيد المؤكدة: ${accepted.length}`;
+        document.getElementById('homePanelCount').textContent = `عدد المواعيد (مؤكدة / تمت): ${accepted.length}`;
       }
 
       document.getElementById('homePanelMorningCount').textContent = morning.length;
@@ -5832,20 +5832,20 @@
         const vLines = pts.map((p, i) =>
           '<line class="hwvl" x1="' + p.x.toFixed(1) + '" y1="' + padY +
           '" x2="' + p.x.toFixed(1) + '" y2="' + base +
-          '" stroke="rgba(99,102,241,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
+          '" stroke="rgba(13,148,136,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
         ).join('');
 
         const dots = pts.map((p, i) => {
           const isMax = i === maxIdx;
           const r = isMax ? 6 : 4.5;
-          const glow = isMax ? '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#6366f1" opacity="0.15"/>' : '';
+          const glow = isMax ? '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#0d9488" opacity="0.15"/>' : '';
           return glow + '<circle class="hwdot"' +
             ' cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '"' +
             ' r="' + r + '"' +
-            ' fill="' + (isMax ? '#6366f1' : 'white') + '"' +
-            ' stroke="' + (isMax ? '#4f46e5' : '#6366f1') + '" stroke-width="2.5"' +
+            ' fill="' + (isMax ? '#0d9488' : 'white') + '"' +
+            ' stroke="' + (isMax ? '#0f766e' : '#0d9488') + '" stroke-width="2.5"' +
             ' data-v="' + p.v + '" data-i="' + i + '"' +
-            ' style="cursor:pointer;filter:' + (isMax ? 'drop-shadow(0 2px 6px rgba(99,102,241,0.5))' : 'none') + ';"/>';
+            ' style="cursor:pointer;filter:' + (isMax ? 'drop-shadow(0 2px 6px rgba(13,148,136,0.5))' : 'none') + ';"/>';
         }).join('');
 
         const valueLabels = pts.map((p, i) => {
@@ -5854,7 +5854,7 @@
           return '<text x="' + p.x.toFixed(1) + '" y="' + (p.y - 13).toFixed(1) +
             '" text-anchor="middle" font-size="' + (isMax ? '12' : '10.5') + '"' +
             ' font-weight="' + (isMax ? '800' : '700') + '"' +
-            ' fill="' + (isMax ? '#6366f1' : 'rgba(100,116,139,0.9)') + '">' + p.v + '</text>';
+            ' fill="' + (isMax ? '#0d9488' : 'rgba(100,116,139,0.9)') + '">' + p.v + '</text>';
         }).join('');
 
         wWrap.style.cssText = 'display:block;width:100%;height:165px;position:relative;';
@@ -5863,14 +5863,14 @@
           '<svg id="hwChart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="width:100%;height:100%;display:block;overflow:visible;">' +
           '<defs>' +
             '<linearGradient id="hwAreaG" x1="0" y1="0" x2="0" y2="1">' +
-              '<stop offset="0%" stop-color="#6366f1" stop-opacity="0.18"/>' +
-              '<stop offset="60%" stop-color="#6366f1" stop-opacity="0.06"/>' +
-              '<stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>' +
+              '<stop offset="0%" stop-color="#0d9488" stop-opacity="0.18"/>' +
+              '<stop offset="60%" stop-color="#0d9488" stop-opacity="0.06"/>' +
+              '<stop offset="100%" stop-color="#0d9488" stop-opacity="0"/>' +
             '</linearGradient>' +
             '<linearGradient id="hwLineG" x1="0" y1="0" x2="1" y2="0">' +
               '<stop offset="0%" stop-color="#a5b4fc"/>' +
-              '<stop offset="50%" stop-color="#6366f1"/>' +
-              '<stop offset="100%" stop-color="#4f46e5"/>' +
+              '<stop offset="50%" stop-color="#0d9488"/>' +
+              '<stop offset="100%" stop-color="#0f766e"/>' +
             '</linearGradient>' +
             '<clipPath id="hwClip"><rect id="hwClipRect" x="0" y="0" width="0" height="' + H + '"/></clipPath>' +
           '</defs>' +
@@ -5944,7 +5944,7 @@
           const isMax   = i === maxIdx;
           return '<span style="position:absolute;left:' + leftPct + '%;transform:translateX(-50%);' +
             'font-size:.68rem;font-weight:' + (isMax ? '800' : '600') + ';' +
-            'color:' + (isMax ? '#6366f1' : 'var(--text-muted)') + ';white-space:nowrap;' +
+            'color:' + (isMax ? '#0d9488' : 'var(--text-muted)') + ';white-space:nowrap;' +
             (isMax ? 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;' : '') + '">' +
             dayNames[i] + '</span>';
         }).join('');
