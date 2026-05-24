@@ -2699,9 +2699,9 @@
       const activeDays = Object.keys(dayMap).length;
       const avgDaily = activeDays ? (accepted.length / activeDays).toFixed(1) : '0';
 
-      // أكثر يوم ازدحاماً (يوم الأسبوع) - تعديل: حساب كافة المواعيد المقبولة بغض النظر عن حالة الحضور
+      // أكثر يوم ازدحاماً (يوم الأسبوع) - تعديل نهائي: حساب كافة المواعيد الموجودة في الروزنامة بغض النظر عن الحالة
       const weekdayCounts = Array(7).fill(0);
-      allRecords.filter(r => r.Status === 'Accepted' || r.Status === 'Visited' || r.Status === 'NoShow').forEach(r => {
+      allRecords.forEach(r => {
         if (!r.Date) return;
         const parts = r.Date.substring(0,10).split('-').map(Number);
         const d = new Date(parts[0], parts[1]-1, parts[2]);
@@ -3345,15 +3345,51 @@
         document.getElementById('agendaEvening').innerHTML = evening.length ? evening.map(pastAgendaCard).join('') : emptyMsg('مسائية');
 
       } else {
-        // اليوم الحالي أو المستقبل: عرض المواعيد المؤكدة فقط
+        // اليوم الحالي أو المستقبل: عرض المواعيد المؤكدة والمكتملة (تمت الزيارة)
         const accepted = allRecords.filter(r => r.Status === 'Accepted' && r.Date === dateStr);
-        const morning = accepted.filter(r => (r.Slot || 'Morning') === 'Morning');
-        const evening = accepted.filter(r =>  r.Slot === 'Evening');
-        document.getElementById('agendaCount').textContent = `عدد المواعيد المؤكدة: ${accepted.length}`;
+        const visited  = allRecords.filter(r => r.Status === 'Visited'  && r.Date === dateStr);
+        const noShow   = allRecords.filter(r => r.Status === 'NoShow'   && r.Date === dateStr);
+        
+        const activeRecords = [...accepted, ...visited, ...noShow];
+        const morning = activeRecords.filter(r => (r.Slot || 'Morning') === 'Morning');
+        const evening = activeRecords.filter(r =>  r.Slot === 'Evening');
+        
+        document.getElementById('agendaCount').textContent = `عدد المواعيد: ${activeRecords.length}`;
         document.getElementById('agendaMorningCount').textContent = morning.length;
         document.getElementById('agendaEveningCount').textContent = evening.length;
-        document.getElementById('agendaMorning').innerHTML = morning.length ? morning.map(r => agendaCardHTML(r)).join('') : emptyMsg('صباحية');
-        document.getElementById('agendaEvening').innerHTML = evening.length ? evening.map(r => agendaCardHTML(r)).join('') : emptyMsg('مسائية');
+        
+        const currentAgendaCard = (r) => {
+          if (r.Status === 'Visited' || r.Status === 'NoShow') {
+            // إذا كانت الزيارة تمت أو لم يحضر، نستخدم نفس شكل البطاقة القديمة (Past Card) لتمييزها
+            let badgeBg, badgeColor, badgeBorder, badgeIcon, badgeText;
+            if (r.Status === 'Visited') {
+              badgeBg = '#dcfce7'; badgeColor = '#16a34a'; badgeBorder = '#86efac';
+              badgeIcon = 'fa-check-circle'; badgeText = 'تمت الزيارة';
+            } else {
+              badgeBg = '#fee2e2'; badgeColor = '#dc2626'; badgeBorder = '#fca5a5';
+              badgeIcon = 'fa-user-times'; badgeText = 'لم يحضر';
+            }
+            return `<div style="background:var(--primary-faint);border:1.5px solid ${badgeBorder};border-radius:12px;padding:12px;margin-bottom:8px;opacity:.88;">
+              <div class="flex justify-between items-start">
+                <div>
+                  <p class="font-bold" style="color:var(--text-primary)">${r.PatientName}</p>
+                  <p class="text-xs mt-1" style="color:var(--primary)">${r.Phone}</p>
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;">
+                  <span style="font-size:.72rem;padding:3px 10px;border-radius:20px;font-weight:700;background:${badgeBg};color:${badgeColor};border:1px solid ${badgeBorder};">
+                    <i class="fas ${badgeIcon}" style="margin-left:3px;font-size:.65rem;"></i>${badgeText}
+                  </span>
+                  <span style="font-size:.7rem;color:var(--text-muted);">${r.VisitType || ''} · ${r.Slot === 'Evening' ? 'مساءً' : 'صباحاً'}</span>
+                </div>
+              </div>
+            </div>`;
+          }
+          // إذا كان الموعد مؤكد فقط، نستخدم الشكل العادي
+          return agendaCardHTML(r);
+        };
+
+        document.getElementById('agendaMorning').innerHTML = morning.length ? morning.map(currentAgendaCard).join('') : emptyMsg('صباحية');
+        document.getElementById('agendaEvening').innerHTML = evening.length ? evening.map(currentAgendaCard).join('') : emptyMsg('مسائية');
       }
     }
 
@@ -5721,8 +5757,8 @@
 
       // --- توزيع الأيام (نفس renderWeekdayBars لكن بـ IDs مختلفة) ---
       const weekdayCounts = Array(7).fill(0);
-      // تعديل: حساب كافة المواعيد المقبولة بغض النظر عن حالة الحضور
-      allRecords.filter(r => r.Status === 'Accepted' || r.Status === 'Visited' || r.Status === 'NoShow').forEach(r => {
+      // تعديل نهائي: حساب كافة المواعيد الموجودة في الروزنامة بغض النظر عن الحالة (مقبول، ملغى، انتظار، إلخ)
+      allRecords.forEach(r => {
         if (r.Date) {
           const parts = r.Date.substring(0,10).split('-').map(Number);
           const d = new Date(parts[0], parts[1]-1, parts[2]);
