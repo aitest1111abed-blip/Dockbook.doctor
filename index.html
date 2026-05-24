@@ -2667,9 +2667,9 @@
       const activeDays = Object.keys(dayMap).length;
       const avgDaily = activeDays ? (accepted.length / activeDays).toFixed(1) : '0';
 
-      // أكثر يوم ازدحاماً (يوم الأسبوع) — كل موعد يُحسب مرة واحدة فقط
+      // أكثر يوم ازدحاماً (يوم الأسبوع)
       const weekdayCounts = Array(7).fill(0);
-      allRecords.filter(r => r.Status === 'Accepted').forEach(r => {
+      allRecords.filter(r => ['Accepted','Visited','NoShow'].includes(r.Status)).forEach(r => {
         if (!r.Date) return;
         const parts = r.Date.substring(0,10).split('-').map(Number);
         const d = new Date(parts[0], parts[1]-1, parts[2]);
@@ -2749,40 +2749,29 @@
         '" stroke="rgba(99,102,241,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
       ).join('');
 
-      // نقاط مع glow للأعلى — مع تمييز اليوم الحالي
-      const wTodayIdx = new Date().getDay();
+      // نقاط مع glow للأعلى
       const dots = pts.map((p, i) => {
-        const isMax   = i === maxIdx;
-        const isToday = i === wTodayIdx;
-        const r = (isMax || isToday) ? 6 : 4.5;
-        let glow = '';
-        if (isToday) glow = '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#f59e0b" opacity="0.18"/>';
-        else if (isMax) glow = '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#6366f1" opacity="0.15"/>';
-        const fill   = isToday ? '#f59e0b' : (isMax ? '#6366f1' : 'white');
-        const stroke = isToday ? '#d97706' : (isMax ? '#4f46e5' : '#6366f1');
-        const filter = isToday ? 'drop-shadow(0 2px 6px rgba(245,158,11,0.5))' : (isMax ? 'drop-shadow(0 2px 6px rgba(99,102,241,0.5))' : 'none');
+        const isMax = i === maxIdx;
+        const r = isMax ? 6 : 4.5;
+        const glow = isMax ? '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#6366f1" opacity="0.15"/>' : '';
         return glow + '<circle class="cdot"' +
           ' cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '"' +
           ' r="' + r + '"' +
-          ' fill="' + fill + '"' +
-          ' stroke="' + stroke + '" stroke-width="2.5"' +
+          ' fill="' + (isMax ? '#6366f1' : 'white') + '"' +
+          ' stroke="' + (isMax ? '#4f46e5' : '#6366f1') + '" stroke-width="2.5"' +
           ' data-v="' + p.v + '" data-i="' + i + '"' +
-          ' style="cursor:pointer;filter:' + filter + ';"/>';
+          ' style="cursor:pointer;filter:' + (isMax ? 'drop-shadow(0 2px 6px rgba(99,102,241,0.5))' : 'none') + ';"/>';
       }).join('');
 
       // أرقام فوق كل نقطة مباشرة
       const valueLabels = pts.map((p, i) => {
         if (p.v === 0) return '';
-        const isMax   = i === maxIdx;
-        const isToday = i === wTodayIdx;
+        const isMax = i === maxIdx;
         const yPos  = (p.y - 13).toFixed(1);
-        const color = isToday ? '#d97706' : (isMax ? '#6366f1' : 'rgba(100,116,139,0.9)');
-        const fsize = (isMax || isToday) ? '12' : '10.5';
-        const fweight = (isMax || isToday) ? '800' : '700';
         return '<text x="' + p.x.toFixed(1) + '" y="' + yPos +
-          '" text-anchor="middle" font-size="' + fsize + '"' +
-          ' font-weight="' + fweight + '"' +
-          ' fill="' + color + '">' +
+          '" text-anchor="middle" font-size="' + (isMax ? '12' : '10.5') + '"' +
+          ' font-weight="' + (isMax ? '800' : '700') + '"' +
+          ' fill="' + (isMax ? '#6366f1' : 'rgba(100,116,139,0.9)') + '">' +
           p.v + '</text>';
       }).join('');
 
@@ -2810,26 +2799,15 @@
         '<g id="wVals" style="opacity:0;">' + valueLabels + '</g>' +
         '</svg>';
 
-      // Labels تحت كل نقطة — مع تمييز اليوم الحالي
-      const todayDayIdx = new Date().getDay();
+      // Labels تحت كل نقطة
       labels.style.cssText = 'position:relative;width:100%;height:20px;margin-top:4px;direction:ltr;display:block;';
       labels.innerHTML = pts.map((p, i) => {
         const leftPct = ((p.x / W) * 100).toFixed(2);
         const isMax   = i === maxIdx;
-        const isToday = i === todayDayIdx;
-        let color, fontWeight, bg;
-        if (isToday) {
-          color = '#f59e0b'; fontWeight = '800';
-          bg = 'background:rgba(245,158,11,0.13);padding:1px 6px;border-radius:6px;border:1px solid rgba(245,158,11,0.35);';
-        } else if (isMax) {
-          color = '#6366f1'; fontWeight = '800';
-          bg = 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;';
-        } else {
-          color = 'var(--text-muted)'; fontWeight = '600'; bg = '';
-        }
         return '<span style="position:absolute;left:' + leftPct + '%;transform:translateX(-50%);' +
-          'font-size:.68rem;font-weight:' + fontWeight + ';' +
-          'color:' + color + ';white-space:nowrap;' + bg + '">' +
+          'font-size:.68rem;font-weight:' + (isMax ? '800' : '600') + ';' +
+          'color:' + (isMax ? '#6366f1' : 'var(--text-muted)') + ';white-space:nowrap;' +
+          (isMax ? 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;' : '') + '">' +
           dayNames[i] + '</span>';
       }).join('');
 
@@ -5708,7 +5686,7 @@
 
       // --- توزيع الأيام (نفس renderWeekdayBars لكن بـ IDs مختلفة) ---
       const weekdayCounts = Array(7).fill(0);
-      allRecords.filter(r => r.Status === 'Accepted').forEach(r => {
+      allRecords.filter(r => ['Accepted','Visited','NoShow'].includes(r.Status)).forEach(r => {
         if (r.Date) {
           const parts = r.Date.substring(0,10).split('-').map(Number);
           const d = new Date(parts[0], parts[1]-1, parts[2]);
@@ -5766,38 +5744,26 @@
           '" stroke="rgba(99,102,241,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
         ).join('');
 
-        // نقاط الصفحة الرئيسية — مع تمييز اليوم الحالي
-        const hwDotTodayIdx = new Date().getDay();
         const dots = pts.map((p, i) => {
-          const isMax   = i === maxIdx;
-          const isToday = i === hwDotTodayIdx;
-          const r = (isMax || isToday) ? 6 : 4.5;
-          let glow = '';
-          if (isToday) glow = '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#f59e0b" opacity="0.18"/>';
-          else if (isMax) glow = '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#6366f1" opacity="0.15"/>';
-          const fill   = isToday ? '#f59e0b' : (isMax ? '#6366f1' : 'white');
-          const stroke = isToday ? '#d97706' : (isMax ? '#4f46e5' : '#6366f1');
-          const filter = isToday ? 'drop-shadow(0 2px 6px rgba(245,158,11,0.5))' : (isMax ? 'drop-shadow(0 2px 6px rgba(99,102,241,0.5))' : 'none');
+          const isMax = i === maxIdx;
+          const r = isMax ? 6 : 4.5;
+          const glow = isMax ? '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#6366f1" opacity="0.15"/>' : '';
           return glow + '<circle class="hwdot"' +
             ' cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '"' +
             ' r="' + r + '"' +
-            ' fill="' + fill + '"' +
-            ' stroke="' + stroke + '" stroke-width="2.5"' +
+            ' fill="' + (isMax ? '#6366f1' : 'white') + '"' +
+            ' stroke="' + (isMax ? '#4f46e5' : '#6366f1') + '" stroke-width="2.5"' +
             ' data-v="' + p.v + '" data-i="' + i + '"' +
-            ' style="cursor:pointer;filter:' + filter + ';"/>';
+            ' style="cursor:pointer;filter:' + (isMax ? 'drop-shadow(0 2px 6px rgba(99,102,241,0.5))' : 'none') + ';"/>';
         }).join('');
 
         const valueLabels = pts.map((p, i) => {
           if (p.v === 0) return '';
-          const isMax   = i === maxIdx;
-          const isToday = i === hwDotTodayIdx;
-          const color   = isToday ? '#d97706' : (isMax ? '#6366f1' : 'rgba(100,116,139,0.9)');
-          const fsize   = (isMax || isToday) ? '12' : '10.5';
-          const fweight = (isMax || isToday) ? '800' : '700';
+          const isMax = i === maxIdx;
           return '<text x="' + p.x.toFixed(1) + '" y="' + (p.y - 13).toFixed(1) +
-            '" text-anchor="middle" font-size="' + fsize + '"' +
-            ' font-weight="' + fweight + '"' +
-            ' fill="' + color + '">' + p.v + '</text>';
+            '" text-anchor="middle" font-size="' + (isMax ? '12' : '10.5') + '"' +
+            ' font-weight="' + (isMax ? '800' : '700') + '"' +
+            ' fill="' + (isMax ? '#6366f1' : 'rgba(100,116,139,0.9)') + '">' + p.v + '</text>';
         }).join('');
 
         wWrap.style.cssText = 'display:block;width:100%;height:165px;position:relative;';
@@ -5881,26 +5847,14 @@
           });
         });
 
-        // Labels الصفحة الرئيسية — مع تمييز اليوم الحالي
-        const hwTodayIdx = new Date().getDay();
         wLabels.style.cssText = 'position:relative;width:100%;height:20px;margin-top:4px;direction:ltr;display:block;';
         wLabels.innerHTML = pts.map((p, i) => {
           const leftPct = ((p.x / W) * 100).toFixed(2);
           const isMax   = i === maxIdx;
-          const isToday = i === hwTodayIdx;
-          let color, fontWeight, bg;
-          if (isToday) {
-            color = '#f59e0b'; fontWeight = '800';
-            bg = 'background:rgba(245,158,11,0.13);padding:1px 6px;border-radius:6px;border:1px solid rgba(245,158,11,0.35);';
-          } else if (isMax) {
-            color = '#6366f1'; fontWeight = '800';
-            bg = 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;';
-          } else {
-            color = 'var(--text-muted)'; fontWeight = '600'; bg = '';
-          }
           return '<span style="position:absolute;left:' + leftPct + '%;transform:translateX(-50%);' +
-            'font-size:.68rem;font-weight:' + fontWeight + ';' +
-            'color:' + color + ';white-space:nowrap;' + bg + '">' +
+            'font-size:.68rem;font-weight:' + (isMax ? '800' : '600') + ';' +
+            'color:' + (isMax ? '#6366f1' : 'var(--text-muted)') + ';white-space:nowrap;' +
+            (isMax ? 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;' : '') + '">' +
             dayNames[i] + '</span>';
         }).join('');
       }
