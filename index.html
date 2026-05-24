@@ -1638,7 +1638,7 @@
             <div style="display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:16px;">
               <div>
                 <h3 id="agendaTitle" style="font-weight:700; font-size:.9rem; color:var(--text-primary);">-</h3>
-                <p id="agendaCount" style="font-size:.72rem; color:var(--text-muted); margin-top:2px;">عدد المواعيد (مؤكدة / تمت): 0</p>
+                <p id="agendaCount" style="font-size:.72rem; color:var(--text-muted); margin-top:2px;">عدد المواعيد المؤكدة: 0</p>
               </div>
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <button id="showDayDetailsBtn" type="button" class="btn-show-details" title="عرض تفاصيل اليوم"><i class="fas fa-eye"></i></button>
@@ -5698,7 +5698,7 @@
         const accepted = allRecords.filter(r => ['Accepted','Visited','NoShow'].includes(r.Status) && normalizeDate(r.Date) === dateStr);
         morning = accepted.filter(r => (r.Slot || 'Morning') === 'Morning');
         evening = accepted.filter(r => r.Slot === 'Evening');
-        document.getElementById('homePanelCount').textContent = `عدد المواعيد (مؤكدة / تمت): ${accepted.length}`;
+        document.getElementById('homePanelCount').textContent = `عدد المواعيد المؤكدة: ${accepted.length}`;
       }
 
       document.getElementById('homePanelMorningCount').textContent = morning.length;
