@@ -913,35 +913,6 @@
     }
     .stat-card.month-shadow .stat-icon i { color: #2563eb !important; }
 
-    /* ===== Compact stat cards ===== */
-    .stat-card-compact {
-      min-height: unset !important;
-      padding: 14px 16px !important;
-    }
-    .stat-icon-compact {
-      width: 36px !important; height: 36px !important;
-      border-radius: 10px !important;
-    }
-    .stat-icon-compact i { font-size: 1.1rem !important; }
-    .stat-value-compact { font-size: 1.6rem !important; }
-    .stat-card-title {
-      font-size: .78rem; color: var(--text-muted); font-weight: 700;
-      line-height: 1.2;
-    }
-
-    /* ===== Desktop stats layout (≥900px) ===== */
-    @media (min-width: 900px) {
-      #statsTopRow {
-        grid-template-columns: 1fr 340px !important;
-      }
-      #statsCardsWrap .stats-cards-grid {
-        grid-template-columns: repeat(4, 1fr) !important;
-      }
-      #statsMidRow {
-        grid-template-columns: 1fr 320px !important;
-      }
-    }
-
     /* Fix remaining Tailwind classes */
     .text-primary-3 { color: var(--primary) !important; }
     .bg-primary-5 { background: var(--primary) !important; }
@@ -1420,7 +1391,21 @@
               <div style="font-size:.76rem;color:var(--text-muted);font-weight:600;margin-top:5px;">متبقية</div>
             </div>
 
-
+            <!-- زاروا اليوم -->
+            <div class="home-mini-card glass-card" style="padding:18px 16px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px;">
+                <div style="width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,#dcfce7,#bbf7d0);flex-shrink:0;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(22,163,74,0.15);">
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/>
+                    <circle cx="10" cy="7" r="4"/>
+                    <polyline points="15 10 17 12 21 8" stroke-width="2.2"/>
+                  </svg>
+                </div>
+                <span style="font-size:.68rem;font-weight:700;color:#16a34a;background:#f0fdf4;padding:3px 8px;border-radius:20px;border:1px solid #bbf7d0;">حضروا</span>
+              </div>
+              <div id="homeStatVisited" style="font-size:2rem;font-weight:900;color:#16a34a;line-height:1;letter-spacing:-1.5px;">0</div>
+              <div style="font-size:.76rem;color:var(--text-muted);font-weight:600;margin-top:5px;">زاروا اليوم</div>
+            </div>
 
             <!-- لم يحضروا -->
             <div class="home-mini-card glass-card" style="padding:18px 16px;">
@@ -1462,8 +1447,8 @@
                   </h3>
                   <span style="font-size:.72rem;color:var(--text-muted);font-weight:600;">عدد المواعيد لكل يوم من الأسبوع</span>
                 </div>
-                <div id="homeWeekdayBarsWrap" style="display:flex;align-items:flex-end;width:100%;height:160px;"></div>
-                <div id="homeWeekdayBarsLabels" style="display:none;"></div>
+                <div id="homeWeekdayBarsWrap" style="display:block;width:100%;height:160px;position:relative;"></div>
+                <div id="homeWeekdayBarsLabels" style="display:flex;gap:6px;margin-top:6px;direction:ltr;"></div>
               </div>
 
               <!-- توزيع الزيارات + أحدث الزيارات -->
@@ -1672,146 +1657,130 @@
 
       <!-- قسم الإحصائيات -->
       <section id="statsSection" class="hidden">
-        <div class="space-y-4" id="statsDesktopLayout">
+        <div class="space-y-6">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-          <!-- ===== الصف الأول: 8 كروت + توزيع الأيام (ديسكتوب فقط) ===== -->
-          <div id="statsTopRow" style="display:grid;grid-template-columns:1fr;gap:16px;">
-
-            <!-- الكروت الـ 8 مجمّعة في عمود -->
-            <div id="statsCardsWrap" style="display:flex;flex-direction:column;gap:8px;">
-
-              <!-- الصف الأول: 4 كروت -->
-              <div class="stats-cards-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-
-                <!-- المرضى النشطين -->
-                <div class="stat-card stat-card-compact fade-in" onclick="showStatInfo('active')">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
-                    <h3 class="stat-card-title">المرضى النشطين</h3>
-                    <div class="stat-icon stat-icon-compact"><i class="fas fa-heart-circle-plus"></i></div>
-                  </div>
-                  <div class="stat-value stat-value-compact" id="statActiveUsers">0</div>
-                  <div style="margin-top:6px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
-                </div>
-
-                <!-- إجمالي الزيارات -->
-                <div class="stat-card stat-card-compact fade-in" onclick="showStatInfo('total')">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
-                    <h3 class="stat-card-title">إجمالي الزيارات</h3>
-                    <div class="stat-icon stat-icon-compact"><i class="fas fa-clipboard-list"></i></div>
-                  </div>
-                  <div class="stat-value stat-value-compact" id="statTotalVisits">0</div>
-                  <div style="margin-top:6px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> إجمالي كل الزيارات</span></div>
-                </div>
-
-                <!-- المواعيد الملغاة -->
-                <div class="stat-card stat-card-compact cancelled-shadow fade-in" onclick="showStatInfo('cancelled')">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
-                    <h3 class="stat-card-title" style="color:#dc2626;">المواعيد الملغاة</h3>
-                    <div class="stat-icon stat-icon-compact"><i class="fas fa-ban"></i></div>
-                  </div>
-                  <div class="stat-value stat-value-compact" id="statCancelled">0</div>
-                  <div style="margin-top:6px;"><span class="stat-change down"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
-                </div>
-
-                <!-- نسبة التكرار -->
-                <div class="stat-card stat-card-compact repeat-shadow fade-in" onclick="showStatInfo('repeat')">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
-                    <h3 class="stat-card-title" style="color:#16a34a;">نسبة التكرار</h3>
-                    <div class="stat-icon stat-icon-compact"><i class="fas fa-arrow-trend-up"></i></div>
-                  </div>
-                  <div class="stat-value-small stat-value-compact" id="statConversion">0%</div>
-                  <div style="margin-top:6px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> نسبة المرضى المتكررين</span></div>
-                </div>
-
+            <!-- المرضى النشطين -->
+            <div class="stat-card fade-in" onclick="showStatInfo('active')">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">المرضى النشطين</h3>
+                <div class="stat-icon"><i class="fas fa-heart-circle-plus"></i></div>
               </div>
-
-              <!-- الصف الثاني: 4 كروت -->
-              <div class="stats-cards-grid" style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;">
-
-                <!-- متوسط الزيارات اليومي -->
-                <div class="stat-card stat-card-compact fade-in" onclick="showStatInfo('avgDaily')">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
-                    <h3 class="stat-card-title">متوسط الزيارات اليومي</h3>
-                    <div class="stat-icon stat-icon-compact"><i class="fas fa-chart-line"></i></div>
-                  </div>
-                  <div class="stat-value-small stat-value-compact" id="statAvgDaily">0</div>
-                  <div style="margin-top:6px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> يومياً</span></div>
-                </div>
-
-                <!-- أكثر يوم ازدحاماً -->
-                <div class="stat-card stat-card-compact fade-in" onclick="showStatInfo('busyday')">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
-                    <h3 class="stat-card-title">أكثر يوم ازدحاماً</h3>
-                    <div class="stat-icon stat-icon-compact" style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fdba74;box-shadow:0 4px 12px rgba(234,88,12,.15);">
-                      <i class="fas fa-fire" style="color:#ea580c;"></i>
-                    </div>
-                  </div>
-                  <div class="stat-day-value" id="statBusyDay" style="font-size:1.2rem;">—</div>
-                  <div style="margin-top:6px;" id="statBusyDayCount"><span class="stat-change" style="color:var(--text-muted);"></span></div>
-                </div>
-
-                <!-- لم يحضر -->
-                <div class="stat-card stat-card-compact noshow-shadow fade-in" onclick="showStatInfo('noshow')">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
-                    <h3 class="stat-card-title" style="color:#ea580c;">لم يحضر</h3>
-                    <div class="stat-icon stat-icon-compact"><i class="fas fa-user-slash"></i></div>
-                  </div>
-                  <div class="stat-value stat-value-compact" id="statNoShow">0</div>
-                  <div style="margin-top:6px;"><span class="stat-change down"><i class="fas fa-arrow-down" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
-                </div>
-
-                <!-- زيارات هذا الشهر -->
-                <div class="stat-card stat-card-compact month-shadow fade-in" onclick="showStatInfo('thismonth')">
-                  <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
-                    <h3 class="stat-card-title" style="color:#2563eb;">زيارات هذا الشهر</h3>
-                    <div class="stat-icon stat-icon-compact"><i class="fas fa-calendar-check"></i></div>
-                  </div>
-                  <div class="stat-value stat-value-compact" id="statThisMonth">0</div>
-                  <div style="margin-top:6px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> هذا الشهر</span></div>
-                </div>
-
-              </div>
+              <div class="stat-value" id="statActiveUsers">0</div>
+              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
             </div>
 
-            <!-- توزيع الأيام (على يمين الكروت على الديسكتوب) -->
-            <div class="glass-card" id="weekdayCard" style="display:flex;flex-direction:column;justify-content:center;">
-              <div class="card-header flex justify-between items-center mb-4">
-                <div>
-                  <h2 class="card-title font-bold">توزيع الأيام</h2>
-                  <p class="card-subtitle text-xs" style="color:var(--text-muted)">عدد المواعيد لكل يوم من الأسبوع</p>
-                </div>
+            <!-- إجمالي الزيارات -->
+            <div class="stat-card fade-in" onclick="showStatInfo('total')">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">إجمالي الزيارات</h3>
+                <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
               </div>
-              <div id="weekdayBarsWrap" style="display:block;width:100%;height:120px;"></div>
-              <div id="weekdayBarsLabels" style="display:flex;gap:6px;margin-top:6px;direction:ltr;"></div>
+              <div class="stat-value" id="statTotalVisits">0</div>
+              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> إجمالي كل الزيارات</span></div>
+            </div>
+
+            <!-- المواعيد الملغاة -->
+            <div class="stat-card cancelled-shadow fade-in" onclick="showStatInfo('cancelled')">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:#dc2626;font-weight:700;">المواعيد الملغاة</h3>
+                <div class="stat-icon"><i class="fas fa-ban"></i></div>
+              </div>
+              <div class="stat-value" id="statCancelled">0</div>
+              <div style="margin-top:8px;"><span class="stat-change down"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
+            </div>
+
+            <!-- نسبة التكرار -->
+            <div class="stat-card repeat-shadow fade-in" onclick="showStatInfo('repeat')">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:#16a34a;font-weight:700;">نسبة التكرار</h3>
+                <div class="stat-icon"><i class="fas fa-arrow-trend-up"></i></div>
+              </div>
+              <div class="stat-value-small" id="statConversion">0%</div>
+              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> نسبة المرضى المتكررين</span></div>
             </div>
 
           </div>
 
-          <!-- ===== الصف الثاني: تحليلات المواعيد + توزيع الزيارات ===== -->
-          <div style="display:grid;grid-template-columns:1fr;gap:16px;" id="statsMidRow">
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
-            <!-- تحليلات المواعيد -->
-            <div class="glass-card">
-              <div class="card-header flex justify-between items-center mb-4">
-                <div>
-                  <h2 class="card-title font-bold">تحليلات المواعيد</h2>
-                  <p class="card-subtitle text-xs" style="color:var(--text-muted)">توزيع المواعيد المؤكدة</p>
-                </div>
-                <div class="card-actions">
-                  <button class="card-btn active" onclick="updateChartPeriod('monthly')">شهري</button>
-                  <button class="card-btn" onclick="updateChartPeriod('weekly')">أسبوعي</button>
-                  <button class="card-btn" onclick="updateChartPeriod('daily')">يومي</button>
-                </div>
+            <!-- متوسط الزيارات اليومي -->
+            <div class="stat-card fade-in" onclick="showStatInfo('avgDaily')">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">متوسط الزيارات اليومي</h3>
+                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
               </div>
-              <div class="chart-wrapper overflow-x-auto">
-                <div class="chart-container" id="appointmentsChartContainer">
-                  <div class="chart-y-axis" id="chartYAxis"></div>
-                  <div class="chart-placeholder" id="appointmentsChart"></div>
-                </div>
-              </div>
+              <div class="stat-value-small" id="statAvgDaily">0</div>
+              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> يومياً</span></div>
             </div>
 
-            <!-- توزيع الزيارات -->
+            <!-- أكثر يوم ازدحاماً -->
+            <div class="stat-card fade-in" onclick="showStatInfo('busyday')">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">أكثر يوم ازدحاماً</h3>
+                <div class="stat-icon" style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fdba74;box-shadow:0 4px 12px rgba(234,88,12,.15);">
+                  <i class="fas fa-fire" style="color:#ea580c;"></i>
+                </div>
+              </div>
+              <div class="stat-day-value" id="statBusyDay">—</div>
+              <div style="margin-top:8px;" id="statBusyDayCount"><span class="stat-change" style="color:var(--text-muted);"></span></div>
+            </div>
+
+            <!-- لم يحضر -->
+            <div class="stat-card noshow-shadow fade-in" onclick="showStatInfo('noshow')">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:#ea580c;font-weight:700;">لم يحضر</h3>
+                <div class="stat-icon"><i class="fas fa-user-slash"></i></div>
+              </div>
+              <div class="stat-value" id="statNoShow">0</div>
+              <div style="margin-top:8px;"><span class="stat-change down"><i class="fas fa-arrow-down" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
+            </div>
+
+            <!-- زيارات هذا الشهر -->
+            <div class="stat-card month-shadow fade-in" onclick="showStatInfo('thismonth')">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.82rem;color:#2563eb;font-weight:700;">زيارات هذا الشهر</h3>
+                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+              </div>
+              <div class="stat-value" id="statThisMonth">0</div>
+              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> هذا الشهر</span></div>
+            </div>
+
+          </div>
+
+          <div class="glass-card">
+            <div class="card-header flex justify-between items-center mb-4">
+              <div>
+                <h2 class="card-title font-bold">تحليلات المواعيد</h2>
+                <p class="card-subtitle text-xs" style="color:var(--text-muted)">توزيع المواعيد المؤكدة</p>
+              </div>
+              <div class="card-actions">
+                <button class="card-btn active" onclick="updateChartPeriod('monthly')">شهري</button>
+                <button class="card-btn" onclick="updateChartPeriod('weekly')">أسبوعي</button>
+                <button class="card-btn" onclick="updateChartPeriod('daily')">يومي</button>
+              </div>
+            </div>
+            <div class="chart-wrapper overflow-x-auto">
+              <div class="chart-container" id="appointmentsChartContainer">
+                <div class="chart-y-axis" id="chartYAxis"></div>
+                <div class="chart-placeholder" id="appointmentsChart"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- مخطط توزيع أيام الأسبوع -->
+          <div class="glass-card">
+            <div class="card-header flex justify-between items-center mb-4">
+              <div>
+                <h2 class="card-title font-bold">توزيع الأيام</h2>
+                <p class="card-subtitle text-xs" style="color:var(--text-muted)">عدد المواعيد لكل يوم من الأسبوع</p>
+              </div>
+            </div>
+            <div id="weekdayBarsWrap" style="display:block;width:100%;height:120px;"></div>
+            <div id="weekdayBarsLabels" style="display:flex;gap:6px;margin-top:6px;direction:ltr;"></div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div class="glass-card">
               <div class="card-header flex justify-between items-center mb-4">
                 <div>
@@ -1835,22 +1804,19 @@
               </div>
             </div>
 
-          </div>
-
-          <!-- ===== الصف الثالث: أحدث الزيارات (عرض كامل) ===== -->
-          <div class="glass-card">
-            <div class="card-header mb-4">
-              <h2 class="card-title font-bold">أحدث الزيارات</h2>
-              <p class="card-subtitle text-xs" style="color:var(--text-muted)">آخر 30 زيارة</p>
-            </div>
-            <div class="scrollable-visits">
-              <table class="w-full text-sm">
-                <thead><tr><th class="text-right" style="color:var(--text-muted)">المريض</th><th class="text-right" style="color:var(--text-muted)">النوع</th><th class="text-right" style="color:var(--text-muted)">التاريخ</th></tr></thead>
-                <tbody id="recentAppointmentsTable"></tbody>
-              </table>
+            <div class="glass-card">
+              <div class="card-header mb-4">
+                <h2 class="card-title font-bold">أحدث الزيارات</h2>
+                <p class="card-subtitle text-xs" style="color:var(--text-muted)">آخر 30 زيارة</p>
+              </div>
+              <div class="scrollable-visits">
+                <table class="w-full text-sm">
+                  <thead><tr><th class="text-right" style="color:var(--text-muted)">المريض</th><th class="text-right" style="color:var(--text-muted)">النوع</th><th class="text-right" style="color:var(--text-muted)">التاريخ</th></tr></thead>
+                  <tbody id="recentAppointmentsTable"></tbody>
+                </table>
+              </div>
             </div>
           </div>
-
         </div>
       </section>
     </div>
@@ -2090,97 +2056,56 @@
 
   <!-- مودال عرض الملاحظة -->
   <div id="noteModal" class="modal-hidden fixed inset-0 z-[160] flex items-center justify-center p-4 modal-overlay">
-    <div class="modal-content w-full" style="max-width:1000px;height:92vh;max-height:92vh;display:flex;flex-direction:column;overflow:hidden;border-radius:20px;">
-
-      <!-- Header -->
-      <div style="display:flex;align-items:center;gap:14px;padding:18px 24px;border-bottom:1.5px solid var(--border);background:var(--surface);flex-shrink:0;">
-        <button onclick="closeNoteModal()" style="width:36px;height:36px;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;transition:all .15s;" onmouseover="this.style.borderColor='var(--primary)';this.style.color='var(--primary)'" onmouseout="this.style.borderColor='var(--border)';this.style.color='var(--text-muted)'">
-          <i class="fas fa-arrow-right"></i>
-        </button>
-        <div style="flex:1;min-width:0;">
-          <h3 style="font-weight:800;font-size:1rem;color:var(--text-primary);">الملاحظة والصور</h3>
-          <p id="noteVisitInfo" style="font-size:.74rem;color:var(--primary);margin-top:2px;font-weight:600;"></p>
-        </div>
-        <!-- زر التعديل -->
-        <button id="noteEditBtn" onclick="openNoteEditFromView()" style="display:flex;align-items:center;gap:7px;padding:8px 18px;background:var(--primary);color:white;border:none;border-radius:10px;font-size:.84rem;font-weight:700;cursor:pointer;font-family:inherit;transition:opacity .15s;" onmouseover="this.style.opacity='.85'" onmouseout="this.style.opacity='1'">
-          <i class="fas fa-pen" style="font-size:.78rem;"></i> تعديل
-        </button>
+    <div class="modal-content max-w-md w-full" style="max-height:90vh;overflow-y:auto;">
+      <div class="p-4 border-b flex justify-between items-center" style="border-color:var(--border)">
+        <h3 class="font-bold" style="color:var(--text-primary)">الملاحظة والصور</h3>
+        <button onclick="closeNoteModal()" style="color:var(--text-muted);cursor:pointer;background:none;border:none;font-size:1.2rem;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center"><i class="fas fa-times"></i></button>
       </div>
-
-      <!-- Body — عمودان -->
-      <div style="flex:1;overflow:hidden;background:var(--bg);display:grid;grid-template-columns:1fr 1fr;">
-
-        <!-- العمود الأيسر: المحتوى -->
-        <div style="padding:24px;display:flex;flex-direction:column;gap:18px;border-left:1.5px solid var(--border);overflow-y:auto;">
-
-          <!-- الوصفة الطبية -->
-          <div id="prescriptionSection" style="display:none;">
-            <div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:.86rem;color:var(--text);margin-bottom:10px;">
-              <span style="width:30px;height:30px;border-radius:8px;background:#fffbeb;border:1.5px solid #fde68a;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <i class="fas fa-prescription" style="font-size:.72rem;color:#d97706;"></i>
-              </span>
-              الوصفة الطبية (الروشيتا)
-            </div>
-            <div id="prescriptionContent" style="background:#fffbeb;border:1.5px solid #fde68a;border-radius:12px;padding:14px;color:var(--text-primary);line-height:1.75;white-space:pre-wrap;word-break:break-word;font-size:.9rem;"></div>
-          </div>
-
-          <!-- الملاحظات العامة -->
-          <div>
-            <div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:.86rem;color:var(--text);margin-bottom:10px;">
-              <span style="width:30px;height:30px;border-radius:8px;background:var(--primary-light);border:1.5px solid var(--border-strong);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <i class="fas fa-pen" style="font-size:.72rem;color:var(--primary);"></i>
-              </span>
-              الملاحظات العامة
-            </div>
-            <div id="noteContent" class="note-content" style="background:var(--surface);border:1.5px solid var(--border);border-radius:12px;padding:14px;color:var(--text-primary);line-height:1.75;white-space:pre-wrap;word-break:break-word;font-size:.9rem;min-height:80px;"></div>
-            <div id="noteUpdatedAt" style="display:none;font-size:.72rem;color:var(--text-muted);display:flex;align-items:center;gap:5px;margin-top:8px;opacity:.85;">
-              <i class="far fa-clock" style="font-size:.7rem;"></i>
-              <span>آخر تعديل: <span id="noteUpdatedAtValue"></span></span>
-            </div>
-          </div>
-
-          <!-- صور الزيارة -->
-          <div id="noteImagesSection" style="display:none;">
-            <div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:.86rem;color:var(--text);margin-bottom:10px;">
-              <span style="width:30px;height:30px;border-radius:8px;background:var(--primary-light);border:1.5px solid var(--border-strong);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                <i class="fas fa-images" style="font-size:.72rem;color:var(--primary);"></i>
-              </span>
-              الصور المرفقة
-            </div>
-            <div id="noteImagesView" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
-          </div>
-
+      <div class="p-4" style="background:var(--surface);display:flex;flex-direction:column;gap:12px;">
+        <div style="font-size:.875rem;color:var(--primary);font-weight:600" id="noteVisitInfo"></div>
+        
+        <!-- قسم الوصفة الطبية -->
+        <div id="prescriptionSection" style="display:none; background:var(--amber-light); border-radius:10px; padding:12px; border:1px solid var(--amber);">
+          <div style="font-weight:700; font-size:.82rem; color:var(--amber); margin-bottom:4px;"><i class="fas fa-prescription ml-1"></i>الوصفة الطبية (الروشيتا):</div>
+          <div id="prescriptionContent" style="color:var(--text-primary); line-height:1.6; white-space:pre-wrap; word-break:break-word; font-size:0.9rem;"></div>
         </div>
 
-        <!-- العمود الأيمن: واتساب -->
-        <div style="padding:24px;display:flex;flex-direction:column;gap:18px;overflow-y:auto;">
-          <div style="display:flex;align-items:center;gap:8px;font-weight:700;font-size:.86rem;color:var(--text);margin-bottom:2px;">
-            <span style="width:30px;height:30px;border-radius:8px;background:#dcfce7;border:1.5px solid #86efac;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <i class="fab fa-whatsapp" style="font-size:.9rem;color:#16a34a;"></i>
-            </span>
-            تواصل مع المريض لهذه الزيارة
+        <div style="font-weight:700; font-size:.82rem; color:var(--text-muted); margin-bottom:-8px;"><i class="fas fa-pen ml-1"></i>الملاحظات العامة:</div>
+        <div id="noteContent" class="note-content" style="color:var(--text-primary);line-height:1.6;white-space:pre-wrap;word-break:break-word"></div>
+        <div id="noteUpdatedAt" style="display:none; font-size:.72rem; color:var(--text-muted); display:flex; align-items:center; gap:5px; margin-top:-4px; opacity:.85;">
+          <i class="far fa-clock" style="font-size:.7rem;"></i>
+          <span>آخر تعديل: <span id="noteUpdatedAtValue"></span></span>
+        </div>
+        
+        <!-- صور الزيارة -->
+        <div id="noteImagesSection" style="display:none;">
+          <div style="font-weight:700;font-size:.82rem;color:var(--text-muted);margin-bottom:8px;"><i class="fas fa-images ml-1"></i>الصور المرفقة:</div>
+          <div id="noteImagesView" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;"></div>
+        </div>
+        
+        <!-- قسم التواصل عبر واتساب -->
+        <div style="margin-top:16px; padding-top:16px; border-top:1.5px dashed var(--border);">
+          <div style="font-weight:700; font-size:.85rem; color:var(--primary); margin-bottom:10px;">
+            <i class="fab fa-whatsapp ml-1"></i> تواصل مع المريض لهذه الزيارة:
           </div>
-          <textarea id="whatsappMsgInput" placeholder="اكتب الملاحظة التي تريد إرسالها..."
-            style="width:100%;padding:14px;background:var(--surface);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:inherit;font-size:.92rem;resize:vertical;line-height:1.75;min-height:180px;transition:border-color .15s;box-sizing:border-box;" onfocus="this.style.borderColor='var(--primary)'" onblur="this.style.borderColor='var(--border)'"></textarea>
-
-          <div id="whatsappImagesSelect" style="display:none;">
-            <div style="font-size:.75rem;color:var(--text-muted);margin-bottom:6px;">اختر صورة لإرسالها (سيتم فتحها أولاً):</div>
-            <div id="whatsappImagesThumbnails" style="display:flex;gap:8px;overflow-x:auto;padding-bottom:5px;"></div>
+          <textarea id="whatsappMsgInput" placeholder="اكتب الملاحظة التي تريد إرسالها..." 
+            style="width:100%; border:1.5px solid var(--border); border-radius:10px; padding:10px; font-size:.85rem; font-family:inherit; min-height:80px; resize:none; margin-bottom:10px;"></textarea>
+          
+          <div id="whatsappImagesSelect" style="display:none; margin-bottom:10px;">
+            <div style="font-size:.75rem; color:var(--text-muted); margin-bottom:5px;">اختر صورة لإرسالها (سيتم فتحها أولاً):</div>
+            <div id="whatsappImagesThumbnails" style="display:flex; gap:8px; overflow-x:auto; padding-bottom:5px;"></div>
           </div>
 
-          <button id="sendToWhatsappBtn" class="btn-primary" style="width:100%;background:#25d366;border-color:#128c7e;justify-content:center;padding:13px;">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="flex-shrink:0;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.524 5.855L0 24l6.336-1.504A11.955 11.955 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.652-.516-5.168-1.416l-.371-.22-3.762.893.951-3.66-.24-.387A9.956 9.956 0 0 1 2 12C2 6.478 6.478 2 12 2s10 4.478 10 10-4.478 10-10 10z"/></svg>
-            إرسال عبر واتساب
+          <button id="sendToWhatsappBtn" class="btn-primary" style="width:100%; background:#25d366; border-color:#128c7e; justify-content:center;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.126.556 4.121 1.524 5.855L0 24l6.336-1.504A11.955 11.955 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.885 0-3.652-.516-5.168-1.416l-.371-.22-3.762.893.951-3.66-.24-.387A9.956 9.956 0 0 1 2 12C2 6.478 6.478 2 12 2s10 4.478 10 10-4.478 10-10 10z"/></svg> إرسال عبر واتساب
           </button>
-          <p style="font-size:.65rem;color:var(--text-muted);text-align:center;margin-top:-10px;">
-            * الصور يجب إرفاقها يدوياً من الاستوديو بعد فتح المحادثة.
+          <p style="font-size:.65rem; color:var(--text-muted); margin-top:6px; text-align:center;">
+            * ملاحظة: سيتم فتح واتساب مع النص، الصور يجب إرفاقها يدوياً من الاستوديو بعد فتح المحادثة.
           </p>
         </div>
       </div>
-
-      <!-- Footer -->
-      <div style="padding:14px 24px;border-top:1.5px solid var(--border);background:var(--surface);display:flex;justify-content:flex-end;flex-shrink:0;">
-        <button onclick="closeNoteModal()" style="padding:9px 22px;border-radius:10px;border:1.5px solid var(--border);background:transparent;color:var(--text-muted);font-size:.85rem;font-weight:700;cursor:pointer;font-family:inherit;">إغلاق</button>
+      <div class="p-4 border-t flex justify-end" style="border-color:var(--border)">
+        <button onclick="closeNoteModal()" class="btn-primary px-4 py-2">إغلاق</button>
       </div>
     </div>
   </div>
@@ -2729,44 +2654,29 @@
       const recentVisits = allVisits.slice(0, 30);
       const repeatRate = totalPatients ? ((repeatPatients / totalPatients) * 100).toFixed(1) : 0;
 
-      // إحصائيات جديدة — مع إزالة التكرار (مريض واحد في اليوم = موعد واحد)
-      const noShow = allRecords.filter(r => r.Status === 'NoShow').length;
-
-      // دالة مساعدة: إزالة التكرار من القائمة حسب تاريخ+هاتف
-      function dedupeRecords(recs) {
-        const seen = new Set();
-        return recs.filter(r => {
-          if (!r.Phone) return true;
-          const k = (r.Date||'').substring(0,10) + '|' + r.Phone.replace(/\D/g,'');
-          if (seen.has(k)) return false;
-          seen.add(k); return true;
-        });
-      }
-
-      const activeRecords = dedupeRecords(
-        allRecords.filter(r => ['Accepted','Visited','NoShow'].includes(r.Status))
-      );
+      // إحصائيات جديدة
+      const accepted = allRecords.filter(r => r.Status === 'Accepted');
+      const noShow   = allRecords.filter(r => r.Status === 'NoShow').length;
 
       // زيارات هذا الشهر
       const nowM = new Date();
       const thisMonthPrefix = `${nowM.getFullYear()}-${String(nowM.getMonth()+1).padStart(2,'0')}`;
-      const thisMonth = activeRecords.filter(r => r.Date && r.Date.startsWith(thisMonthPrefix)).length;
+      const thisMonth = accepted.filter(r => r.Date && r.Date.startsWith(thisMonthPrefix)).length;
 
       // متوسط الزيارات اليومي (على أيام العمل التي بها مواعيد)
       const dayMap = {};
-      activeRecords.forEach(r => { if (r.Date) { const d = r.Date.substring(0,10); dayMap[d] = (dayMap[d]||0)+1; } });
+      accepted.forEach(r => { if (r.Date) { const d = r.Date.substring(0,10); dayMap[d] = (dayMap[d]||0)+1; } });
       const activeDays = Object.keys(dayMap).length;
-      const avgDaily = activeDays ? (activeRecords.length / activeDays).toFixed(1) : '0';
+      const avgDaily = activeDays ? (accepted.length / activeDays).toFixed(1) : '0';
 
-      // أكثر يوم ازدحاماً (يوم الأسبوع) — كل موعد مقبول أو تمت زيارته يُحسب
+      // أكثر يوم ازدحاماً (يوم الأسبوع)
       const weekdayCounts = Array(7).fill(0);
-      allRecords
-        .filter(r => ['Accepted','Visited'].includes(r.Status) && r.Date)
-        .forEach(r => {
-          const parts = r.Date.substring(0,10).split('-').map(Number);
-          const d = new Date(parts[0], parts[1]-1, parts[2]);
-          weekdayCounts[d.getDay()]++;
-        });
+      allRecords.filter(r => ['Accepted','Visited'].includes(r.Status)).forEach(r => {
+        if (!r.Date) return;
+        const parts = r.Date.substring(0,10).split('-').map(Number);
+        const d = new Date(parts[0], parts[1]-1, parts[2]);
+        weekdayCounts[d.getDay()]++;
+      });
       const busyIdx = weekdayCounts.indexOf(Math.max(...weekdayCounts));
       const busyDay = Math.max(...weekdayCounts) > 0 ? daysAr[busyIdx] : '—';
 
@@ -2777,54 +2687,213 @@
       return allRecords.filter(r => r.Status === 'Cancelled' || r.Status === 'Rejected').length;
     }
 
-    // ===== renderWeekdayBars — أعمدة bars واضحة =====
-    function renderWeekdayBars(counts, wrapId, labelsId) {
-      wrapId   = wrapId   || 'weekdayBarsWrap';
-      labelsId = labelsId || 'weekdayBarsLabels';
-      const wrap   = document.getElementById(wrapId);
-      const labels = document.getElementById(labelsId);
-      if (!wrap) return;
+    function renderWeekdayBars(weekdayCounts) {
+      const wrap   = document.getElementById('weekdayBarsWrap');
+      const labels = document.getElementById('weekdayBarsLabels');
+      if (!wrap || !labels) return;
 
-      const DAY_NAMES = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
-      const todayIdx  = new Date().getDay();
-      const max       = Math.max(...counts, 1);
-      const maxIdx    = counts.indexOf(Math.max(...counts));
+      const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+      const max    = Math.max(...weekdayCounts, 1);
+      const maxIdx = weekdayCounts.indexOf(Math.max(...weekdayCounts));
 
-      const BAR_COLOR   = '#6366f1';
-      const BAR_TODAY   = '#f59e0b';
-      const BAR_MAX     = '#4f46e5';
-      const BAR_EMPTY   = 'rgba(148,163,184,0.18)';
+      const W = 700, H = 150;
+      const padY = 28, padXl = 52, padXr = 52;
+      const chartW = W - padXl - padXr;
+      const chartH = H - padY - 24;
+      const base   = padY + chartH;
 
-      // بناء HTML مباشرة كـ flexbox
-      wrap.style.cssText = 'display:flex;align-items:flex-end;gap:6px;width:100%;height:160px;padding:8px 4px 0;box-sizing:border-box;';
-      wrap.innerHTML = counts.map(function(v, i) {
-        const pct     = max > 0 ? (v / max) : 0;
-        const isEmpty = v === 0;
-        const isMax   = i === maxIdx && v > 0;
-        const isToday = i === todayIdx;
-        const barColor = isEmpty ? BAR_EMPTY : isToday ? BAR_TODAY : isMax ? BAR_MAX : BAR_COLOR;
-        const heightPct = isEmpty ? 6 : Math.max(pct * 100, 8);
+      const pts = weekdayCounts.map((v, i) => ({
+        x: padXl + (i / 6) * chartW,
+        y: padY + chartH - (v / max) * chartH,
+        v
+      }));
 
-        return '<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;height:100%;justify-content:flex-end;">' +
-          // الرقم فوق العمود
-          '<span style="font-size:.72rem;font-weight:' + (isMax ? '900' : '700') + ';color:' +
-            (isEmpty ? 'transparent' : isToday ? BAR_TODAY : isMax ? BAR_MAX : 'var(--text-muted)') +
-          ';line-height:1;">' + (isEmpty ? '0' : v) + '</span>' +
-          // العمود نفسه
-          '<div style="width:100%;border-radius:6px 6px 3px 3px;background:' + barColor +
-            ';height:' + heightPct + '%;transition:height .4s cubic-bezier(.34,1.56,.64,1);' +
-            (isMax ? 'box-shadow:0 4px 14px rgba(79,70,229,0.35);' : '') +
-            (isToday ? 'box-shadow:0 4px 14px rgba(245,158,11,0.35);' : '') +
-          '" title="' + DAY_NAMES[i] + ': ' + v + ' موعد"></div>' +
-          // اسم اليوم
-          '<span style="font-size:.65rem;font-weight:' + (isToday||isMax ? '800' : '600') + ';color:' +
-            (isToday ? BAR_TODAY : isMax ? BAR_MAX : 'var(--text-muted)') +
-          ';white-space:nowrap;margin-top:4px;">' + DAY_NAMES[i] + '</span>' +
-        '</div>';
+      // ── Smooth Cubic Bezier ──
+      function smoothPath(p) {
+        if (p.length < 2) return '';
+        let d = 'M' + p[0].x.toFixed(1) + ',' + p[0].y.toFixed(1);
+        for (let i = 0; i < p.length - 1; i++) {
+          const cp = (p[i + 1].x - p[i].x) * 0.42;
+          d += ' C' + (p[i].x + cp).toFixed(1) + ',' + p[i].y.toFixed(1) +
+               ' ' + (p[i + 1].x - cp).toFixed(1) + ',' + p[i + 1].y.toFixed(1) +
+               ' ' + p[i + 1].x.toFixed(1) + ',' + p[i + 1].y.toFixed(1);
+        }
+        return d;
+      }
+
+      const linePath = smoothPath(pts);
+      const areaPath = linePath +
+        ' L' + pts[6].x.toFixed(1) + ',' + base +
+        ' L' + pts[0].x.toFixed(1) + ',' + base + ' Z';
+
+      // خطوط شبكة أفقية
+      const gridLines = [0, 0.5, 1].map(r => {
+        const y = (padY + chartH - r * chartH).toFixed(1);
+        const v = Math.round(r * max);
+        return '<line x1="' + padXl + '" y1="' + y + '" x2="' + (W - padXr) + '" y2="' + y +
+               '" stroke="rgba(148,163,184,0.12)" stroke-width="1"/>' +
+               (v > 0 ? '<text x="' + (padXl - 6) + '" y="' + (parseFloat(y) + 4) +
+               '" text-anchor="end" font-size="9" fill="rgba(148,163,184,0.7)">' + v + '</text>' : '');
       }).join('');
 
-      // أخفِ labels القديم إذا وُجد
-      if (labels) labels.style.display = 'none';
+      // أعمدة شفافة للـ hover (hit area)
+      const colW = chartW / 7;
+      const hitAreas = pts.map((p, i) =>
+        '<rect class="whit" x="' + (p.x - colW / 2).toFixed(1) + '" y="' + padY +
+        '" width="' + colW.toFixed(1) + '" height="' + chartH +
+        '" fill="transparent" data-v="' + p.v + '" data-i="' + i + '" style="cursor:pointer;"/>'
+      ).join('');
+
+      // خطوط رأسية دقيقة عند hover
+      const vLines = pts.map((p, i) =>
+        '<line class="cvl" x1="' + p.x.toFixed(1) + '" y1="' + padY +
+        '" x2="' + p.x.toFixed(1) + '" y2="' + base +
+        '" stroke="rgba(99,102,241,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
+      ).join('');
+
+      // نقاط مع glow للأعلى
+      const dots = pts.map((p, i) => {
+        const isMax = i === maxIdx;
+        const r = isMax ? 6 : 4.5;
+        const glow = isMax ? '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#6366f1" opacity="0.15"/>' : '';
+        return glow + '<circle class="cdot"' +
+          ' cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '"' +
+          ' r="' + r + '"' +
+          ' fill="' + (isMax ? '#6366f1' : 'white') + '"' +
+          ' stroke="' + (isMax ? '#4f46e5' : '#6366f1') + '" stroke-width="2.5"' +
+          ' data-v="' + p.v + '" data-i="' + i + '"' +
+          ' style="cursor:pointer;filter:' + (isMax ? 'drop-shadow(0 2px 6px rgba(99,102,241,0.5))' : 'none') + ';"/>';
+      }).join('');
+
+      // أرقام فوق كل نقطة مباشرة
+      const valueLabels = pts.map((p, i) => {
+        if (p.v === 0) return '';
+        const isMax = i === maxIdx;
+        const yPos  = (p.y - 13).toFixed(1);
+        return '<text x="' + p.x.toFixed(1) + '" y="' + yPos +
+          '" text-anchor="middle" font-size="' + (isMax ? '12' : '10.5') + '"' +
+          ' font-weight="' + (isMax ? '800' : '700') + '"' +
+          ' fill="' + (isMax ? '#6366f1' : 'rgba(100,116,139,0.9)') + '">' +
+          p.v + '</text>';
+      }).join('');
+
+      wrap.style.cssText = 'display:block;width:100%;height:165px;position:relative;';
+      wrap.innerHTML =
+        '<div id="wTip" style="position:absolute;background:rgba(15,23,42,0.92);color:white;padding:6px 13px;border-radius:10px;font-size:.76rem;font-weight:700;pointer-events:none;opacity:0;transition:opacity .15s;white-space:nowrap;z-index:10;box-shadow:0 4px 16px rgba(0,0,0,.25);"></div>' +
+        '<svg id="wChart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="width:100%;height:100%;display:block;overflow:visible;">' +
+        '<defs>' +
+          '<linearGradient id="wAreaG" x1="0" y1="0" x2="0" y2="1">' +
+            '<stop offset="0%" stop-color="#6366f1" stop-opacity="0.18"/>' +
+            '<stop offset="60%" stop-color="#6366f1" stop-opacity="0.06"/>' +
+            '<stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>' +
+          '</linearGradient>' +
+          '<linearGradient id="wLineG" x1="0" y1="0" x2="1" y2="0">' +
+            '<stop offset="0%" stop-color="#a5b4fc"/>' +
+            '<stop offset="50%" stop-color="#6366f1"/>' +
+            '<stop offset="100%" stop-color="#4f46e5"/>' +
+          '</linearGradient>' +
+          '<clipPath id="wClip"><rect id="wClipRect" x="0" y="0" width="0" height="' + H + '"/></clipPath>' +
+        '</defs>' +
+        gridLines + vLines + hitAreas +
+        '<path id="wArea" d="' + areaPath + '" fill="url(#wAreaG)" clip-path="url(#wClip)" style="opacity:0;"/>' +
+        '<path id="wLine" d="' + linePath + '" fill="none" stroke="url(#wLineG)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+        '<g id="wDots" style="opacity:0;">' + dots + '</g>' +
+        '<g id="wVals" style="opacity:0;">' + valueLabels + '</g>' +
+        '</svg>';
+
+      // Labels تحت كل نقطة
+      const todayDayIdx = new Date().getDay(); // 0=الأحد .. 6=السبت
+      labels.style.cssText = 'position:relative;width:100%;height:20px;margin-top:4px;direction:ltr;display:block;';
+      labels.innerHTML = pts.map((p, i) => {
+        const leftPct = ((p.x / W) * 100).toFixed(2);
+        const isMax   = i === maxIdx;
+        const isToday = i === todayDayIdx;
+        let color, weight, bg;
+        if (isToday && isMax) {
+          color = '#f59e0b'; weight = '900';
+          bg = 'background:rgba(245,158,11,0.15);padding:1px 6px;border-radius:6px;border:1px solid rgba(245,158,11,0.4);';
+        } else if (isToday) {
+          color = '#f59e0b'; weight = '800';
+          bg = 'background:rgba(245,158,11,0.12);padding:1px 6px;border-radius:6px;';
+        } else if (isMax) {
+          color = '#6366f1'; weight = '800';
+          bg = 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;';
+        } else {
+          color = 'var(--text-muted)'; weight = '600'; bg = '';
+        }
+        return '<span style="position:absolute;left:' + leftPct + '%;transform:translateX(-50%);' +
+          'font-size:.68rem;font-weight:' + weight + ';' +
+          'color:' + color + ';white-space:nowrap;' + bg + '">' +
+          dayNames[i] + '</span>';
+      }).join('');
+
+      // ===== أنيميشن =====
+      requestAnimationFrame(function() {
+        const lineEl   = document.getElementById('wLine');
+        const clipRect = document.getElementById('wClipRect');
+        const areaEl   = document.getElementById('wArea');
+        const dotsEl   = document.getElementById('wDots');
+        const valsEl   = document.getElementById('wVals');
+        if (!lineEl) return;
+
+        const len = lineEl.getTotalLength ? lineEl.getTotalLength() : 900;
+        lineEl.style.strokeDasharray  = len;
+        lineEl.style.strokeDashoffset = len;
+
+        const dur = 1100;
+        let start = null;
+        function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+
+        requestAnimationFrame(function animate(ts) {
+          if (!start) start = ts;
+          const t = Math.min((ts - start) / dur, 1);
+          const e = easeOut(t);
+
+          lineEl.style.strokeDashoffset = (len * (1 - e)).toFixed(1);
+          if (clipRect) clipRect.setAttribute('width', (e * W).toFixed(1));
+          if (areaEl)   areaEl.style.opacity = (e * 1).toFixed(3);
+
+          if (t < 1) {
+            requestAnimationFrame(animate);
+          } else {
+            if (dotsEl) { dotsEl.style.transition = 'opacity 0.3s ease'; dotsEl.style.opacity = '1'; }
+            if (valsEl) { setTimeout(function(){ valsEl.style.transition = 'opacity 0.4s ease'; valsEl.style.opacity = '1'; }, 150); }
+          }
+        });
+      });
+
+      // ===== Hover على hit areas =====
+      const svg = document.getElementById('wChart');
+      const tip = document.getElementById('wTip');
+      if (!svg || !tip) return;
+
+      svg.querySelectorAll('.whit').forEach(function(hit) {
+        const i  = parseInt(hit.getAttribute('data-i'));
+        const v  = parseInt(hit.getAttribute('data-v'));
+        const vl = svg.querySelectorAll('.cvl')[i];
+        const dot = svg.querySelectorAll('.cdot')[i];
+        const isMax = i === maxIdx;
+        const r0 = isMax ? 6 : 4.5;
+
+        hit.addEventListener('mouseenter', function() {
+          tip.textContent = dayNames[i] + ': ' + v + ' موعد';
+          tip.style.opacity = '1';
+          if (dot) dot.setAttribute('r', r0 + 2);
+          if (vl)  vl.setAttribute('opacity', '1');
+        });
+        hit.addEventListener('mousemove', function(e) {
+          const rect = wrap.getBoundingClientRect();
+          const tx = e.clientX - rect.left - tip.offsetWidth / 2;
+          const ty = e.clientY - rect.top - 50;
+          tip.style.left = Math.max(0, Math.min(tx, rect.width - tip.offsetWidth)) + 'px';
+          tip.style.top  = ty + 'px';
+        });
+        hit.addEventListener('mouseleave', function() {
+          tip.style.opacity = '0';
+          if (dot) dot.setAttribute('r', r0);
+          if (vl)  vl.setAttribute('opacity', '0');
+        });
+      });
     }
 
 
@@ -3406,8 +3475,6 @@
             data-type="${v.visitType}"
             data-images="${imagesJson}"
             data-updated-at="${v.noteUpdatedAt || ''}"
-            data-patient-id="${patientId}"
-            data-visit-idx="${idx}"
             title="عرض الملاحظة والصور" style="font-size:.75rem;color:var(--primary);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;font-family:inherit">
             <i class="fas fa-eye"></i> عرض${hasImages ? ` <span style="font-size:.68rem;background:var(--primary-light);padding:1px 5px;border-radius:8px;color:var(--primary);">${v.images.length} <i class="fas fa-image" style="font-size:.6rem;"></i></span>` : ''}</button>` : '<span style="color:var(--text-muted);font-size:.75rem">-</span>'}</td>
           <td><button class="edit-note-btn" data-patient-id="${patientId}" data-visit-idx="${idx}" title="تعديل الملاحظة والصور" style="font-size:.75rem;color:var(--primary);text-decoration:underline;cursor:pointer;background:none;border:none;padding:0;font-family:inherit"><i class="fas fa-pen"></i></button></td>
@@ -3428,9 +3495,7 @@
             dateFormatted: this.dataset.date,
             visitType: this.dataset.type,
             images: images,
-            noteUpdatedAt: this.dataset.updatedAt ? parseInt(this.dataset.updatedAt, 10) : 0,
-            patientId: this.dataset.patientId,
-            visitIdx: parseInt(this.dataset.visitIdx)
+            noteUpdatedAt: this.dataset.updatedAt ? parseInt(this.dataset.updatedAt, 10) : 0
           };
           showNote(visitData);
         });
@@ -3451,11 +3516,7 @@
     window.closePatientDetailsModal = () => document.getElementById('patientDetailsModal').classList.add('hidden');
     document.getElementById('closePatientDetailsModalBtn')?.addEventListener('click', closePatientDetailsModal);
 
-    // متغير لتخزين بيانات الزيارة المعروضة حالياً (لزر التعديل)
-    let _currentNoteVisitData = null;
-
     window.showNote = function(visitData) {
-      _currentNoteVisitData = visitData; // حفظ للتعديل
       document.getElementById('noteContent').textContent = visitData.note || 'لا توجد ملاحظة';
       document.getElementById('noteVisitInfo').textContent = `تاريخ: ${visitData.dateFormatted} | نوع: ${visitData.visitType}`;
 
@@ -3557,18 +3618,6 @@
       const noteModal = document.getElementById('noteModal');
       noteModal.classList.remove('modal-visible');
       noteModal.classList.add('modal-hidden');
-    };
-
-    // فتح مودال التعديل من داخل مودال العرض
-    window.openNoteEditFromView = function() {
-      if (!_currentNoteVisitData) return;
-      const { patientId, visitIdx } = _currentNoteVisitData;
-      if (patientId == null || visitIdx == null) {
-        showToast('تعذّر تحديد الزيارة، يرجى إغلاق هذه النافذة والضغط على زر التعديل مباشرةً', 'error');
-        return;
-      }
-      closeNoteModal();
-      openAddNoteModal(patientId, visitIdx);
     };
 
     // ==================== ملاحظات ====================
@@ -4322,20 +4371,12 @@
         thisWeekStart.setDate(thisWeekStart.getDate() - diffFri);
         var lastWeekStart = new Date(thisWeekStart); lastWeekStart.setDate(thisWeekStart.getDate() - 7);
         var thisWeekTotal = 0, lastWeekTotal = 0;
-        // بناء Set للمفاتيح الفريدة (تاريخ + هاتف) لتجنب التكرار
-        var _wkSeen1 = new Set(), _wkSeen2 = new Set();
         for (var wi = 0; wi < 7; wi++) {
           var wd1 = new Date(thisWeekStart); wd1.setDate(thisWeekStart.getDate() + wi);
           var wd2 = new Date(lastWeekStart);  wd2.setDate(lastWeekStart.getDate() + wi);
           var ds1 = toLocalISODate(wd1), ds2 = toLocalISODate(wd2);
-          records.filter(function(r){ return r.Date===ds1 && (r.Status==='Accepted'||r.Status==='Visited'||r.Status==='NoShow') && r.Phone; }).forEach(function(r){
-            var k = ds1 + '|' + (r.Phone||'').replace(/\D/g,'');
-            if (!_wkSeen1.has(k)) { _wkSeen1.add(k); thisWeekTotal++; }
-          });
-          records.filter(function(r){ return r.Date===ds2 && (r.Status==='Accepted'||r.Status==='Visited'||r.Status==='NoShow') && r.Phone; }).forEach(function(r){
-            var k = ds2 + '|' + (r.Phone||'').replace(/\D/g,'');
-            if (!_wkSeen2.has(k)) { _wkSeen2.add(k); lastWeekTotal++; }
-          });
+          thisWeekTotal += records.filter(function(r){ return r.Date===ds1 && (r.Status==='Accepted'||r.Status==='Visited'||r.Status==='NoShow'); }).length;
+          lastWeekTotal += records.filter(function(r){ return r.Date===ds2 && (r.Status==='Accepted'||r.Status==='Visited'||r.Status==='NoShow'); }).length;
         }
         setText('homeWeekCurrent', thisWeekTotal);
         setText('homeWeekLast', lastWeekTotal);
@@ -5710,18 +5751,196 @@
     function renderHomeWidgets() {
       if (!allRecords || allRecords.length === 0) return;
 
-      // --- توزيع الأيام ---
+      // --- توزيع الأيام (نفس renderWeekdayBars لكن بـ IDs مختلفة) ---
       const weekdayCounts = Array(7).fill(0);
-      allRecords
-        .filter(r => ['Accepted','Visited'].includes(r.Status) && r.Date)
-        .forEach(r => {
+      allRecords.filter(r => ['Accepted','Visited'].includes(r.Status)).forEach(r => {
+        if (r.Date) {
           const parts = r.Date.substring(0,10).split('-').map(Number);
           const d = new Date(parts[0], parts[1]-1, parts[2]);
           weekdayCounts[d.getDay()]++;
-        });
-      renderWeekdayBars(weekdayCounts, 'homeWeekdayBarsWrap', 'homeWeekdayBarsLabels');
+        }
+      });
 
-            // --- دونات توزيع الزيارات ---
+      const wWrap   = document.getElementById('homeWeekdayBarsWrap');
+      const wLabels = document.getElementById('homeWeekdayBarsLabels');
+      if (wWrap && wLabels) {
+        const dayNames = ['الأحد','الإثنين','الثلاثاء','الأربعاء','الخميس','الجمعة','السبت'];
+        const max    = Math.max(...weekdayCounts, 1);
+        const maxIdx = weekdayCounts.indexOf(Math.max(...weekdayCounts));
+        const W = 560, H = 150, padXh = 48, padY = 28;
+        const chartW = W - padXh * 2, chartH = H - padY - 24;
+        const base   = padY + chartH;
+
+        const pts = weekdayCounts.map((v, i) => ({
+          x: padXh + (i / 6) * chartW,
+          y: padY + chartH - (v / max) * chartH,
+          v
+        }));
+
+        function hwSmooth(p) {
+          if (p.length < 2) return '';
+          let d = 'M' + p[0].x.toFixed(1) + ',' + p[0].y.toFixed(1);
+          for (let i = 0; i < p.length - 1; i++) {
+            const cp = (p[i + 1].x - p[i].x) * 0.42;
+            d += ' C' + (p[i].x + cp).toFixed(1) + ',' + p[i].y.toFixed(1) +
+                 ' ' + (p[i + 1].x - cp).toFixed(1) + ',' + p[i + 1].y.toFixed(1) +
+                 ' ' + p[i + 1].x.toFixed(1) + ',' + p[i + 1].y.toFixed(1);
+          }
+          return d;
+        }
+
+        const linePath = hwSmooth(pts);
+        const areaPath = linePath + ' L' + pts[6].x.toFixed(1) + ',' + base + ' L' + pts[0].x.toFixed(1) + ',' + base + ' Z';
+
+        const gridLines = [0, 0.5, 1].map(r => {
+          const y = (padY + chartH - r * chartH).toFixed(1), v = Math.round(r * max);
+          return '<line x1="' + padXh + '" y1="' + y + '" x2="' + (W - padXh) + '" y2="' + y + '" stroke="rgba(148,163,184,0.12)" stroke-width="1"/>' +
+                 (v > 0 ? '<text x="' + (padXh - 6) + '" y="' + (parseFloat(y) + 4) + '" text-anchor="end" font-size="9" fill="rgba(148,163,184,0.7)">' + v + '</text>' : '');
+        }).join('');
+
+        const colW = chartW / 7;
+        const hitAreas = pts.map((p, i) =>
+          '<rect class="hwhit" x="' + (p.x - colW / 2).toFixed(1) + '" y="' + padY +
+          '" width="' + colW.toFixed(1) + '" height="' + chartH +
+          '" fill="transparent" data-v="' + p.v + '" data-i="' + i + '" style="cursor:pointer;"/>'
+        ).join('');
+
+        const vLines = pts.map((p, i) =>
+          '<line class="hwvl" x1="' + p.x.toFixed(1) + '" y1="' + padY +
+          '" x2="' + p.x.toFixed(1) + '" y2="' + base +
+          '" stroke="rgba(99,102,241,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
+        ).join('');
+
+        const dots = pts.map((p, i) => {
+          const isMax = i === maxIdx;
+          const r = isMax ? 6 : 4.5;
+          const glow = isMax ? '<circle cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11" fill="#6366f1" opacity="0.15"/>' : '';
+          return glow + '<circle class="hwdot"' +
+            ' cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '"' +
+            ' r="' + r + '"' +
+            ' fill="' + (isMax ? '#6366f1' : 'white') + '"' +
+            ' stroke="' + (isMax ? '#4f46e5' : '#6366f1') + '" stroke-width="2.5"' +
+            ' data-v="' + p.v + '" data-i="' + i + '"' +
+            ' style="cursor:pointer;filter:' + (isMax ? 'drop-shadow(0 2px 6px rgba(99,102,241,0.5))' : 'none') + ';"/>';
+        }).join('');
+
+        const valueLabels = pts.map((p, i) => {
+          if (p.v === 0) return '';
+          const isMax = i === maxIdx;
+          return '<text x="' + p.x.toFixed(1) + '" y="' + (p.y - 13).toFixed(1) +
+            '" text-anchor="middle" font-size="' + (isMax ? '12' : '10.5') + '"' +
+            ' font-weight="' + (isMax ? '800' : '700') + '"' +
+            ' fill="' + (isMax ? '#6366f1' : 'rgba(100,116,139,0.9)') + '">' + p.v + '</text>';
+        }).join('');
+
+        wWrap.style.cssText = 'display:block;width:100%;height:165px;position:relative;';
+        wWrap.innerHTML =
+          '<div id="hwTip" style="position:absolute;background:rgba(15,23,42,0.92);color:white;padding:6px 13px;border-radius:10px;font-size:.76rem;font-weight:700;pointer-events:none;opacity:0;transition:opacity .12s;white-space:nowrap;z-index:10;box-shadow:0 4px 16px rgba(0,0,0,.25);"></div>' +
+          '<svg id="hwChart" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" style="width:100%;height:100%;display:block;overflow:visible;">' +
+          '<defs>' +
+            '<linearGradient id="hwAreaG" x1="0" y1="0" x2="0" y2="1">' +
+              '<stop offset="0%" stop-color="#6366f1" stop-opacity="0.18"/>' +
+              '<stop offset="60%" stop-color="#6366f1" stop-opacity="0.06"/>' +
+              '<stop offset="100%" stop-color="#6366f1" stop-opacity="0"/>' +
+            '</linearGradient>' +
+            '<linearGradient id="hwLineG" x1="0" y1="0" x2="1" y2="0">' +
+              '<stop offset="0%" stop-color="#a5b4fc"/>' +
+              '<stop offset="50%" stop-color="#6366f1"/>' +
+              '<stop offset="100%" stop-color="#4f46e5"/>' +
+            '</linearGradient>' +
+            '<clipPath id="hwClip"><rect id="hwClipRect" x="0" y="0" width="0" height="' + H + '"/></clipPath>' +
+          '</defs>' +
+          gridLines + vLines + hitAreas +
+          '<path d="' + areaPath + '" fill="url(#hwAreaG)" clip-path="url(#hwClip)" style="opacity:0;" id="hwArea"/>' +
+          '<path id="hwLine" d="' + linePath + '" fill="none" stroke="url(#hwLineG)" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>' +
+          '<g id="hwDots" style="opacity:0;">' + dots + '</g>' +
+          '<g id="hwVals" style="opacity:0;">' + valueLabels + '</g>' +
+          '</svg>';
+
+        requestAnimationFrame(function() {
+          const lineEl   = document.getElementById('hwLine');
+          const clipRect = document.getElementById('hwClipRect');
+          const areaEl   = document.getElementById('hwArea');
+          const dotsEl   = document.getElementById('hwDots');
+          const valsEl   = document.getElementById('hwVals');
+          if (!lineEl) return;
+          const len = lineEl.getTotalLength ? lineEl.getTotalLength() : 1200;
+          lineEl.style.strokeDasharray  = len;
+          lineEl.style.strokeDashoffset = len;
+          let start = null;
+          const dur = 1100;
+          function easeOut(t) { return 1 - Math.pow(1 - t, 3); }
+          requestAnimationFrame(function animate(ts) {
+            if (!start) start = ts;
+            const t = Math.min((ts - start) / dur, 1);
+            const e = easeOut(t);
+            lineEl.style.strokeDashoffset = (len * (1 - e)).toFixed(1);
+            if (clipRect) clipRect.setAttribute('width', (e * W).toFixed(1));
+            if (areaEl)   areaEl.style.opacity = e.toFixed(3);
+            if (t < 1) { requestAnimationFrame(animate); }
+            else {
+              if (dotsEl) { dotsEl.style.transition = 'opacity 0.3s ease'; dotsEl.style.opacity = '1'; }
+              if (valsEl) { setTimeout(function(){ valsEl.style.transition = 'opacity 0.4s ease'; valsEl.style.opacity = '1'; }, 150); }
+            }
+          });
+        });
+
+        wWrap.querySelectorAll('.hwhit').forEach(function(hit) {
+          const i   = parseInt(hit.getAttribute('data-i'));
+          const v   = parseInt(hit.getAttribute('data-v'));
+          const vl  = wWrap.querySelectorAll('.hwvl')[i];
+          const dot = wWrap.querySelectorAll('.hwdot')[i];
+          const isMax = i === maxIdx;
+          const r0  = isMax ? 6 : 4.5;
+          hit.addEventListener('mouseenter', function() {
+            const tip = document.getElementById('hwTip');
+            tip.textContent = dayNames[i] + ': ' + v + ' موعد';
+            tip.style.opacity = '1';
+            if (dot) dot.setAttribute('r', r0 + 2);
+            if (vl)  vl.setAttribute('opacity', '1');
+          });
+          hit.addEventListener('mousemove', function(e) {
+            const tip = document.getElementById('hwTip');
+            if (!tip) return;
+            const rect = wWrap.getBoundingClientRect();
+            tip.style.left = Math.max(0, e.clientX - rect.left - tip.offsetWidth / 2) + 'px';
+            tip.style.top  = (e.clientY - rect.top - 50) + 'px';
+          });
+          hit.addEventListener('mouseleave', function() {
+            const tip = document.getElementById('hwTip');
+            if (tip) tip.style.opacity = '0';
+            if (dot) dot.setAttribute('r', r0);
+            if (vl)  vl.setAttribute('opacity', '0');
+          });
+        });
+
+        const hwTodayIdx = new Date().getDay(); // 0=الأحد .. 6=السبت
+        wLabels.style.cssText = 'position:relative;width:100%;height:20px;margin-top:4px;direction:ltr;display:block;';
+        wLabels.innerHTML = pts.map((p, i) => {
+          const leftPct = ((p.x / W) * 100).toFixed(2);
+          const isMax   = i === maxIdx;
+          const isToday = i === hwTodayIdx;
+          let color, weight, bg;
+          if (isToday && isMax) {
+            color = '#f59e0b'; weight = '900';
+            bg = 'background:rgba(245,158,11,0.15);padding:1px 6px;border-radius:6px;border:1px solid rgba(245,158,11,0.4);';
+          } else if (isToday) {
+            color = '#f59e0b'; weight = '800';
+            bg = 'background:rgba(245,158,11,0.12);padding:1px 6px;border-radius:6px;';
+          } else if (isMax) {
+            color = '#6366f1'; weight = '800';
+            bg = 'background:rgba(99,102,241,0.08);padding:1px 6px;border-radius:6px;';
+          } else {
+            color = 'var(--text-muted)'; weight = '600'; bg = '';
+          }
+          return '<span style="position:absolute;left:' + leftPct + '%;transform:translateX(-50%);' +
+            'font-size:.68rem;font-weight:' + weight + ';' +
+            'color:' + color + ';white-space:nowrap;' + bg + '">' +
+            dayNames[i] + '</span>';
+        }).join('');
+      }
+
+      // --- دونات توزيع الزيارات ---
       const visited = allRecords.filter(r => r.Status === 'Visited');
       const morningC = visited.filter(r => (r.Slot||'Morning')==='Morning').length;
       const eveningC = visited.filter(r => r.Slot==='Evening').length;
