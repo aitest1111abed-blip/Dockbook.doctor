@@ -1688,95 +1688,173 @@
       <!-- قسم الإحصائيات -->
       <section id="statsSection" class="hidden">
         <div class="space-y-6">
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
-
-            <!-- المرضى النشطين -->
-            <div class="stat-card fade-in" onclick="showStatInfo('active')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
-                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">المرضى النشطين</h3>
-                <div class="stat-icon"><i class="fas fa-heart-circle-plus"></i></div>
-              </div>
-              <div class="stat-value" id="statActiveUsers">0</div>
-              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
-            </div>
+          <!-- الكروت الست المتبقية بحجم صغير (موبايل وتابلت) -->
+          <div class="grid grid-cols-2 lg:grid-cols-3 gap-3" id="statsCardsGrid">
 
             <!-- إجمالي الزيارات -->
-            <div class="stat-card fade-in" onclick="showStatInfo('total')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
-                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">إجمالي الزيارات</h3>
-                <div class="stat-icon"><i class="fas fa-clipboard-list"></i></div>
+            <div class="stat-card fade-in" onclick="showStatInfo('total')" style="padding: 12px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                <h3 style="font-size:.72rem;color:var(--text-muted);font-weight:700;">إجمالي الزيارات</h3>
+                <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-clipboard-list"></i></div>
               </div>
-              <div class="stat-value" id="statTotalVisits">0</div>
-              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> إجمالي كل الزيارات</span></div>
+              <div class="stat-value" id="statTotalVisits" style="font-size:1.4rem;">0</div>
+              <div style="margin-top:4px;"><span class="stat-change" style="font-size:.6rem;"><i class="fas fa-arrow-up" style="font-size:.5rem;"></i> إجمالي</span></div>
             </div>
 
             <!-- المواعيد الملغاة -->
-            <div class="stat-card cancelled-shadow fade-in" onclick="showStatInfo('cancelled')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
-                <h3 style="font-size:.82rem;color:#dc2626;font-weight:700;">المواعيد الملغاة</h3>
-                <div class="stat-icon"><i class="fas fa-ban"></i></div>
+            <div class="stat-card cancelled-shadow fade-in" onclick="showStatInfo('cancelled')" style="padding: 12px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                <h3 style="font-size:.72rem;color:#dc2626;font-weight:700;">المواعيد الملغاة</h3>
+                <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-ban"></i></div>
               </div>
-              <div class="stat-value" id="statCancelled">0</div>
-              <div style="margin-top:8px;"><span class="stat-change down"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
+              <div class="stat-value" id="statCancelled" style="font-size:1.4rem;">0</div>
+              <div style="margin-top:4px;"><span class="stat-change down" style="font-size:.6rem;"><i class="fas fa-arrow-up" style="font-size:.5rem;"></i> ملغاة</span></div>
             </div>
 
             <!-- نسبة التكرار -->
-            <div class="stat-card repeat-shadow fade-in" onclick="showStatInfo('repeat')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
-                <h3 style="font-size:.82rem;color:#16a34a;font-weight:700;">نسبة التكرار</h3>
-                <div class="stat-icon"><i class="fas fa-arrow-trend-up"></i></div>
+            <div class="stat-card repeat-shadow fade-in" onclick="showStatInfo('repeat')" style="padding: 12px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                <h3 style="font-size:.72rem;color:#16a34a;font-weight:700;">نسبة التكرار</h3>
+                <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-arrow-trend-up"></i></div>
               </div>
-              <div class="stat-value-small" id="statConversion">0%</div>
-              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> نسبة المرضى المتكررين</span></div>
+              <div class="stat-value-small" id="statConversion" style="font-size:1.4rem;">0%</div>
+              <div style="margin-top:4px;"><span class="stat-change" style="font-size:.6rem;"><i class="fas fa-arrow-up" style="font-size:.5rem;"></i> تكرار</span></div>
             </div>
-
-          </div>
-
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
 
             <!-- متوسط الزيارات اليومي -->
-            <div class="stat-card fade-in" onclick="showStatInfo('avgDaily')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
-                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">متوسط الزيارات اليومي</h3>
-                <div class="stat-icon"><i class="fas fa-chart-line"></i></div>
+            <div class="stat-card fade-in" onclick="showStatInfo('avgDaily')" style="padding: 12px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                <h3 style="font-size:.72rem;color:var(--text-muted);font-weight:700;">متوسط يومي</h3>
+                <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-chart-line"></i></div>
               </div>
-              <div class="stat-value-small" id="statAvgDaily">0</div>
-              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> يومياً</span></div>
-            </div>
-
-            <!-- أكثر يوم ازدحاماً -->
-            <div class="stat-card fade-in" onclick="showStatInfo('busyday')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
-                <h3 style="font-size:.82rem;color:var(--text-muted);font-weight:700;">أكثر يوم ازدحاماً</h3>
-                <div class="stat-icon" style="background:linear-gradient(135deg,#fff7ed,#ffedd5);border-color:#fdba74;box-shadow:0 4px 12px rgba(234,88,12,.15);">
-                  <i class="fas fa-fire" style="color:#ea580c;"></i>
-                </div>
-              </div>
-              <div class="stat-day-value" id="statBusyDay">—</div>
-              <div style="margin-top:8px;" id="statBusyDayCount"><span class="stat-change" style="color:var(--text-muted);"></span></div>
+              <div class="stat-value-small" id="statAvgDaily" style="font-size:1.4rem;">0</div>
+              <div style="margin-top:4px;"><span class="stat-change" style="font-size:.6rem;"><i class="fas fa-arrow-up" style="font-size:.5rem;"></i> يومياً</span></div>
             </div>
 
             <!-- لم يحضر -->
-            <div class="stat-card noshow-shadow fade-in" onclick="showStatInfo('noshow')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
-                <h3 style="font-size:.82rem;color:#ea580c;font-weight:700;">لم يحضر</h3>
-                <div class="stat-icon"><i class="fas fa-user-slash"></i></div>
+            <div class="stat-card noshow-shadow fade-in" onclick="showStatInfo('noshow')" style="padding: 12px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                <h3 style="font-size:.72rem;color:#ea580c;font-weight:700;">لم يحضر</h3>
+                <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-user-slash"></i></div>
               </div>
-              <div class="stat-value" id="statNoShow">0</div>
-              <div style="margin-top:8px;"><span class="stat-change down"><i class="fas fa-arrow-down" style="font-size:.6rem;"></i> من الشهر الماضي</span></div>
+              <div class="stat-value" id="statNoShow" style="font-size:1.4rem;">0</div>
+              <div style="margin-top:4px;"><span class="stat-change down" style="font-size:.6rem;"><i class="fas fa-arrow-down" style="font-size:.5rem;"></i> غياب</span></div>
             </div>
 
             <!-- زيارات هذا الشهر -->
-            <div class="stat-card month-shadow fade-in" onclick="showStatInfo('thismonth')">
-              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px;">
-                <h3 style="font-size:.82rem;color:#2563eb;font-weight:700;">زيارات هذا الشهر</h3>
-                <div class="stat-icon"><i class="fas fa-calendar-check"></i></div>
+            <div class="stat-card month-shadow fade-in" onclick="showStatInfo('thismonth')" style="padding: 12px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                <h3 style="font-size:.72rem;color:#2563eb;font-weight:700;">هذا الشهر</h3>
+                <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-calendar-check"></i></div>
               </div>
-              <div class="stat-value" id="statThisMonth">0</div>
-              <div style="margin-top:8px;"><span class="stat-change"><i class="fas fa-arrow-up" style="font-size:.6rem;"></i> هذا الشهر</span></div>
+              <div class="stat-value" id="statThisMonth" style="font-size:1.4rem;">0</div>
+              <div style="margin-top:4px;"><span class="stat-change" style="font-size:.6rem;"><i class="fas fa-arrow-up" style="font-size:.5rem;"></i> شهري</span></div>
             </div>
 
           </div>
+
+          <!-- تخطيط ثنائي الأعمدة: الكروت الصغيرة + توزيع الزيارات (لابتوب فقط) -->
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-4" id="statsLayoutLaptop" style="display: none;">
+            
+            <!-- الكروت الصغيرة في عمودين -->
+            <div class="grid grid-cols-2 gap-3" style="grid-column: 1 / 3;">
+              
+              <!-- إجمالي الزيارات -->
+              <div class="stat-card fade-in" onclick="showStatInfo('total')" style="padding: 12px;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                  <h3 style="font-size:.72rem;color:var(--text-muted);font-weight:700;">إجمالي الزيارات</h3>
+                  <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-clipboard-list"></i></div>
+                </div>
+                <div class="stat-value" id="statTotalVisits" style="font-size:1.4rem;">0</div>
+                <div style="margin-top:4px;"><span class="stat-change" style="font-size:.6rem;"><i class="fas fa-arrow-up" style="font-size:.5rem;"></i> إجمالي</span></div>
+              </div>
+
+              <!-- المواعيد الملغاة -->
+              <div class="stat-card cancelled-shadow fade-in" onclick="showStatInfo('cancelled')" style="padding: 12px;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                  <h3 style="font-size:.72rem;color:#dc2626;font-weight:700;">المواعيد الملغاة</h3>
+                  <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-ban"></i></div>
+                </div>
+                <div class="stat-value" id="statCancelled" style="font-size:1.4rem;">0</div>
+                <div style="margin-top:4px;"><span class="stat-change down" style="font-size:.6rem;"><i class="fas fa-arrow-up" style="font-size:.5rem;"></i> ملغاة</span></div>
+              </div>
+
+              <!-- نسبة التكرار -->
+              <div class="stat-card repeat-shadow fade-in" onclick="showStatInfo('repeat')" style="padding: 12px;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                  <h3 style="font-size:.72rem;color:#16a34a;font-weight:700;">نسبة التكرار</h3>
+                  <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-arrow-trend-up"></i></div>
+                </div>
+                <div class="stat-value-small" id="statConversion" style="font-size:1.4rem;">0%</div>
+                <div style="margin-top:4px;"><span class="stat-change" style="font-size:.6rem;"><i class="fas fa-arrow-up" style="font-size:.5rem;"></i> تكرار</span></div>
+              </div>
+
+              <!-- متوسط الزيارات اليومي -->
+              <div class="stat-card fade-in" onclick="showStatInfo('avgDaily')" style="padding: 12px;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                  <h3 style="font-size:.72rem;color:var(--text-muted);font-weight:700;">متوسط يومي</h3>
+                  <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-chart-line"></i></div>
+                </div>
+                <div class="stat-value-small" id="statAvgDaily" style="font-size:1.4rem;">0</div>
+                <div style="margin-top:4px;"><span class="stat-change" style="font-size:.6rem;"><i class="fas fa-arrow-up" style="font-size:.5rem;"></i> يومياً</span></div>
+              </div>
+
+              <!-- لم يحضر -->
+              <div class="stat-card noshow-shadow fade-in" onclick="showStatInfo('noshow')" style="padding: 12px;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                  <h3 style="font-size:.72rem;color:#ea580c;font-weight:700;">لم يحضر</h3>
+                  <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-user-slash"></i></div>
+                </div>
+                <div class="stat-value" id="statNoShow" style="font-size:1.4rem;">0</div>
+                <div style="margin-top:4px;"><span class="stat-change down" style="font-size:.6rem;"><i class="fas fa-arrow-down" style="font-size:.5rem;"></i> غياب</span></div>
+              </div>
+
+              <!-- زيارات هذا الشهر -->
+              <div class="stat-card month-shadow fade-in" onclick="showStatInfo('thismonth')" style="padding: 12px;">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px;">
+                  <h3 style="font-size:.72rem;color:#2563eb;font-weight:700;">هذا الشهر</h3>
+                  <div class="stat-icon" style="width:28px;height:28px;font-size:.8rem;"><i class="fas fa-calendar-check"></i></div>
+                </div>
+                <div class="stat-value" id="statThisMonth" style="font-size:1.4rem;">0</div>
+                <div style="margin-top:4px;"><span class="stat-change" style="font-size:.6rem;"><i class="fas fa-arrow-up" style="font-size:.5rem;"></i> شهري</span></div>
+              </div>
+
+            </div>
+
+            <!-- توزيع الزيارات على اليمين (لابتوب فقط) -->
+            <div class="glass-card" style="display: flex; flex-direction: column; justify-content: center;">
+              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+                <h3 style="font-size:.88rem;font-weight:800;color:var(--text-primary);margin:0;display:flex;align-items:center;gap:8px;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                  توزيع الزيارات
+                </h3>
+                <span style="font-size:.72rem;color:var(--text-muted);font-weight:600;">صباحي / مسائي</span>
+              </div>
+              <div class="donut-container" style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;">
+                <div style="position:relative;width:110px;height:110px;flex-shrink:0;">
+                  <svg width="140" height="140" viewBox="0 0 140 140" style="position:absolute;top:-15px;right:-15px;">
+                    <circle class="donut-bg" cx="70" cy="70" r="54" stroke="var(--border)" stroke-width="20" fill="none"/>
+                    <circle class="donut-segment" id="sourceSegment1" cx="70" cy="70" r="54" stroke="#fbbf24" stroke-width="20" fill="none" stroke-dasharray="0 339.3" stroke-dashoffset="0"/>
+                    <circle class="donut-segment" id="sourceSegment2" cx="70" cy="70" r="54" stroke="#3b82f6" stroke-width="20" fill="none" stroke-dasharray="0 339.3" stroke-dashoffset="0"/>
+                  </svg>
+                  <div style="position:absolute;top:50%;right:50%;transform:translate(50%,-50%);text-align:center;">
+                    <div style="font-size:1.4rem;font-weight:700;color:var(--text-primary);" id="sourceTotal">0</div>
+                    <div style="font-size:.7rem;color:var(--text-muted);">موعد</div>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:8px;font-size:.8rem;" id="sourceLegend"></div>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- CSS للتحكم في عرض التخطيط على اللابتوب فقط -->
+          <style>
+            @media (min-width: 1024px) {
+              #statsCardsGrid { display: none !important; }
+              #statsLayoutLaptop { display: grid !important; }
+            }
+          </style>          </div>
 
           <div class="glass-card">
             <div class="card-header flex justify-between items-center mb-4">
@@ -2788,7 +2866,7 @@
       const vLines = pts.map((p, i) =>
         '<line class="cvl" x1="' + p.x.toFixed(1) + '" y1="' + padY +
         '" x2="' + p.x.toFixed(1) + '" y2="' + base +
-        '" stroke="rgba(13,148,136,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
+        '" stroke="rgba(99,102,241,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
       ).join('');
 
       // نقاط مع glow للأعلى
@@ -5832,7 +5910,7 @@
         const vLines = pts.map((p, i) =>
           '<line class="hwvl" x1="' + p.x.toFixed(1) + '" y1="' + padY +
           '" x2="' + p.x.toFixed(1) + '" y2="' + base +
-          '" stroke="rgba(13,148,136,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
+          '" stroke="rgba(99,102,241,0.22)" stroke-width="1" stroke-dasharray="4,3" opacity="0"/>'
         ).join('');
 
         const dots = pts.map((p, i) => {
