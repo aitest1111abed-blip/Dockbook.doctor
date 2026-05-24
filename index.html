@@ -2699,13 +2699,20 @@
       const activeDays = Object.keys(dayMap).length;
       const avgDaily = activeDays ? (accepted.length / activeDays).toFixed(1) : '0';
 
-      // توزيع الأيام: جميع المواعيد المؤكدة في الروزنامة بغض النظر عن الحالة (ماعدا Pending)
+      // توزيع الأيام (الأسبوع الحالي فقط)
       const weekdayCounts = Array(7).fill(0);
+      const _sToday = new Date();
+      const _sStart = new Date(_sToday);
+      _sStart.setDate(_sToday.getDate() - _sToday.getDay());
+      _sStart.setHours(0,0,0,0);
+      const _sEnd = new Date(_sStart);
+      _sEnd.setDate(_sStart.getDate() + 6);
+      const _sStartStr = toLocalISODate(_sStart);
+      const _sEndStr   = toLocalISODate(_sEnd);
       allRecords.forEach(r => {
-        if (!r.Date) return;
-        if (r.Status === 'Pending') return;
+        if (!r.Date || r.Status === 'Pending') return;
         const dateStr = normalizeDate(r.Date);
-        if (!dateStr) return;
+        if (!dateStr || dateStr < _sStartStr || dateStr > _sEndStr) return;
         const parts = dateStr.split('-').map(Number);
         const d = new Date(parts[0], parts[1]-1, parts[2]);
         weekdayCounts[d.getDay()]++;
@@ -5758,12 +5765,21 @@
     function renderHomeWidgets() {
       if (!allRecords || allRecords.length === 0) return;
 
-      // --- توزيع الأيام ---
+      // --- توزيع الأيام (الأسبوع الحالي فقط) ---
       const weekdayCounts = Array(7).fill(0);
+      // حساب بداية الأسبوع الحالي (الأحد)
+      const _wToday = new Date();
+      const _wStart = new Date(_wToday);
+      _wStart.setDate(_wToday.getDate() - _wToday.getDay());
+      _wStart.setHours(0,0,0,0);
+      const _wEnd = new Date(_wStart);
+      _wEnd.setDate(_wStart.getDate() + 6);
+      const _wStartStr = toLocalISODate(_wStart);
+      const _wEndStr   = toLocalISODate(_wEnd);
       allRecords.forEach(r => {
         if (!r.Date || r.Status === 'Pending') return;
         const dateStr = normalizeDate(r.Date);
-        if (!dateStr) return;
+        if (!dateStr || dateStr < _wStartStr || dateStr > _wEndStr) return;
         const parts = dateStr.split('-').map(Number);
         const d = new Date(parts[0], parts[1]-1, parts[2]);
         weekdayCounts[d.getDay()]++;
